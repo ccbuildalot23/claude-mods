@@ -136,6 +136,13 @@ class RunTests(unittest.TestCase):
         self.assertEqual(vv.run(self.cfg, transcriber=lambda p, c: "Private. hi"), 1)
         self.assertTrue(old.exists())
 
+    def test_voice_memo_name_beats_sync_date(self):
+        self.audio("memos", "20261012 111043-75F823F1.m4a", b"old")  # synced today, recorded Oct 12
+        self.audio("memos", "20991231 235959-ABCD.m4a", b"new")
+        self.cfg["watch_since"] = "2026-10-22T18:00:00"
+        self.assertEqual(vv.run(self.cfg, transcriber=lambda p, c: "Private. hi"), 1)
+        self.assertTrue((self.tmp / "state/last_run.txt").exists())
+
     def test_fresh_file_waits_to_settle(self):
         (self.tmp / "inbox/z.m4a").write_bytes(b"z")
         self.assertEqual(vv.run(self.cfg, transcriber=lambda p, c: "Line hi"), 0)

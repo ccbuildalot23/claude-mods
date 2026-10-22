@@ -22,7 +22,7 @@ Private is the default: a memo only reaches LaBeau if you said "Line" first. A l
 - Each recording is filed once (tracked by hash in `state/processed.json`).
 
 ## Getting memos onto the Mac
-- **Voice Memos auto-sync (default, Chris's pick 2026-10-22):** record in the iPhone Voice Memos app with iCloud sync on (Settings > your name > iCloud > Voice Memos). install.sh writes `config.json` to read the Mac's Voice Memos folder (read-only) and sets `watch_since` to the install time, so older recordings are left alone. The job needs Full Disk Access; install.sh prints the path. The audio does pass through your iCloud.
+- **Voice Memos auto-sync (default, Chris's pick 2026-10-22):** record in the iPhone Voice Memos app with iCloud sync on (Settings > your name > iCloud > Voice Memos). install.sh writes `config.json` to read the Mac's Voice Memos folder (read-only) and sets `watch_since` to the install time, so older recordings are left alone. The job runs inside `~/Applications/VoiceVault.app`, and that app alone needs Full Disk Access (launchd will not pass Python's permission to a background job); install.sh opens the pane and the app for you. The audio does pass through your iCloud.
 - **Local only:** AirDrop the memo to the Mac and drop it in `~/Voice Inbox`. To turn auto-sync off, set `"watch_readonly": []` in `config.json`.
 
 ## Install

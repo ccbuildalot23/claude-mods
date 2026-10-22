@@ -8,6 +8,9 @@ LABEL="com.chris.voice-vault"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 INBOX="$HOME/Voice Inbox"
 MEMOS="$HOME/Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings"
+# launchd will not pass Python's Full Disk Access to a job it starts, so the job runs
+# inside a tiny app of its own and Full Disk Access is granted to that app alone.
+APP="$HOME/Applications/VoiceVault.app"
 
 [ "$(uname -m)" = "arm64" ] || { echo "This Mac is not Apple silicon; mlx-whisper will not run. Stop here and tell Claude."; exit 1; }
 command -v ffmpeg >/dev/null || { echo "Installing ffmpeg (audio decoder) with Homebrew..."; brew install ffmpeg; }
@@ -26,13 +29,20 @@ mkdir -p "$INBOX" state
 echo "Downloading the speech model once (about 1.6 GB, from Hugging Face; your audio never leaves this Mac)..."
 .venv/bin/python -c "from huggingface_hub import snapshot_download as s; s('mlx-community/whisper-large-v3-turbo')" >/dev/null
 
+if [ ! -d "$APP" ]; then
+  mkdir -p "$HOME/Applications"
+  osacompile -o "$APP" -e "do shell script \"cd '$DIR' && ./.venv/bin/python voice_vault.py\""
+  /usr/libexec/PlistBuddy -c "Add :LSUIElement bool true" "$APP/Contents/Info.plist"  # no Dock icon
+  codesign --force -s - "$APP"
+fi
+
 cat > "$PLIST" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
   <key>Label</key><string>$LABEL</string>
   <key>ProgramArguments</key><array>
-    <string>$DIR/.venv/bin/python</string><string>$DIR/voice_vault.py</string>
+    <string>$APP/Contents/MacOS/applet</string>
   </array>
   <key>WatchPaths</key><array><string>$INBOX</string><string>$MEMOS</string></array>
   <key>StartInterval</key><integer>600</integer>
@@ -47,10 +57,11 @@ launchctl bootstrap "gui/$(id -u)" "$PLIST"
 # The vault (~/Documents) and Voice Memos folder are guarded by macOS. Prove the job can reach both.
 VAULT_INBOX="$(.venv/bin/python -c 'import voice_vault as v; print(v.load_config()["vault_inbox"])')"
 mkdir -p "$VAULT_INBOX"
-launchctl kickstart -k "gui/$(id -u)/$LABEL"; sleep 5
-if grep -q "Operation not permitted" state/launchd.err 2>/dev/null || grep -q "cannot read" state/voice-vault.log 2>/dev/null; then
-  echo "macOS blocked the background job from ~/Documents or Voice Memos. Open System Settings > Privacy & Security > Full Disk Access, press +, press Cmd+Shift+G and paste:"
-  .venv/bin/python -c "import os,sys; print(os.path.realpath(sys.executable))"
+: > state/launchd.err
+launchctl kickstart -k "gui/$(id -u)/$LABEL"; sleep 8
+if grep -q "Operation not permitted" state/launchd.err 2>/dev/null || tail -1 state/voice-vault.log 2>/dev/null | grep -q "cannot read"; then
+  echo "macOS blocked the background job from ~/Documents or Voice Memos. Drag VoiceVault from the Finder window into Full Disk Access and switch it on."
+  open -R "$APP"; open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
   echo "Then run: launchctl kickstart -k gui/\$(id -u)/$LABEL"
 else
   echo "Installed. Record in Voice Memos (or drop a file in \"$INBOX\"); start with 'Line' for the line bank, anything else stays private."
