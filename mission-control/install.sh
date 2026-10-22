@@ -39,15 +39,9 @@ launchctl load "$PLIST"
 echo "installed $LABEL (runs at :05 and :35 every hour)"
 
 MAP="$OPS/data/harness_map.csv"
-if [ -f "$MAP" ] && ! grep -q "mission-control" "$MAP"; then
-  TEMPLATE="$(grep -m1 "mail-daily" "$MAP" || true)"
-  if [ -n "$TEMPLATE" ]; then
-    printf '%s\n' "$TEMPLATE" | sed -e 's/mail-daily/mission-control/g' -e 's/morning_email\.py/mission_control.py/g' >> "$MAP"
-    echo "harness map row added (copied from the mail-daily row):"
-    tail -1 "$MAP"
-  else
-    echo "NOTE: no mail-daily row in harness_map.csv to copy; add a mission-control row by hand"
-  fi
+if [ -f "$MAP" ] && ! grep -q "routine:launchd:mission-control" "$MAP"; then
+  printf '%s\n' 'routine:launchd:mission-control,routine,mission-control,scripts/mission_control.py; launchd ink.labeau.mission-control at :05 and :35,Draft,Draft,outbound,Draft,2026-10-22,0,mission-control;mission_control,"Every 30 min: read-only check of the daily email, captions, assets, tomorrow holds and launchd jobs. Writes status to ~/.labeau/mission-control and Drive (LaBeau-Assets/mission-control) for the phone page. Emails Chris only when something is red at 06:35, 16:05 or 16:35. Never posts or writes copy."' >> "$MAP"
+  echo "harness map row added: routine:launchd:mission-control"
 fi
 
 PYTHONPATH="$OPS/scripts" "$PY" "$SCRIPT" --print --no-alert
