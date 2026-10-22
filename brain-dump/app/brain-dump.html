@@ -149,7 +149,7 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
     </div>
     <div id="dumps" class="big3"><p class="empty">Nothing here yet. Your first dump shows up as soon as you save it.</p></div>
   </section>
-  <p class="foot" id="foot">Brain Dump v4 · tested Oct 22, 10:50 PM</p>
+  <p class="foot" id="foot">Brain Dump v5 · tested Oct 22, 11:25 PM</p>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-labelledby="sheet-h" hidden>
@@ -576,7 +576,8 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       if (user) uid = await user.id();
       if (!db || !uid) { setStatus('Sign in to claude.ai to save dumps. Private ones still work on this phone.', true); return; }
       db.collection('data/users/' + uid).orderBy('createdAt', 'desc').limit(300).onSnapshot(function (snap) {
-        online = snap.docs.map(function (s) { var v = s.data() || {}; v.id = s.id; return v; }).filter(function (v) { return typeof v.text === 'string'; });
+        // Snapshot data is frozen: copy it, or the id (and any field set later) silently never sticks.
+        online = snap.docs.map(function (s) { var v = Object.assign({}, s.data() || {}); v.id = s.id; return v; }).filter(function (v) { return typeof v.text === 'string'; });
         render();
       }, function (e) { setStatus('Lost the connection to your dumps (' + (e && e.code || 'error') + '). Reload to reconnect.', true); });
     })();
