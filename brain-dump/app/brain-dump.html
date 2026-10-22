@@ -85,6 +85,16 @@ section { display: grid; gap: 10px; }
 .sorted-out { display: grid; gap: 6px; border-top: 1px dashed var(--rule); padding-top: 8px; font-size: 0.92rem; }
 .sorted-out ul { margin: 0; padding-left: 1.1rem; }
 .sorted-out .lines li { color: var(--gold); font-family: var(--display); font-size: 1.1rem; }
+.notes { display: grid; gap: 6px; }
+.notes-title { font-family: var(--display); font-weight: 400; font-size: 1.3rem; margin: 0; text-wrap: balance; }
+.gist { margin: 0; font-weight: 700; }
+.notes ul { margin: 0 0 4px; padding-left: 1.1rem; display: grid; gap: 3px; }
+.notes li { overflow-wrap: anywhere; }
+.next { margin: 4px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--sage-bg); color: var(--sage); }
+.why { margin: 0; color: var(--muted); font-size: 0.9rem; }
+details.raw summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
+details.raw .text { margin-top: 6px; color: var(--muted); }
+pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--mono); font-size: 0.75rem; line-height: 1.5; background: var(--bg); border-radius: 8px; padding: 10px; margin: 6px 0 0; max-height: 22rem; overflow-y: auto; user-select: text; }
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
 @media (prefers-reduced-motion: no-preference) { .dump { transition: border-color 0.2s; } }
 </style>
@@ -106,7 +116,7 @@ section { display: grid; gap: 10px; }
       <button type="button" class="lane" data-lane="line" aria-pressed="false">LaBeau line</button>
       <button type="button" class="lane" data-lane="private" aria-pressed="false">Private</button>
     </div>
-    <p class="hint" id="lane-hint">Saved to your list, then Claude splits it into to-dos, ideas, Harmoniq items and LaBeau lines. Poem lines stay word for word.</p>
+    <p class="hint" id="lane-hint">Claude turns it into short bulleted notes with one tiny next step, adds the to-dos to today's list, and writes a Claude-ready prompt for Copy. Poem lines stay word for word.</p>
     <div class="row">
       <button type="submit" class="primary" id="save">Save dump</button>
       <p class="status" id="status" role="status"></p>
@@ -137,14 +147,32 @@ section { display: grid; gap: 10px; }
 <script>
 (function () {
   var LANES = {
-    auto: { tag: 'Sorting', hint: 'Saved to your list, then Claude splits it into to-dos, ideas, Harmoniq items and LaBeau lines. Poem lines stay word for word.', cls: '' },
+    auto: { tag: 'Sorting', hint: 'Claude turns it into short bulleted notes with one tiny next step, adds the to-dos to today's list, and writes a Claude-ready prompt for Copy. Poem lines stay word for word.', cls: '' },
     todo: { tag: 'To-do', hint: 'Saved as to-dos. One line per task works best.', cls: '' },
     idea: { tag: 'Idea', hint: 'Saved to your ideas. Nothing is sent anywhere.', cls: '' },
     harmoniq: { tag: 'Harmoniq', hint: 'Saved as a Harmoniq note. Leave client names out if you can.', cls: '' },
     line: { tag: 'LaBeau line', hint: 'Kept exactly as you wrote it. Nobody edits or finishes it. Use "Send to line bank" to file it on the Mac.', cls: 'line' },
     private: { tag: 'Private', hint: 'Stays on this phone only. Claude never reads it and it is never saved online. Use "Send to vault" to file it into the Recovery vault.', cls: 'private' }
   };
-  var SORT_PROMPT = 'You sort a spoken brain dump from Chris, a poet (LaBeau) and risk consultant (Harmoniq). Return JSON only: {"todos": [short action strings], "ideas": [strings], "harmoniq": [strings], "lines": [strings], "big3": [up to 3 strings copied from todos]}. Rules: todos are concrete actions, one per item, starting with a verb. ideas are LaBeau or general creative or business ideas that are not actions. harmoniq is anything about risk consulting, clients or GRC. lines are any poem lines, lyrics or phrases he wants to keep: copy them EXACTLY, character for character, never edit, finish or improve them. Add nothing he did not say. If a list is empty return []. The dump:\n\n';
+  var SORT_PROMPT = 'You sort a spoken brain dump from Chris, a poet (LaBeau) and risk consultant (Harmoniq), and turn it into review notes made for how he learns: he has ADHD and is an ISFJ, so he needs short, concrete, calm, step-by-step notes he can scan in 20 seconds. Return JSON only, in this shape: {"todos": [short action strings], "ideas": [strings], "harmoniq": [strings], "lines": [strings], "notes": {"title": "3 to 6 word name for this dump", "gist": "one plain sentence: what this dump is about", "sections": [{"heading": "1 to 3 word heading", "bullets": ["..."]}], "next_step": "one tiny step he can do in 10 minutes or less, starting with a verb", "why": "one warm sentence on why this matters to him or to the people he cares about"}}. Rules for todos: concrete actions, one per item, starting with a verb. ideas: LaBeau or creative or business ideas that are not actions. harmoniq: anything about risk consulting, clients or GRC. lines: any poem lines, lyrics or phrases he wants to keep, copied EXACTLY, character for character, never edited, finished or improved. Rules for notes: 2 to 5 sections, ordered the way he would act on them; 2 to 5 bullets each; every bullet under 14 words, starts with a bold-worthy keyword then a colon (for example "Printer: ask about zine paper by Friday"); concrete nouns, dates and names he said; no jargon, no filler, no advice he did not ask for, no guilt or pressure words; group loose thoughts under "Parked". Keep his meaning; add nothing he did not say. If a list is empty return []. The dump:\n\n';
+  var PROMPT_SYSTEM = [
+    'You rewrite a spoken brain dump into the best possible prompt for Claude (Claude Code or a Claude project thread) so Claude can act on it right away without asking for things the dump already answers.',
+    'Follow Anthropic prompt-engineering practice: say exactly what is wanted, give the context and the reason, separate parts with XML tags, list success criteria Claude can check, keep the person\'s own words where they carry decisions, and tell Claude what to do when something is unclear.',
+    'Background on the person, use only what is relevant to this dump: Chris runs LaBeau (a faceless poetry and art brand: Substack, TikTok first then Instagram, YouTube, a Facebook group) and Harmoniq (IT risk and GRC consulting). Claude is his lead architect. His system: repo labeau-ops on his Mac, the file bridge ~/Developer/grok-bridge where agents talk (Grok = chief of staff, Claude Code = builder, Hermes = overnight librarian, Muse = Meta), Claude Code mods in ~/Developer/claude-mods (GitHub ccbuildalot23/claude-mods), connectors such as Airtable, Blotato (social posting), Google Drive, Gmail, Google Calendar, Canva, Notion, and skills such as labeau-brand-voice, labeau-marketing, labeau-daily-delivery, caldwell-executive-assistant and recovery-vault-librarian.',
+    'Standing rules to include when they apply: AI never writes or changes words in his poems (copy poem lines exactly); nothing is sent, posted or bought without his yes; no private life in public copy; private or recovery material goes only to his Recovery vault; agents always write full captions themselves; IG and TikTok posts are text-on-screen Reels, carousel as fallback, never single images; he commits on his Mac himself, so hand him exact Terminal paste blocks.',
+    'Write the prompt in first person as Chris, in plain words, using exactly these tags in this order and leaving out any tag that would be empty:',
+    '<goal> one or two sentences: the outcome I want </goal>',
+    '<context> why this matters and the background Claude needs, bulleted </context>',
+    '<what_i_said> every concrete detail from the dump that matters, grouped and bulleted, keeping my wording for decisions, names, dates and numbers </what_i_said>',
+    '<tasks> numbered steps in the order to do them </tasks>',
+    '<tools> which of my repos, folders, connectors or skills to use, only ones that fit </tools>',
+    '<rules> only the standing rules that apply here </rules>',
+    '<verbatim_lines> any poem lines or lyrics, copied exactly, each in quotes </verbatim_lines>',
+    '<done_when> a checklist Claude can verify </done_when>',
+    '<open_questions> only what the dump truly leaves unclear; tell Claude to make its best call on the rest and say which call it made </open_questions>',
+    '<how_to_reply> keep replies short and bulleted, lead with the result, end with the one next thing I need to do </how_to_reply>',
+    'Add nothing I did not say or imply. Output only the prompt.'
+  ].join('\n');
 
   var lane = 'auto';
   var filter = 'open';
@@ -219,12 +247,18 @@ section { display: grid; gap: 10px; }
     if (!sample) { setStatus('Saved. Sorting is not available in this view, so it stays as one dump.', true); return; }
     setStatus('Saved. Sorting it...');
     try {
+      var promptJob = buildPrompt(text).catch(function () { return ''; });
       var out = await sample.json(SORT_PROMPT + text, { modelTier: 'quick' });
       var clean = function (a) { return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string' && x.trim(); }) : []; };
       // Lines must be his exact words: drop any "line" that does not appear verbatim in the dump.
       var lines = clean(out && out.lines).filter(function (l) { return text.indexOf(l) !== -1; });
       var sorted = { todos: clean(out && out.todos), ideas: clean(out && out.ideas), harmoniq: clean(out && out.harmoniq), lines: lines };
-      await db.doc('data/users/' + uid + '/' + id).update({ sorted: sorted, done_todos: [] });
+      var notes = cleanNotes(out && out.notes);
+      var update = { sorted: sorted, done_todos: [] };
+      if (notes) update.notes = notes;
+      await db.doc('data/users/' + uid + '/' + id).update(update);
+      var prompt = await promptJob;
+      if (prompt) await db.doc('data/users/' + uid + '/' + id).update({ prompt: prompt });
       setStatus('Sorted: ' + sorted.todos.length + ' to-do' + (sorted.todos.length === 1 ? '' : 's') + ', ' + sorted.ideas.length + ' idea' + (sorted.ideas.length === 1 ? '' : 's') + ', ' + lines.length + ' line' + (lines.length === 1 ? '' : 's') + '.');
     } catch (e) {
       if (e && e.code === 'not_granted') setStatus('Saved. Sorting needs your OK to ask Claude; it stays as one dump.', true);
@@ -282,10 +316,87 @@ section { display: grid; gap: 10px; }
     catch (e) { setStatus('Could not copy here. Select the text and copy it by hand.', true); return false; }
   }
 
+  function cleanNotes(n) {
+    if (!n || typeof n !== 'object') return null;
+    var str = function (x) { return typeof x === 'string' ? x.trim() : ''; };
+    var sections = (Array.isArray(n.sections) ? n.sections : []).map(function (sec) {
+      return { heading: str(sec && sec.heading), bullets: (Array.isArray(sec && sec.bullets) ? sec.bullets : []).map(str).filter(Boolean).slice(0, 6) };
+    }).filter(function (sec) { return sec.heading && sec.bullets.length; }).slice(0, 6);
+    if (!sections.length && !str(n.gist)) return null;
+    return { title: str(n.title), gist: str(n.gist), sections: sections, next_step: str(n.next_step), why: str(n.why) };
+  }
+
+  // Poem lines must survive the rewrite exactly: any quoted line from the dump that the
+  // model changed is put back under its own tag, word for word.
+  function guardVerbatim(prompt, d) {
+    var lines = (d && d.sorted && d.sorted.lines) || [];
+    var missing = lines.filter(function (l) { return prompt.indexOf(l) === -1; });
+    if (!missing.length) return prompt;
+    return prompt + '\n\n<verbatim_lines_exact>\n' + missing.map(function (l) { return '"' + l + '"'; }).join('\n') + '\n</verbatim_lines_exact>';
+  }
+
+  async function buildPrompt(text) {
+    var r = await sample([{ role: 'user', content: PROMPT_SYSTEM + '\n\nThe brain dump, recorded ' + new Date().toLocaleString() + ':\n\n<dump>\n' + text + '\n</dump>' }], { modelTier: 'default' });
+    return (r && r.text ? r.text.trim() : '');
+  }
+
+  function withOriginal(prompt, d) {
+    return guardVerbatim(prompt, d) + '\n\n<original_dump recorded="' + stamp(d.createdAt) + '">\n' + d.text + '\n</original_dump>';
+  }
+
+  async function copyText(text, okMsg) {
+    try { await navigator.clipboard.writeText(text); setStatus(okMsg); return true; }
+    catch (e) { setStatus('Could not copy here. Open "Show the prompt" and copy it by hand.', true); return false; }
+  }
+
+  var preparing = {};
   async function copyForClaude(d) {
-    var parts = ['Brain dump from my phone (' + stamp(d.createdAt) + '). Turn it into a plan; keep any poem lines exactly as written.', '', d.text];
-    try { await navigator.clipboard.writeText(parts.join('\n')); setStatus('Copied. Paste it into Claude Code.'); }
-    catch (e) { setStatus('Could not copy here. Select the text and copy it by hand.', true); }
+    // A prompt made earlier copies straight away, inside the tap, so the clipboard allows it.
+    if (d.prompt) { copyText(withOriginal(d.prompt, d), 'Copied a Claude-ready prompt. Paste it into Claude Code.'); return; }
+    if (!sample) { copyText('Brain dump from my phone (' + stamp(d.createdAt) + '). Turn it into a plan; keep any poem lines exactly as written.\n\n' + d.text, 'Copied the dump as is (prompt rewriting is not available in this view).'); return; }
+    if (preparing[d.id]) return;
+    preparing[d.id] = true; render();
+    setStatus('Writing a Claude-ready prompt...');
+    try {
+      var prompt = await buildPrompt(d.text);
+      if (!prompt) throw { code: 'empty' };
+      d.prompt = prompt;
+      await db.doc('data/users/' + uid + '/' + d.id).update({ prompt: prompt });
+      setStatus('Prompt ready. Tap Copy for Claude Code again to copy it.');
+    } catch (e) {
+      setStatus(e && e.code === 'not_granted' ? 'Rewriting needs your OK to ask Claude.' : 'Could not write the prompt (' + (e && e.code || 'error') + '). Try again.', true);
+    }
+    preparing[d.id] = false; render();
+  }
+
+  function notesAsText(n) {
+    var out = [];
+    if (n.title) out.push(n.title);
+    if (n.gist) out.push(n.gist, '');
+    n.sections.forEach(function (sec) { out.push(sec.heading); sec.bullets.forEach(function (b) { out.push('- ' + b); }); out.push(''); });
+    if (n.next_step) out.push('Next tiny step: ' + n.next_step);
+    if (n.why) out.push('Why it matters: ' + n.why);
+    return out.join('\n').trim();
+  }
+
+  function renderNotes(n) {
+    var box = el('div', 'notes');
+    if (n.title) box.appendChild(el('h3', 'notes-title', n.title));
+    if (n.gist) box.appendChild(el('p', 'gist', n.gist));
+    n.sections.forEach(function (sec) {
+      box.appendChild(el('span', 'label', sec.heading));
+      var ul = el('ul', '');
+      sec.bullets.forEach(function (b) {
+        var li = el('li', ''); var k = b.indexOf(':');
+        if (k > 0 && k < 30) { li.appendChild(el('strong', '', b.slice(0, k + 1))); li.appendChild(document.createTextNode(b.slice(k + 1))); }
+        else li.textContent = b;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    });
+    if (n.next_step) { var ns = el('p', 'next'); ns.appendChild(el('strong', '', 'Next tiny step: ')); ns.appendChild(document.createTextNode(n.next_step)); box.appendChild(ns); }
+    if (n.why) box.appendChild(el('p', 'why', n.why));
+    return box;
   }
 
   async function setDone(d, done) {
@@ -330,7 +441,13 @@ section { display: grid; gap: 10px; }
       if (d.lane === 'private') meta.appendChild(el('span', '', 'this phone only'));
       if (d.done) meta.appendChild(el('span', 'tag sorted', 'Done'));
       card.appendChild(meta);
-      card.appendChild(el('p', 'text' + (d.lane === 'line' ? ' verbatim' : ''), d.text));
+      var notes = d.lane !== 'private' && d.lane !== 'line' ? cleanNotes(d.notes) : null;
+      if (notes) {
+        card.appendChild(renderNotes(notes));
+        var raw = el('details', 'raw'); raw.appendChild(el('summary', '', 'What I actually said')); raw.appendChild(el('p', 'text', d.text)); card.appendChild(raw);
+      } else {
+        card.appendChild(el('p', 'text' + (d.lane === 'line' ? ' verbatim' : ''), d.text));
+      }
 
       if (d.lane === 'auto' && d.sorted) {
         var s = d.sorted, out = el('div', 'sorted-out');
@@ -353,9 +470,15 @@ section { display: grid; gap: 10px; }
         l.addEventListener('click', function () { exportFor(d, 'Line'); });
         row.appendChild(l);
       } else {
-        var c = el('button', 'ghost small', 'Copy for Claude Code'); c.type = 'button';
+        var c = el('button', 'primary small', preparing[d.id] ? 'Writing prompt...' : 'Copy for Claude Code'); c.type = 'button';
+        c.disabled = !!preparing[d.id];
         c.addEventListener('click', function () { copyForClaude(d); });
         row.appendChild(c);
+        if (notes) {
+          var cn = el('button', 'ghost small', 'Copy my notes'); cn.type = 'button';
+          cn.addEventListener('click', function () { copyText(notesAsText(notes), 'Notes copied.'); });
+          row.appendChild(cn);
+        }
         if (d.lane === 'auto' && !d.sorted) {
           var so = el('button', 'ghost small', 'Sort'); so.type = 'button';
           so.addEventListener('click', function () { sortDump(d.id, d.text); });
@@ -374,6 +497,9 @@ section { display: grid; gap: 10px; }
         row.appendChild(del);
       }
       card.appendChild(row);
+      if (d.prompt && d.lane !== 'private') {
+        var pv = el('details', 'raw'); pv.appendChild(el('summary', '', 'Show the prompt')); pv.appendChild(el('pre', 'prompt', withOriginal(d.prompt, d))); card.appendChild(pv);
+      }
       dbox.appendChild(card);
     });
   }
