@@ -1,9 +1,15 @@
 import type { EngineInterface, Register } from 'claude-code'
 
-// Pen rule: no AI writes inside these folders, ever. Matched anywhere in the path.
-const PEN_ZONES = /(^|\/)(poems|line-bank|public-copy)(\/|$)/
+// Pen rule: no AI writes inside these folders, ever. Matched anywhere in the path,
+// any letter case (the Mac's disk treats Poems/ and poems/ as one folder).
+const PEN_ZONES = /(^|\/)(poems|line-bank|public-copy)(\/|$)/i
 // Settings files are Chris's hand.
 const SETTINGS = /(^|\/)\.claude\/settings(\.local)?\.json$|(^|\/)\.claude\.json$/
+// The same two, found inside a shell command's text.
+const PEN_IN_COMMAND = /(^|[\s/'"=])(poems|line-bank|public-copy)(\/|[\s'";|&)]|$)/i
+const SETTINGS_IN_COMMAND = /\.claude\/settings(\.local)?\.json\b|(^|[\s/'"])\.claude\.json\b/
+// Shell that can write, move or delete: redirects, in-place edits, file verbs, scripts.
+const SHELL_WRITES = /(^|[^0-9&])>{1,2}(?!&)|(^|[\s;&|(])(cp|mv|rm|rmdir|touch|tee|ln|install|rsync|dd|truncate|mkdir|chmod|chown|unlink|shred|srm|trash|patch|xargs|python3?|node|ruby|perl|osascript|ditto)\b|\bsed\b[^|;&]*\s-[a-zA-Z]*i|\bgit\s+(checkout|restore|apply|mv|rm|stash|reset|clean)\b/
 
 type Risk = { label: string; targets: string[] }
 
@@ -52,8 +58,27 @@ async function preview($: EngineInterface, risk: Risk, cwd: string | undefined):
   return lines.length > 0 ? lines.join('; ') : `targets: ${risk.targets.join(' ') || '(working tree)'}`
 }
 
+// Where a Write or Edit really lands, so a symlink into poems/ is caught too.
+async function landsIn($: EngineInterface, path: string): Promise<string | undefined> {
+  const own = await $.fs.stat(path, { resolve: true }).catch(() => undefined)
+  if (own?.realPath !== undefined) return own.realPath
+  const cut = path.lastIndexOf('/')
+  if (cut <= 0) return undefined
+  const folder = await $.fs.stat(path.slice(0, cut), { resolve: true }).catch(() => undefined)
+  return folder?.realPath === undefined ? undefined : `${folder.realPath}/${path.slice(cut + 1)}`
+}
+
 export const register: Register = on => {
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {
+    // The pen rule holds for the shell too: no writing, moving or deleting in those folders.
+    if (SHELL_WRITES.test(e.command)) {
+      if (PEN_IN_COMMAND.test(e.command)) {
+        return { deny: 'blast-radius: this command could write, move or delete inside a pen-rule folder (poems/, line-bank/, public-copy/). AI never changes those; read them with the Read tool and put metadata in a sidecar file outside.' }
+      }
+      if (SETTINGS_IN_COMMAND.test(e.command)) {
+        return { deny: "blast-radius: this command could change a Claude settings file, which is Chris's hand. Draft the change in the Outbox and hand him the exact edit." }
+      }
+    }
     const risk = judge(e.command)
     if (risk === undefined) return next(e)
 
@@ -76,7 +101,8 @@ export const register: Register = on => {
       : e.tool === 'NotebookEdit' ? e.notebook_path
       : undefined
     if (path === undefined) return next(e)
-    if (PEN_ZONES.test(path)) {
+    const real = await landsIn($, path)
+    if (PEN_ZONES.test(path) || (real !== undefined && PEN_ZONES.test(real))) {
       return { deny: `blast-radius: ${path} is inside a pen-rule folder (poems/, line-bank/, public-copy/). AI never writes there; put metadata in a sidecar file outside it.` }
     }
     if (SETTINGS.test(path)) {

@@ -129,16 +129,17 @@ export const register: Register = on => {
     return (
       <Box flexDirection="column">
         {crew.length === 0 && <Text dimColor>No helpers this session yet.</Text>}
-        {crew.map(h => {
-          const secs = Math.round(((h.isDone ? h.endedAt : now) - h.startedAt) / 1000)
+        {/* Not `h`: JSX compiles to the global h(), so a helper named h would shadow it. */}
+        {crew.map(helper => {
+          const secs = Math.round(((helper.isDone ? helper.endedAt : now) - helper.startedAt) / 1000)
           return (
             <Box flexDirection="column">
-              <Text color={h.isDone ? 'green' : 'yellow'}>
-                {h.isDone ? 'done ' : 'busy '} {h.label}
+              <Text color={helper.isDone ? 'green' : 'yellow'}>
+                {helper.isDone ? 'done ' : 'busy '} {helper.label}
               </Text>
               <Text dimColor>
                 {'   '}
-                {h.type} · {secs}s · {Math.round(h.tokens / 1000)}k tokens · ≈${h.dollars.toFixed(2)}
+                {helper.type} · {secs}s · {Math.round(helper.tokens / 1000)}k tokens · ≈${helper.dollars.toFixed(2)}
               </Text>
             </Box>
           )

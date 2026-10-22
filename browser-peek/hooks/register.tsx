@@ -4,13 +4,20 @@ import type { EngineInterface, Register } from 'claude-code'
 const PANE = 'browser-peek'
 const peek = atom({ plugin: 'browser-peek', key: 'peek' } as const, { url: '', file: '', shotAt: 0, error: '' })
 
+// Cloud sessions have no Mac Chrome; they ship Playwright's Chromium and run as root,
+// which Chromium refuses without --no-sandbox. The Mac keeps its sandbox.
+const CLOUD_CHROME = '/opt/pw-browsers/chromium'
+
 async function shoot($: EngineInterface, chrome: string, url: string): Promise<void> {
   const now = await $.clock.now()
   const file = `/tmp/browser-peek-${now}.png`
   const profile = `/tmp/browser-peek-profile`
+  const isCloud = !(await $.fs.exists(chrome)) && (await $.fs.exists(CLOUD_CHROME))
+  const browser = isCloud ? CLOUD_CHROME : chrome
+  const isRoot = (await $.env.get('HOME')) === '/root'
   try {
     const r = await $.process.run(
-      [chrome, '--headless=new', '--disable-gpu', '--hide-scrollbars', `--user-data-dir=${profile}`, '--window-size=1280,900', `--screenshot=${file}`, url],
+      [browser, ...(isRoot ? ['--no-sandbox'] : []), '--headless=new', '--disable-gpu', '--hide-scrollbars', `--user-data-dir=${profile}`, '--window-size=1280,900', `--screenshot=${file}`, url],
       { timeoutMs: 45000 },
     )
     await update($, peek, () => ({ url, file, shotAt: now, error: r.exitCode === 0 ? '' : r.stderr.slice(0, 300) }))
