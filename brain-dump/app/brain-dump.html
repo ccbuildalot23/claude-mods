@@ -116,7 +116,7 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       <button type="button" class="lane" data-lane="line" aria-pressed="false">LaBeau line</button>
       <button type="button" class="lane" data-lane="private" aria-pressed="false">Private</button>
     </div>
-    <p class="hint" id="lane-hint">Claude turns it into short bulleted notes with one tiny next step, adds the to-dos to today's list, and writes a Claude-ready prompt for Copy. Poem lines stay word for word.</p>
+    <p class="hint" id="lane-hint">Claude turns it into short bulleted notes with one tiny next step, adds the to-dos to today’s list, and writes a Claude-ready prompt for Copy. Poem lines stay word for word.</p>
     <div class="row">
       <button type="submit" class="primary" id="save">Save dump</button>
       <p class="status" id="status" role="status"></p>
@@ -147,7 +147,7 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
 <script>
 (function () {
   var LANES = {
-    auto: { tag: 'Sorting', hint: 'Claude turns it into short bulleted notes with one tiny next step, adds the to-dos to today's list, and writes a Claude-ready prompt for Copy. Poem lines stay word for word.', cls: '' },
+    auto: { tag: 'Sorting', hint: 'Claude turns it into short bulleted notes with one tiny next step, adds the to-dos to today’s list, and writes a Claude-ready prompt for Copy. Poem lines stay word for word.', cls: '' },
     todo: { tag: 'To-do', hint: 'Saved as to-dos. One line per task works best.', cls: '' },
     idea: { tag: 'Idea', hint: 'Saved to your ideas. Nothing is sent anywhere.', cls: '' },
     harmoniq: { tag: 'Harmoniq', hint: 'Saved as a Harmoniq note. Leave client names out if you can.', cls: '' },
@@ -479,8 +479,8 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
           cn.addEventListener('click', function () { copyText(notesAsText(notes), 'Notes copied.'); });
           row.appendChild(cn);
         }
-        if (d.lane === 'auto' && !d.sorted) {
-          var so = el('button', 'ghost small', 'Sort'); so.type = 'button';
+        if (d.lane === 'auto' && !d.notes) {
+          var so = el('button', 'ghost small', d.sorted ? 'Make notes' : 'Sort'); so.type = 'button';
           so.addEventListener('click', function () { sortDump(d.id, d.text); });
           row.appendChild(so);
         }
