@@ -34,6 +34,9 @@ DEFAULTS = {
     # filed; files in "watch_readonly" folders (Voice Memos app) are never touched.
     "inbox": [str(HOME / "Voice Inbox")],
     "watch_readonly": [],
+    # Only file read-only memos recorded at or after this time (ISO), so turning on
+    # Voice Memos sync does not sweep up every old recording.
+    "watch_since": "",
     "vault_inbox": str(HOME / "Documents/Desktop/Recovery/Recovery Library/Imported/Voice Inbox"),
     "line_bank_dir": str(HOME / "Developer/labeau-ops/data/line-bank/voice"),
     "line_audio_dir": str(HOME / "LaBeau-Assets/Voice Lines"),
@@ -220,13 +223,20 @@ def log(cfg: dict, msg: str) -> None:
 def candidates(cfg: dict) -> list[tuple[Path, bool]]:
     out = []
     now = time.time()
+    since = dt.datetime.fromisoformat(cfg["watch_since"]) if cfg.get("watch_since") else None
     for folder, move in [(d, True) for d in cfg["inbox"]] + [(d, False) for d in cfg["watch_readonly"]]:
         d = Path(folder)
-        if not d.is_dir():
+        try:
+            entries = sorted(d.iterdir()) if d.is_dir() else []
+        except PermissionError:
+            log(cfg, f"ERROR cannot read {d.name}: grant Full Disk Access (see README)")
             continue
-        for p in sorted(d.iterdir()):
-            if p.is_file() and p.suffix.lower() in AUDIO_EXT | TEXT_EXT and now - p.stat().st_mtime > SETTLE_SECONDS:
-                out.append((p, move))
+        for p in entries:
+            if not (p.is_file() and p.suffix.lower() in AUDIO_EXT | TEXT_EXT and now - p.stat().st_mtime > SETTLE_SECONDS):
+                continue
+            if not move and since and recorded_at(p) < since:
+                continue
+            out.append((p, move))
     return out
 
 

@@ -112,6 +112,14 @@ class RunTests(unittest.TestCase):
         self.assertIn("source: text-drop", note)
         self.assertTrue(note.endswith("---\nporch light, no one home\n"))
 
+    def test_watch_since_skips_old_voice_memos(self):
+        old = self.audio("memos", "old.m4a", b"old")
+        os.utime(old, (time.time() - 86400 * 30,) * 2)
+        self.audio("memos", "new.m4a", b"new")
+        self.cfg["watch_since"] = vv.dt.datetime.fromtimestamp(time.time() - 86400).isoformat()
+        self.assertEqual(vv.run(self.cfg, transcriber=lambda p, c: "Private. hi"), 1)
+        self.assertTrue(old.exists())
+
     def test_fresh_file_waits_to_settle(self):
         (self.tmp / "inbox/z.m4a").write_bytes(b"z")
         self.assertEqual(vv.run(self.cfg, transcriber=lambda p, c: "Line hi"), 0)
