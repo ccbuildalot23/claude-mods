@@ -45,10 +45,10 @@ DEFAULTS = {
     "mlx_model": "mlx-community/whisper-large-v3-turbo",
     "whisper_cpp_model": "",
     # Words that keep a "line" memo out of LaBeau. Matched as whole words, any case.
+    # Real names live only on the Mac in config/private-names.txt (see shared_list).
     "private_words": [
-        "therapy", "therapist", "clegg", "counselor", "bankruptcy", "trustee",
-        "attorney", "lawyer", "court", "creditor", "chelsea", "nile", "paul",
-        "reggie", "mcfadden", "mcfaddens", "timeshare", "diagnosis",
+        "therapy", "therapist", "counselor", "bankruptcy", "trustee",
+        "attorney", "lawyer", "court", "creditor", "timeshare", "diagnosis",
     ],
 }
 
@@ -70,6 +70,15 @@ PHONE = re.compile(r"\b\d{3}[\s.-]?\d{3}[\s.-]?\d{4}\b")
 EMAIL = re.compile(r"\b\S+@\S+\.\w+\b")
 
 
+def shared_list(name: str) -> list[str]:
+    """Names and words from privacy-preflight's lists (config/ in this repo, kept off git)."""
+    try:
+        text = (HERE.parent / "config" / name).read_text()
+    except OSError:
+        return []
+    return [l.strip() for l in text.splitlines() if len(l.strip()) > 1 and not l.strip().startswith("#")]
+
+
 def load_config(path: Path | None = None) -> dict:
     cfg = dict(DEFAULTS)
     path = path or HERE / "config.json"
@@ -77,6 +86,7 @@ def load_config(path: Path | None = None) -> dict:
         cfg.update(json.loads(path.read_text()))
     for k in ("inbox", "watch_readonly"):
         cfg[k] = [os.path.expanduser(p) for p in cfg[k]]
+    cfg["private_words"] = list(cfg["private_words"]) + shared_list("private-names.txt") + shared_list("private-words.txt")
     for k in ("vault_inbox", "line_bank_dir", "line_audio_dir", "state_file", "log_file"):
         cfg[k] = os.path.expanduser(cfg[k])
     return cfg
