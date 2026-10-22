@@ -1,1 +1,1 @@
-{ "name": "blast-radius", "version": "0.1.0", "description": "Stops risky commands (deletes, hard resets, force pushes) and shows what they would hit before a person presses Proceed; hard-blocks writes to Chris's pen-rule folders." }
+{ "name": "blast-radius", "version": "0.1.1", "description": "Stops risky commands (deletes, hard resets, force pushes) and shows what they would hit before a person presses Proceed; hard-blocks writes to Chris's pen-rule folders." }
