@@ -26,6 +26,9 @@ Then restart Claude Code (or run `/reload-plugins` in an open session). Uninstal
 | skins | /skin labeau, noir, tokyo, off | no | Icons and colors per tool call, themed spinner words. |
 | browser-peek | /peek URL | no | The terminal-browser mod: headless Chrome screenshot of a page in a side panel (picture shows in the terminal app; desktop shows the saved file). In cloud sessions it uses the bundled Chromium. |
 
+Not a plugin, but living here too: **voice-vault/** (voice memos and text dumps transcribed on the Mac and filed to the line bank or the Recovery vault). See `voice-vault/README.md`.
+
+All 13 mods named in the Oct 21 lecture are covered (File Tree lives inside chat-inventory).
 All 13 mods named in the Oct 21 lecture are covered (File Tree lives inside chat-inventory), plus crew (added Oct 22).
 
 ## Tests
