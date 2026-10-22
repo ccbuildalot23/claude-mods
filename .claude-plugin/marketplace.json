@@ -30,6 +30,11 @@
       "description": "An 'In this chat' panel like Cowork's: the goal, connectors called and how often, skills used, links fetched, and a file tree that shows which files Claude read, is editing, or changed. Uses no AI."
     },
     {
+      "name": "crew",
+      "source": "./crew",
+      "description": "Gives every subagent a name, its own color and a character (fox, owl, octopus...), and shows live what each one is doing and how far along it is, above the prompt and in a /crew panel. Uses no AI."
+    },
+    {
       "name": "handoff",
       "source": "./handoff",
       "description": "Type /handoff (or press the button it offers when a chat passes 250k tokens or its cache goes cold) to get a detailed prompt that moves the work to a fresh chat with nothing lost; saved under ~/Developer/claude-mods/handoffs."
