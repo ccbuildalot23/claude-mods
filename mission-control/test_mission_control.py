@@ -107,6 +107,26 @@ class MissionControlTest(unittest.TestCase):
         self.assertEqual(c["email"]["status"], "red")
         self.assertIn("2026-10-22 --send", c["email"]["fix"])
 
+    def test_no_send_log_means_not_sent(self):
+        log = os.path.join(self.ops, "data/logs/mail_sent.csv")
+        if os.path.exists(log):
+            os.remove(log)
+        subprocess.run([sys.executable, os.path.join(HERE, "mission_control.py"), "--now", "2026-10-22T16:57", "--no-alert"],
+                       env=self.env, check=True, capture_output=True)
+        s = json.load(open(os.path.join(self.tmp, "drive", "labeau-mission-status.json")))
+        c = {x["id"]: x for x in s["cards"]}["email"]
+        self.assertEqual(c["status"], "red")
+        self.assertIn("2026-10-22 --send", c["fix"])
+
+    def test_captions_log_reads_only_last_run(self):
+        log = os.path.join(self.ops, "data/logs/captions-daily.log")
+        open(log, "w").write("=== 2026-10-20 21:40 EDT captions-daily\nNot logged in\n=== 2026-10-21 21:40 EDT captions-daily\nok\n")
+        _, c = self.run_mc("2026-10-22T12:00", "2026-10-22,x\n")
+        self.assertNotIn("Not logged in", " ".join(c["captions"]["details"]))
+        open(log, "a").write("=== 2026-10-22 21:40 EDT captions-daily\nNot logged in · Please run /login\n")
+        _, c = self.run_mc("2026-10-22T12:00", "2026-10-22,x\n")
+        self.assertIn("2026-10-22 21:40", " ".join(c["captions"]["details"]))
+
     def test_broken_ops_is_red_not_silent(self):
         os.remove(os.path.join(self.ops, "data/placements.csv"))
         _, c = self.run_mc("2026-10-22T12:00", "2026-10-22,x\n")

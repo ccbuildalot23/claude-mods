@@ -199,8 +199,7 @@ def email_card(now):
                     if any(d.isoformat() in cell for cell in row):
                         sent.setdefault(d, []).append(",".join(row))
     except OSError:
-        return card("email", "Daily email", "red", "Can't find the email send log",
-                    [f"missing: {log_csv}"], "bash ~/Developer/labeau-ops/bin/install-mail-daily.sh")
+        pass  # no send log yet = nothing has been sent; the checks below say which day
 
     def real(d):
         return [r for r in sent.get(d, []) if "test" not in r.lower()]
@@ -250,9 +249,16 @@ def captions_job_lines(now):
     if m is None:
         return "yellow", "Nightly captions job has no log yet."
     age_h = (now - m).total_seconds() / 3600
-    lines = tail(log, 30) or []
-    if any("Not logged in" in l for l in lines):
-        return "red", "Nightly captions job says 'Not logged in'."
+    lines = tail(log, 200) or []
+    starts = [i for i, l in enumerate(lines) if l.startswith("=== ")]
+    last = lines[starts[-1]:] if starts else lines[-30:]
+    when = last[0][4:20].strip() if starts else m.strftime("%Y-%m-%d %H:%M")
+    if any("Not logged in" in l for l in last):
+        plist = mtime(os.path.expanduser("~/Library/LaunchAgents/ink.labeau.captions-daily.plist"))
+        if plist and plist > m:
+            return "yellow", (f"Last run ({when}) failed 'Not logged in' under the old cron; "
+                              f"the new launchd job hasn't run yet (first run 9:40 pm).")
+        return "red", f"Last nightly captions run ({when}) failed: 'Not logged in'."
     if age_h > 26:
         return "yellow", f"Nightly captions job last ran {age_h:.0f} h ago."
     return "green", f"Nightly captions job ran {age_h:.0f} h ago."
