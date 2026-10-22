@@ -15,6 +15,7 @@ Then restart Claude Code (or run `/reload-plugins` in an open session). Uninstal
 | screen-share | /screenshare, /screenshare add NAME | no | Gray bars over names, emails, phones, money, keys; hides tool details. Names list stays on this Mac. |
 | switchboard | /mods | no | One panel to switch each mod on/off mid-chat, and block any other plugin from loading next time. blast-radius is locked on. |
 | helper-desk | /helperdesk | no | Purple progress bar above the prompt; panel of subagents with time, tokens, API-equivalent cost. |
+| crew | /crew, /crew on/off | no | Every subagent gets its own character, name and color (🦊 Ember, 🦉 Sage, 🐙 Inky...). A colored row per working agent above the prompt shows what it is doing right now ("Reading README.md", "Run unit tests") and its progress: a bar from its own to-do list, or its step count, plus elapsed time. /crew opens the full roster with each agent's task and checklist. |
 | cache-clock | /keepwarm, /cacheclock | only /keepwarm pings | Countdown until the prompt cache goes cold (60 min on the subscription); warns before a cold, expensive message; /keepwarm pings for up to 2 h. |
 | handoff | /handoff | yes, one call | Writes a full handoff prompt for a fresh chat to ~/Developer/claude-mods/handoffs/; offers itself past 250k tokens or when cold. |
 | reflect | /reflect on/off | no | Spots rules you give ("never", "always", "from now on") and saves the ones you pick to rules-inbox.md. You promote keepers into CLAUDE.md by hand. |
@@ -28,6 +29,7 @@ Then restart Claude Code (or run `/reload-plugins` in an open session). Uninstal
 Not a plugin, but living here too: **voice-vault/** (voice memos and text dumps transcribed on the Mac and filed to the line bank or the Recovery vault). See `voice-vault/README.md`.
 
 All 13 mods named in the Oct 21 lecture are covered (File Tree lives inside chat-inventory).
+All 13 mods named in the Oct 21 lecture are covered (File Tree lives inside chat-inventory), plus crew (added Oct 22).
 
 ## Tests
 Each mod has engine tests under `<mod>/tests/`. Run one with `claude plugin test <mod>`, or all with:
