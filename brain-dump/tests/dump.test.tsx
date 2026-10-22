@@ -6,10 +6,10 @@ const CODE = Array.from({ length: 40 }, (_, i) => `  const value${i} = compute($
 const BAND = { plugin: 'brain-dump', component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 80, scroll: { offset: 0, bodyRows: 10 }, view: {} }, surface: 'terminal' } as const
 const PANE = { plugin: 'brain-dump', component: 'Pane', requestId: 'brain-dumps', props: { title: 'Brain dumps', isFocused: false, bodyColumns: 60, placement: 'dock', scroll: { offset: 0, bodyRows: 20 }, view: {} }, surface: 'terminal' } as const
 
-type World = { reached: string[]; files: Map<string, string>; filled: string[]; modelCalls: number }
+type World = { reached: string[]; files: Map<string, string>; filled: string[]; modelCalls: number; system: string }
 
 function engine(on: On): World {
-  const world: World = { reached: [], files: new Map(), filled: [], modelCalls: 0 }
+  const world: World = { reached: [], files: new Map(), filled: [], modelCalls: 0, system: '' }
   mock.store(on)
   mock.clock(on, { now: Date.UTC(2026, 9, 22, 20, 0, 0) })
   mock.env(on, { HOME: '/Users/chris' })
@@ -31,8 +31,9 @@ function engine(on: On): World {
   on('fs.exists', (_, e) => ({ value: world.files.has(e.path) }))
   on('fs.read', (_, e) => ({ value: world.files.get(e.path) ?? '' }) as never)
   on('fs.list', (_, e) => ({ value: [...world.files.keys()].filter(p => p.startsWith(e.path + '/')).map(p => ({ name: p.slice(e.path.length + 1), kind: 'file' as const, size: 1, mtimeMs: 1, isLink: false })) }))
-  on('model.complete', () => {
+  on('model.complete', (_, e) => {
     world.modelCalls += 1
+    world.system = String((e as { system?: string }).system ?? '')
     return { value: { isAnswered: true, text: 'Task: plan the week\nTo-dos:\n- [ ] call the printer', usage: { input_tokens: 1, output_tokens: 1, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 } } } as never
   })
   return world
@@ -55,6 +56,7 @@ test('on by default: a spoken ramble is held, pasted code passes, tidy offers Ed
   const band = await $.ui.mount(BAND)
   await band.press({ key: 'tidy' })
   expect(await band.find({ type: 'Text', text: /plan the week/ })).toBeDefined()
+  for (const tag of ['<goal>', '<tasks>', '<verbatim_lines>', '<done_when>']) expect(world.system.includes(tag)).toBe(true)
   await band.press({ key: 'edit' })
   expect(world.filled[0]).toContain('call the printer')
   await band.unmount()
