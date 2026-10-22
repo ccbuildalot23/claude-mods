@@ -10,7 +10,7 @@ Say the trigger as your first word:
 | "Line", "Line bank", "Poem line", "LaBeau" | `~/Developer/labeau-ops/data/line-bank/voice/` plus the audio in `~/LaBeau-Assets/Voice Lines/` | Your words exactly as transcribed, trigger word removed, nothing else touched. Marked `status: unreviewed` because the transcript is a machine's ear, not yours. |
 | "Private", "Vault", "Journal", "Recovery", or anything else | `Recovery/Recovery Library/Imported/Voice Inbox/` with the audio beside it | Raw transcript, `status: needs-intake`, for the recovery-transcript-intake skill to classify and file. |
 
-Private is the default: a memo only reaches LaBeau if you said "Line" first. A line memo that names a real person, therapy, a lawyer or court, money, a phone number or an email is held in the vault instead, with `held_from_line_bank:` saying why. Edit `private_words` in `config.json` to tune that list.
+Private is the default: a memo only reaches LaBeau if you said "Line" first. A line memo that names a real person, therapy, a lawyer or court, money, a phone number or an email is held in the vault instead, with `held_from_line_bank:` saying why. The list also takes in every name and word in `~/Developer/claude-mods/config/private-names.txt` and `private-words.txt` (privacy-preflight's lists), so one list covers both. Add more under `private_words` in `config.json`.
 
 ## Text drops
 `.txt` and `.md` files dropped in `~/Voice Inbox` (the brain-dump mod's Save, the phone app's export) follow the same triggers and routes, with no transcription. Put the trigger word first, then the text, UTF-8, one dump per file.

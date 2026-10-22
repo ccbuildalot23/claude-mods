@@ -31,13 +31,29 @@ class RouteTests(unittest.TestCase):
         self.assertEqual(vv.route("Private. today was hard", WORDS)[:2], ("vault", "today was hard"))
 
     def test_line_with_private_detail_is_held(self):
-        for t in ("Line, Dr. Clegg said the door was open", "Line the trustee wants $400", "line call me 555-123-4567"):
+        for t in ("Line, my therapist said the door was open", "Line the trustee wants $400", "line call me 555-123-4567"):
             dest, _, held = vv.route(t, WORDS)
             self.assertEqual(dest, "vault", t)
             self.assertTrue(held, t)
 
     def test_empty_line_goes_to_vault(self):
         self.assertEqual(vv.route("Line.", WORDS)[0], "vault")
+
+
+class SharedListTests(unittest.TestCase):
+    def test_reads_privacy_preflight_lists(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "config").mkdir()
+        (tmp / "config/private-names.txt").write_text("# names\nDana\n")
+        (tmp / "voice-vault").mkdir()
+        old = vv.HERE
+        vv.HERE = tmp / "voice-vault"
+        try:
+            cfg = vv.load_config(tmp / "none.json")
+        finally:
+            vv.HERE = old
+        self.assertIn("Dana", cfg["private_words"])
+        self.assertEqual(vv.route("Line. Dana smiled", cfg["private_words"])[0], "vault")
 
 
 class RunTests(unittest.TestCase):
@@ -64,7 +80,7 @@ class RunTests(unittest.TestCase):
         return p
 
     def test_files_both_routes_and_never_logs_words(self):
-        texts = {b"a": "Line. salt on the window", b"b": "Private. the session with Dr. Clegg"}
+        texts = {b"a": "Line. salt on the window", b"b": "Private. the session with my therapist"}
         self.audio("inbox", "one.m4a", b"a")
         ro = self.audio("memos", "two.m4a", b"b")
         n = vv.run(self.cfg, transcriber=lambda p, c: texts[p.read_bytes()])
@@ -80,16 +96,16 @@ class RunTests(unittest.TestCase):
         self.assertTrue(ro.exists())  # Voice Memos originals untouched
         log = (self.tmp / "state/log").read_text()
         self.assertNotIn("salt", log)
-        self.assertNotIn("Clegg", log)
+        self.assertNotIn("therapist", log)
         # second run files nothing new
         self.assertEqual(vv.run(self.cfg, transcriber=lambda p, c: texts[p.read_bytes()]), 0)
 
     def test_held_line_lands_in_vault_with_reason(self):
         self.audio("inbox", "x.m4a", b"x")
-        vv.run(self.cfg, transcriber=lambda p, c: "LaBeau line Chelsea at dinner")
+        vv.run(self.cfg, transcriber=lambda p, c: "LaBeau line the lawyer at dinner")
         self.assertFalse((self.tmp / "line-bank").exists())
         note = next((self.tmp / "vault").glob("*.md")).read_text()
-        self.assertIn("held_from_line_bank: names 'chelsea'", note)
+        self.assertIn("held_from_line_bank: names 'lawyer'", note)
 
     def test_no_transcriber_leaves_audio(self):
         p = self.audio("inbox", "y.m4a", b"y")
