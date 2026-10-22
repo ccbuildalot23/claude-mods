@@ -1,0 +1,1 @@
+{ "name": "needs-you", "version": "0.1.0", "description": "A desktop notification when Claude finishes a long turn or is waiting on you (permission or idle prompts). Silent during quiet hours from config/clock.json; what came in is summed up once they end. /needsyou on|off. Uses no AI.", "types": "./types/index.d.ts" }

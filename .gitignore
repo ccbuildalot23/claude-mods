@@ -4,3 +4,10 @@
 */.claude-plugin/types/
 handoffs/
 rules-inbox.md
+apps-out/
+outbox-held/
+logs/
+config/private-names.txt
+config/private-words.txt
+config/lightweek.json
+config/grid-pins.json

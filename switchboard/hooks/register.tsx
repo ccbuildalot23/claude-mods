@@ -17,6 +17,12 @@ const SUITE: { name: string; command?: string; what: string; isLocked?: boolean 
   { name: 'heads-up', command: 'headsup', what: 'Pops up what you must not miss in long replies (uses AI)' },
   { name: 'skins', command: 'skin', what: 'Icons and colors for tool calls' },
   { name: 'browser-peek', what: 'Screenshot a page into a panel with /peek URL' },
+  { name: 'privacy-preflight', what: 'Blocks private names, private-life words and keys from shared writes', isLocked: true },
+  { name: 'outbox', what: 'Holds sends, posts and pushes until you type /outbox release', isLocked: true },
+  { name: 'action-log', what: 'One log line per tool call, before it runs; /log', isLocked: true },
+  { name: 'needs-you', command: 'needsyou', what: 'Desktop ping when Claude finishes or waits on you' },
+  { name: 'lightweek', what: 'Keep-to-essentials mode for every session; /lightweek' },
+  { name: 'bridge-inbox', what: 'Summaries of new Grok-bridge messages; /bridge-inbox' },
 ]
 
 const PANE = 'switchboard'
@@ -24,7 +30,7 @@ const off = atom({ plugin: 'switchboard', key: 'off' } as const, [])
 const seen = atom({ plugin: 'switchboard', key: 'seen' } as const, [])
 const blocked = atom({ plugin: 'switchboard', key: 'blocked' } as const, [])
 
-const NEVER_BLOCK = new Set(['switchboard', 'blast-radius'])
+const NEVER_BLOCK = new Set(['switchboard', 'blast-radius', 'privacy-preflight'])
 
 async function toggle($: EngineInterface, name: string): Promise<void> {
   const mod = SUITE.find(m => m.name === name)

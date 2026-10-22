@@ -1,0 +1,1 @@
+{ "name": "action-log", "version": "0.1.0", "description": "Writes one line per tool call, from every session including scheduled runs, to ~/Developer/claude-mods/logs before the call runs (no log, no run), plus how it ended. /log shows today. Paths and commands only; keys masked. Uses no AI." }

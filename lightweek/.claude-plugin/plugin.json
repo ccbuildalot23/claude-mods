@@ -1,0 +1,1 @@
+{ "name": "lightweek", "version": "0.1.0", "description": "/lightweek tells every Claude session on this Mac (Rig seats and scheduled runs included) to keep to essentials for seven days, or the days you give; a quiet line shows it's on. /lightweek off ends it. Uses no AI.", "types": "./types/index.d.ts" }

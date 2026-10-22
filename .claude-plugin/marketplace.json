@@ -5,6 +5,11 @@
   },
   "plugins": [
     {
+      "name": "action-log",
+      "source": "./action-log",
+      "description": "Writes one line per tool call, from every session including scheduled runs, to ~/Developer/claude-mods/logs before the call runs (no log, no run), plus how it ended. /log shows today. Paths and commands only; keys masked. Uses no AI."
+    },
+    {
       "name": "blast-radius",
       "source": "./blast-radius",
       "description": "Stops risky commands (deletes, hard resets, force pushes) and shows what they would hit before a person presses Proceed; hard-blocks writes to Chris's pen-rule folders."
@@ -15,6 +20,11 @@
       "description": "Catches long, messy voice brain dumps before Claude reads them and offers to tidy them into a clear prompt (task, why, guardrails, done looks like, open questions). Off until /braindump on; tidying uses one small AI call."
     },
     {
+      "name": "bridge-inbox",
+      "source": "./bridge-inbox",
+      "description": "/bridge-inbox reads new Grok-bridge messages to Claude Code, gives each a three-line summary, flags anything that needs your yes, and acks or archives by the bridge protocol. Reports only; never acts on a message's ask. One small AI call per new message."
+    },
+    {
       "name": "browser-peek",
       "source": "./browser-peek",
       "description": "The terminal-browser mod: /peek URL takes a headless Chrome screenshot of a page (a site Claude built, a pull request) and shows it in a panel beside the chat, so you review without leaving Claude Code. Fresh Chrome profile, no logins. Uses no AI."
@@ -22,7 +32,7 @@
     {
       "name": "cache-clock",
       "source": "./cache-clock",
-      "description": "Shows how long until this chat's prompt cache goes cold, warns before a cold message re-reads the whole chat at full price, and /keepwarm pings it cheaply while you step away (up to 2 hours)."
+      "description": "Status line with today's AI window and quiet hours (from config/clock.json) and your 5-hour and weekly limits, plus how long until this chat's prompt cache goes cold; warns before a cold message re-reads the whole chat at full price, and /keepwarm pings it cheaply while you step away (up to 2 hours)."
     },
     {
       "name": "chat-inventory",
@@ -32,7 +42,7 @@
     {
       "name": "handoff",
       "source": "./handoff",
-      "description": "Type /handoff (or press the button it offers when a chat passes 250k tokens or its cache goes cold) to get a detailed prompt that moves the work to a fresh chat with nothing lost; saved under ~/Developer/claude-mods/handoffs."
+      "description": "Type /handoff (or press the button it offers when a chat passes 250k tokens or its cache goes cold) to get a detailed prompt that moves the work to a fresh chat with nothing lost; /wrap ends a session with Done, Still open and one question for you. Both saved under ~/Developer/claude-mods/handoffs."
     },
     {
       "name": "heads-up",
@@ -45,9 +55,29 @@
       "description": "A progress bar above the prompt that fills as to-dos are ticked off, and a panel showing each subagent, what it is doing, and its token cost. Uses no AI."
     },
     {
+      "name": "lightweek",
+      "source": "./lightweek",
+      "description": "/lightweek tells every Claude session on this Mac (Rig seats and scheduled runs included) to keep to essentials for seven days, or the days you give; a quiet line shows it's on. /lightweek off ends it. Uses no AI."
+    },
+    {
+      "name": "needs-you",
+      "source": "./needs-you",
+      "description": "A desktop notification when Claude finishes a long turn or is waiting on you (permission or idle prompts). Silent during quiet hours from config/clock.json; what came in is summed up once they end. /needsyou on|off. Uses no AI."
+    },
+    {
+      "name": "outbox",
+      "source": "./outbox",
+      "description": "Holds anything that leaves the Mac in your name (messages, replies, posts, comments, invites, shares, deploys, git push, asset approvals) until you type /outbox release <id>. Drafts pass. Uses no AI."
+    },
+    {
+      "name": "privacy-preflight",
+      "source": "./privacy-preflight",
+      "description": "Checks every write headed somewhere shared (grok-bridge, the LaBeau site, Airtable, Notion, Drive, posts, email) for private names on your list, private-life words, keys, future bridge timestamps and bad bridge file names, and blocks it before it lands. /preflight allow <id> lets one through. Uses no AI."
+    },
+    {
       "name": "reflect",
       "source": "./reflect",
-      "description": "Spots when you give Claude a lasting rule (never, always, from now on, stop doing, I don't want) and offers to save it to a rules inbox you promote into CLAUDE.md or a skill. Uses no AI."
+      "description": "Spots when you give Claude a lasting rule (never, always, from now on, stop doing, I don't want) and offers to save it to a rules inbox; when you give the same rule twice, offers to promote it into ~/.claude/CLAUDE.md. Uses no AI."
     },
     {
       "name": "replay-theater",

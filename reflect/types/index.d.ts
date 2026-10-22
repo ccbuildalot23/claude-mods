@@ -1,4 +1,4 @@
-export type ReflectState = { isOn: boolean; candidate: string; savedCount: number }
+export type ReflectState = { isOn: boolean; candidate: string; savedCount: number; promote: string }
 
 declare module 'claude-code' {
   interface PluginState {

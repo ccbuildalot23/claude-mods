@@ -32,3 +32,25 @@ test('past 250k tokens the band offers a handoff', async ($, on) => {
   expect(await band.find({ type: 'Text', text: /past 260k tokens/ })).toBeDefined()
   await band.unmount()
 })
+
+test('/wrap saves a close-out with one question left for Chris', async ($, on) => {
+  mock.store(on)
+  mock.clock(on, { now: Date.UTC(2026, 9, 22) })
+  on('command.run', () => ({ text: 'engine' }))
+  let asked = ''
+  on('model.fork', (_, e) => {
+    asked = String((e as { prompt?: string }).prompt)
+    return { value: { isAnswered: true, text: 'Done:\n- outbox mod\nStill open:\n- PR review\nFor you: what would you cut next?', usage: { input_tokens: 1, output_tokens: 1, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 } } } as never
+  })
+  const written: Record<string, string> = {}
+  on('fs.write', (_, e) => {
+    written[e.path] = e.text
+    return { value: undefined } as never
+  })
+  on('env.get', () => ({ value: '/Users/c' }) as never)
+  const r = await $.command.run({ command: 'wrap', args: '' } as never)
+  expect(asked).toContain('never answer it')
+  const path = Object.keys(written)[0] ?? ''
+  expect(path.startsWith('/Users/c/Developer/claude-mods/handoffs/wrap-')).toBe(true)
+  expect(r.text ?? '').toContain('For you:')
+})

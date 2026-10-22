@@ -1,0 +1,1 @@
+{ "name": "outbox", "version": "0.1.0", "description": "Holds anything that leaves the Mac in your name (messages, replies, posts, comments, invites, shares, deploys, git push, asset approvals) until you type /outbox release <id>. Drafts pass. Uses no AI.", "types": "./types/index.d.ts" }
