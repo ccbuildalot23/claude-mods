@@ -1,0 +1,1 @@
+{ "name": "switchboard", "version": "0.1.0", "description": "Type /mods to see every mod in this session, switch Chris's mods on or off mid-chat, and block any other plugin from loading next time.", "types": "./types/index.d.ts" }

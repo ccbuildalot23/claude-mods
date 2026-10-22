@@ -1,0 +1,2 @@
+{ "name": "browser-peek", "version": "0.1.0", "description": "The terminal-browser mod: /peek URL takes a headless Chrome screenshot of a page (a site Claude built, a pull request) and shows it in a panel beside the chat, so you review without leaving Claude Code. Fresh Chrome profile, no logins. Uses no AI.", "types": "./types/index.d.ts",
+  "userConfig": { "chromePath": { "type": "string", "title": "Chrome or Chromium path", "description": "Browser used for screenshots.", "default": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" } } }

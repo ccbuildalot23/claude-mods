@@ -1,0 +1,1 @@
+{ "name": "reflect", "version": "0.1.0", "description": "Spots when you give Claude a lasting rule (never, always, from now on, stop doing, I don't want) and offers to save it to a rules inbox you promote into CLAUDE.md or a skill. Uses no AI.", "types": "./types/index.d.ts" }

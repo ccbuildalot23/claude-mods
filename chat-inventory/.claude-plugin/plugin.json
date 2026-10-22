@@ -1,0 +1,1 @@
+{ "name": "chat-inventory", "version": "0.1.0", "description": "An 'In this chat' panel like Cowork's: the goal, connectors called and how often, skills used, links fetched, and a file tree that shows which files Claude read, is editing, or changed. Uses no AI.", "types": "./types/index.d.ts" }

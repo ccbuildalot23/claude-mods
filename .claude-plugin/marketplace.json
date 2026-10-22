@@ -1,0 +1,73 @@
+{
+  "name": "chris-mods",
+  "owner": {
+    "name": "Chris Caldwell"
+  },
+  "plugins": [
+    {
+      "name": "blast-radius",
+      "source": "./blast-radius",
+      "description": "Stops risky commands (deletes, hard resets, force pushes) and shows what they would hit before a person presses Proceed; hard-blocks writes to Chris's pen-rule folders."
+    },
+    {
+      "name": "brain-dump",
+      "source": "./brain-dump",
+      "description": "Catches long, messy voice brain dumps before Claude reads them and offers to tidy them into a clear prompt (task, why, guardrails, done looks like, open questions). Off until /braindump on; tidying uses one small AI call."
+    },
+    {
+      "name": "browser-peek",
+      "source": "./browser-peek",
+      "description": "The terminal-browser mod: /peek URL takes a headless Chrome screenshot of a page (a site Claude built, a pull request) and shows it in a panel beside the chat, so you review without leaving Claude Code. Fresh Chrome profile, no logins. Uses no AI."
+    },
+    {
+      "name": "cache-clock",
+      "source": "./cache-clock",
+      "description": "Shows how long until this chat's prompt cache goes cold, warns before a cold message re-reads the whole chat at full price, and /keepwarm pings it cheaply while you step away (up to 2 hours)."
+    },
+    {
+      "name": "chat-inventory",
+      "source": "./chat-inventory",
+      "description": "An 'In this chat' panel like Cowork's: the goal, connectors called and how often, skills used, links fetched, and a file tree that shows which files Claude read, is editing, or changed. Uses no AI."
+    },
+    {
+      "name": "handoff",
+      "source": "./handoff",
+      "description": "Type /handoff (or press the button it offers when a chat passes 250k tokens or its cache goes cold) to get a detailed prompt that moves the work to a fresh chat with nothing lost; saved under ~/Developer/claude-mods/handoffs."
+    },
+    {
+      "name": "heads-up",
+      "source": "./heads-up",
+      "description": "The 'you should know' mod: after a long reply, a small model reads it and pops up anything you must not miss (costs, irreversible steps, deadlines, things waiting on your yes, risks). Uses a little AI on long replies only; /headsup off to stop."
+    },
+    {
+      "name": "helper-desk",
+      "source": "./helper-desk",
+      "description": "A progress bar above the prompt that fills as to-dos are ticked off, and a panel showing each subagent, what it is doing, and its token cost. Uses no AI."
+    },
+    {
+      "name": "reflect",
+      "source": "./reflect",
+      "description": "Spots when you give Claude a lasting rule (never, always, from now on, stop doing, I don't want) and offers to save it to a rules inbox you promote into CLAUDE.md or a skill. Uses no AI."
+    },
+    {
+      "name": "replay-theater",
+      "source": "./replay-theater",
+      "description": "After Claude edits files, type /replay (or press Replay above the prompt) to step through every change one by one as a before/after diff. Uses no AI and changes nothing."
+    },
+    {
+      "name": "screen-share",
+      "source": "./screen-share",
+      "description": "Type /screenshare before sharing your screen: names, emails, phone numbers, money amounts and keys in the chat turn into gray bars, and tool details are hidden."
+    },
+    {
+      "name": "skins",
+      "source": "./skins",
+      "description": "Reskins how Claude Code shows its work: each tool call gets an icon and color, and the spinner gets themed words. /skin labeau | noir | tokyo | off. Display only, uses no AI."
+    },
+    {
+      "name": "switchboard",
+      "source": "./switchboard",
+      "description": "Type /mods to see every mod in this session, switch Chris's mods on or off mid-chat, and block any other plugin from loading next time."
+    }
+  ]
+}

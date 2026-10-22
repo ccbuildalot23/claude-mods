@@ -1,0 +1,1 @@
+{ "name": "replay-theater", "version": "0.1.0", "description": "After Claude edits files, type /replay (or press Replay above the prompt) to step through every change one by one as a before/after diff. Uses no AI and changes nothing.", "types": "./types/index.d.ts" }

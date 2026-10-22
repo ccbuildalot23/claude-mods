@@ -1,0 +1,1 @@
+{ "name": "helper-desk", "version": "0.1.0", "description": "A progress bar above the prompt that fills as to-dos are ticked off, and a panel showing each subagent, what it is doing, and its token cost. Uses no AI.", "types": "./types/index.d.ts" }

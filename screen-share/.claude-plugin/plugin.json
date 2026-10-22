@@ -1,0 +1,1 @@
+{ "name": "screen-share", "version": "0.1.0", "description": "Type /screenshare before sharing your screen: names, emails, phone numbers, money amounts and keys in the chat turn into gray bars, and tool details are hidden.", "types": "./types/index.d.ts" }

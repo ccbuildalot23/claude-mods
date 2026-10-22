@@ -1,0 +1,2 @@
+{ "name": "cache-clock", "version": "0.1.0", "description": "Shows how long until this chat's prompt cache goes cold, warns before a cold message re-reads the whole chat at full price, and /keepwarm pings it cheaply while you step away (up to 2 hours).", "types": "./types/index.d.ts",
+  "userConfig": { "ttlMinutes": { "type": "number", "title": "Cache lifetime (minutes)", "description": "60 on a Claude subscription, 5 with an API key.", "default": 60 } } }

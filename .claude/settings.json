@@ -1,0 +1,25 @@
+{
+  "extraKnownMarketplaces": {
+    "chris-mods": {
+      "source": {
+        "source": "github",
+        "repo": "ccbuildalot23/claude-mods"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "blast-radius@chris-mods": true,
+    "brain-dump@chris-mods": true,
+    "browser-peek@chris-mods": true,
+    "cache-clock@chris-mods": true,
+    "chat-inventory@chris-mods": true,
+    "handoff@chris-mods": true,
+    "heads-up@chris-mods": true,
+    "helper-desk@chris-mods": true,
+    "reflect@chris-mods": true,
+    "replay-theater@chris-mods": true,
+    "screen-share@chris-mods": true,
+    "skins@chris-mods": true,
+    "switchboard@chris-mods": true
+  }
+}

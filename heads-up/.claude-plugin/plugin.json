@@ -1,0 +1,1 @@
+{ "name": "heads-up", "version": "0.1.0", "description": "The 'you should know' mod: after a long reply, a small model reads it and pops up anything you must not miss (costs, irreversible steps, deadlines, things waiting on your yes, risks). Uses a little AI on long replies only; /headsup off to stop.", "types": "./types/index.d.ts" }

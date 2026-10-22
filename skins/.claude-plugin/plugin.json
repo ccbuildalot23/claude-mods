@@ -1,0 +1,1 @@
+{ "name": "skins", "version": "0.1.0", "description": "Reskins how Claude Code shows its work: each tool call gets an icon and color, and the spinner gets themed words. /skin labeau | noir | tokyo | off. Display only, uses no AI.", "types": "./types/index.d.ts" }
