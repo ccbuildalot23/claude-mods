@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grid Preview</title>
+<style>
+:root { --bg:#f8f5f3; --surface:#fff; --ink:#23213a; --muted:#6b6680; --line:#e6dfe0; --sun:#e7774f; --sun-soft:#fbe3d8; --sea:#2f7f86; --sea-soft:#dcefef; --gold:#b8862a; --gold-soft:#f6ead0;
+  --display:"Iowan Old Style","Palatino Linotype",Georgia,serif; --body:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; --mono:ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg:#17162a; --surface:#211f37; --ink:#f1ecef; --muted:#a9a3bd; --line:#343150; --sun:#f39371; --sun-soft:#4a2c2a; --sea:#6cc3c9; --sea-soft:#1d3b40; --gold:#e1b45c; --gold-soft:#3d3220; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 var(--body); }
+.wrap { max-width:1000px; margin:0 auto; padding:28px max(16px, env(safe-area-inset-right)) 80px max(16px, env(safe-area-inset-left)); display:grid; gap:18px; }
+h1 { font:400 34px/1.1 var(--display); margin:0; }
+.sub { color:var(--muted); margin:0; max-width:70ch; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+input[type=search], input[type=text], select, textarea { font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:7px 10px; }
+button, .chip { font:600 13px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:999px; cursor:pointer; }
+button.primary { background:var(--sun); border-color:var(--sun); color:#1b1a2c; }
+.chip[aria-pressed=true] { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+button:focus-visible, .chip:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid var(--sea); outline-offset:2px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+.pill { font:600 11px var(--body); letter-spacing:.06em; text-transform:uppercase; padding:2px 8px; border-radius:6px; background:var(--sea-soft); color:var(--sea); }
+.pill.sun { background:var(--sun-soft); color:var(--sun); } .pill.gold { background:var(--gold-soft); color:var(--gold); }
+.muted { color:var(--muted); } .mono { font-family:var(--mono); font-size:12.5px; }
+table { width:100%; border-collapse:collapse; } th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; } th { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.scroll { overflow-x:auto; }
+
+.phone { max-width:420px; width:100%; margin:0 auto; background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:14px 0; }
+.label { font:600 12px var(--body); letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:6px 12px; }
+.grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:2px; }
+.cell { position:relative; aspect-ratio:3/4; background:var(--line); overflow:hidden; }
+.cell img, .cell video { width:100%; height:100%; object-fit:cover; display:block; }
+.cell .tag { position:absolute; left:4px; bottom:4px; font:600 10px var(--body); background:rgba(0,0,0,.6); color:#fff; padding:1px 5px; border-radius:4px; }
+.cell.next { outline:2px solid var(--sun); outline-offset:-2px; }
+.cell.empty { display:grid; place-items:center; text-align:center; font-size:11px; color:var(--muted); padding:6px; }
+.legend { display:flex; gap:12px; justify-content:center; font-size:13px; color:var(--muted); }
+.legend i { display:inline-block; width:10px; height:10px; border:2px solid var(--sun); margin-right:4px; vertical-align:middle; }
+</style></head>
+<body><div class="wrap">
+  <header><h1>Grid Preview</h1>
+  <p class="sub" id="sub"></p></header>
+  <div class="legend"><span><i></i>scheduled next</span><span>no outline: already posted</span></div>
+  <div class="phone">
+    <div id="pinsWrap"><div class="label">Pinned</div><div class="grid" id="pins"></div><div class="label">Grid</div></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+<script>
+const DATA = /*DATA*/null || { built: "", pins: [], grid: [], root: "", found: 0 };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const cell = t => {
+  const tag = `<span class="tag">${esc(t.kind === "pinned" ? "pin" : t.date.slice(5))}</span>`;
+  if (!t.src) return `<div class="cell empty ${t.kind}" title="${esc(t.id + " " + t.slug)}">${esc(t.slug)}<br>no file yet${tag}</div>`;
+  const media = t.isVideo ? `<video src="${t.src}#t=0.5" muted preload="metadata" playsinline></video>` : `<img src="${t.src}" alt="${esc(t.slug)}">`;
+  return `<div class="cell ${t.kind}" title="${esc(t.id + " " + t.date + " " + t.slug + " (" + t.state + ")")}">${media}${tag}</div>`;
+};
+document.getElementById("sub").textContent = `Built ${DATA.built} from placements.csv. Each tile is cropped to 3:4 the way the profile shows it. ${DATA.found} files indexed in ${DATA.root}. Hover a tile for its placement and file.`;
+if (DATA.pins.length) document.getElementById("pins").innerHTML = DATA.pins.map(cell).join("");
+else document.getElementById("pinsWrap").innerHTML = '<div class="label">No pins set. List up to three asset slugs in ~/Developer/claude-mods/config/grid-pins.json to preview the pinned row.</div>';
+document.getElementById("grid").innerHTML = DATA.grid.map(cell).join("");
+document.querySelectorAll("video").forEach(v => { v.addEventListener("mouseenter", () => v.play().catch(() => {})); v.addEventListener("mouseleave", () => v.pause()); });
+</script></body></html>

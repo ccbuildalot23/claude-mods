@@ -1,0 +1,1 @@
+{ "name": "bridge-inbox", "version": "0.1.0", "description": "/bridge-inbox reads new Grok-bridge messages to Claude Code, gives each a three-line summary, flags anything that needs your yes, and acks or archives by the bridge protocol. Reports only; never acts on a message's ask. One small AI call per new message." }

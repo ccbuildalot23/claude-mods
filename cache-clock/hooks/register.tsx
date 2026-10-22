@@ -1,8 +1,37 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
+import { describe, parseClock } from './clock'
+import type { ClockFile } from './clock'
+
 const isOn = atom({ plugin: 'cache-clock', key: 'isOn' } as const, true)
 const clock = atom({ plugin: 'cache-clock', key: 'clock' } as const, { lastTurnAt: 0, contextTokens: 0, keepWarmUntil: 0, pings: 0 })
+
+// The day's clock and the subscription's usage windows ride the same status line (Oct 22, 2026:
+// "clock and spend line", shortlist item 5). The clock file is re-read every five minutes.
+let clockFile: ClockFile | undefined
+let clockReadAt = 0
+
+async function dayLine($: EngineInterface): Promise<string> {
+  const now = await $.clock.now()
+  if (now - clockReadAt > 5 * 60 * 1000) {
+    clockReadAt = now
+    try {
+      const home = (await $.env.get('HOME')) ?? '.'
+      clockFile = parseClock(await $.fs.read(`${home}/Developer/claude-mods/config/clock.json`))
+    } catch {
+      clockFile = undefined
+    }
+  }
+  const parts: string[] = []
+  if (clockFile !== undefined) parts.push(describe(clockFile, new Date(now)).text)
+  const usage = await $.session.usage().catch(() => undefined)
+  for (const r of usage?.rateLimits ?? []) {
+    if (r.kind === 'five_hour') parts.push(`5h ${Math.round(r.percentUsed)}%`)
+    if (r.kind === 'seven_day') parts.push(`week ${Math.round(r.percentUsed)}%`)
+  }
+  return parts.join(' · ')
+}
 
 const KEEP_WARM_MS = 2 * 60 * 60 * 1000
 const PING_LEAD_MS = 3 * 60 * 1000
@@ -13,10 +42,15 @@ async function paint($: EngineInterface, ttlMs: number): Promise<void> {
     return
   }
   const c = await read($, clock)
-  if (c.lastTurnAt === 0) return
+  const day = await dayLine($)
+  if (c.lastTurnAt === 0) {
+    $.ui.status(day.length > 0 ? day : undefined)
+    return
+  }
   const left = c.lastTurnAt + ttlMs - (await $.clock.now())
   const warm = c.keepWarmUntil > (await $.clock.now()) ? ' · keeping warm' : ''
-  $.ui.status(left > 0 ? `cache warm ${Math.ceil(left / 60000)}m left${warm}` : `cache cold (${Math.round(c.contextTokens / 1000)}k tokens re-read on next message)`)
+  const cache = left > 0 ? `cache warm ${Math.ceil(left / 60000)}m left${warm}` : `cache cold (${Math.round(c.contextTokens / 1000)}k tokens re-read on next message)`
+  $.ui.status(day.length > 0 ? `${day} · ${cache}` : cache)
 }
 
 async function ping($: EngineInterface): Promise<void> {
@@ -38,6 +72,7 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'keepwarm', description: 'Keep this chat warm for up to 2 hours while you step away (small cost per ping)', argumentHint: '[off]', immediate: true })
     await $.command.register({ name: 'cacheclock', description: 'Cache countdown on or off', argumentHint: 'on|off', immediate: true })
+    await paint($, ttlMs)
     $.clock.every(30000, async () => {
       await paint($, ttlMs)
       const c = await read($, clock)

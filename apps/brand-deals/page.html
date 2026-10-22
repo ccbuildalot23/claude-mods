@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brand Deals</title>
+<style>
+:root { --bg:#f8f5f3; --surface:#fff; --ink:#23213a; --muted:#6b6680; --line:#e6dfe0; --sun:#e7774f; --sun-soft:#fbe3d8; --sea:#2f7f86; --sea-soft:#dcefef; --gold:#b8862a; --gold-soft:#f6ead0;
+  --display:"Iowan Old Style","Palatino Linotype",Georgia,serif; --body:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; --mono:ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg:#17162a; --surface:#211f37; --ink:#f1ecef; --muted:#a9a3bd; --line:#343150; --sun:#f39371; --sun-soft:#4a2c2a; --sea:#6cc3c9; --sea-soft:#1d3b40; --gold:#e1b45c; --gold-soft:#3d3220; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 var(--body); }
+.wrap { max-width:1000px; margin:0 auto; padding:28px max(16px, env(safe-area-inset-right)) 80px max(16px, env(safe-area-inset-left)); display:grid; gap:18px; }
+h1 { font:400 34px/1.1 var(--display); margin:0; }
+.sub { color:var(--muted); margin:0; max-width:70ch; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+input[type=search], input[type=text], select, textarea { font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:7px 10px; }
+button, .chip { font:600 13px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:999px; cursor:pointer; }
+button.primary { background:var(--sun); border-color:var(--sun); color:#1b1a2c; }
+.chip[aria-pressed=true] { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+button:focus-visible, .chip:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid var(--sea); outline-offset:2px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+.pill { font:600 11px var(--body); letter-spacing:.06em; text-transform:uppercase; padding:2px 8px; border-radius:6px; background:var(--sea-soft); color:var(--sea); }
+.pill.sun { background:var(--sun-soft); color:var(--sun); } .pill.gold { background:var(--gold-soft); color:var(--gold); }
+.muted { color:var(--muted); } .mono { font-family:var(--mono); font-size:12.5px; }
+table { width:100%; border-collapse:collapse; } th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; } th { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.scroll { overflow-x:auto; }
+
+form.add { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:8px; }
+form.add label { display:grid; gap:4px; font-size:12px; color:var(--muted); }
+.board { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; align-items:start; }
+.col h2 { font:600 13px var(--body); text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 8px; display:flex; justify-content:space-between; }
+.deal { display:grid; gap:6px; margin-bottom:8px; }
+.deal b { font-size:16px; }
+.deal .row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:13px; }
+.due.late { color:var(--sun); font-weight:600; }
+</style></head>
+<body><div class="wrap">
+  <header><h1>Brand Deals</h1>
+  <p class="sub">A small pipeline for LaBeau sponsors and partners, per the mentor dinner: a few deep B2B partners over many small sales. It tracks who, fit, stage and the next step. Nothing is ever sent from here. Data stays in this browser; Export makes a CSV backup.</p></header>
+  <form class="add card" id="form">
+    <label>Partner <input type="text" id="partner" required placeholder="Brand or person"></label>
+    <label>Kind <select id="kind"><option>Brand deal</option><option>Sponsor</option><option>Partner</option><option>Collab</option></select></label>
+    <label>Fit <select id="fit"><option value="3">Strong</option><option value="2" selected>Good</option><option value="1">Maybe</option></select></label>
+    <label>Next step <input type="text" id="next" placeholder="e.g. find the partnerships contact"></label>
+    <label>By <input type="date" id="due"></label>
+    <label>Notes <input type="text" id="notes" placeholder="why they fit"></label>
+    <div class="bar" style="align-self:end"><button class="primary" type="submit">Add</button></div>
+  </form>
+  <div class="bar"><button id="export">Export CSV</button><label class="chip" for="import">Import CSV</label><input type="file" id="import" accept=".csv" hidden><span class="muted" id="count"></span></div>
+  <div class="board" id="board"></div>
+</div>
+<script>
+const STAGES = ["Idea", "Researching", "Warm intro", "In talks", "Agreed", "Passed"];
+const FIT = { 3: "Strong", 2: "Good", 1: "Maybe" };
+const KEY = "brand-deals";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let deals;
+try { deals = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { deals = null; }
+if (!Array.isArray(deals)) deals = [{ id: 1, partner: "Example: a candle brand", kind: "Brand deal", fit: 2, stage: "Idea", next: "Delete this example and add a real one", due: "", notes: "Example row" }];
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(deals)); } catch (e) {} };
+const today = new Date().toISOString().slice(0, 10);
+function draw() {
+  $("count").textContent = `${deals.filter(d => d.stage !== "Passed").length} open`;
+  $("board").innerHTML = STAGES.map(s => {
+    const items = deals.filter(d => d.stage === s).sort((a, b) => b.fit - a.fit);
+    return `<section class="col"><h2>${s}<span>${items.length}</span></h2>${items.map(d => `<article class="deal card">
+      <b>${esc(d.partner)}</b>
+      <div class="row"><span class="pill">${esc(d.kind)}</span><span class="pill gold">${FIT[d.fit] || "Good"} fit</span></div>
+      ${d.next ? `<div class="row">Next: ${esc(d.next)}</div>` : ""}
+      ${d.due ? `<div class="row due ${d.due < today && s !== "Agreed" && s !== "Passed" ? "late" : ""}">By ${esc(d.due)}</div>` : ""}
+      ${d.notes ? `<div class="row muted">${esc(d.notes)}</div>` : ""}
+      <div class="row"><select data-move="${d.id}" aria-label="Stage">${STAGES.map(x => `<option ${x === s ? "selected" : ""}>${x}</option>`).join("")}</select>
+      <button data-del="${d.id}">Remove</button></div></article>`).join("")}</section>`;
+  }).join("");
+}
+$("form").addEventListener("submit", e => {
+  e.preventDefault();
+  deals.push({ id: Date.now(), partner: $("partner").value.trim(), kind: $("kind").value, fit: +$("fit").value, stage: "Idea", next: $("next").value.trim(), due: $("due").value, notes: $("notes").value.trim() });
+  save(); draw(); e.target.reset(); $("fit").value = "2";
+});
+$("board").addEventListener("change", e => { const s = e.target.closest("[data-move]"); if (!s) return; const d = deals.find(x => x.id == s.dataset.move); d.stage = s.value; save(); draw(); });
+$("board").addEventListener("click", e => { const b = e.target.closest("[data-del]"); if (!b) return; if (b.dataset.armed) { deals = deals.filter(x => x.id != b.dataset.del); save(); draw(); } else { b.dataset.armed = 1; b.textContent = "Remove for good?"; } });
+const COLS = ["partner", "kind", "fit", "stage", "next", "due", "notes"];
+const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+$("export").addEventListener("click", () => {
+  const csv = [COLS.join(","), ...deals.map(d => COLS.map(c => q(d[c])).join(","))].join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `brand-deals-${today}.csv`; a.click();
+});
+function parseCsv(text) {
+  const rows = []; let row = [], cell = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') inQ = false; else cell += c; }
+    else if (c === '"') inQ = true; else if (c === ",") { row.push(cell); cell = ""; } else if (c === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; } else if (c !== "\r") cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+$("import").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const [head, ...rest] = parseCsv(await f.text());
+  deals = rest.filter(r => r.length > 1).map((r, i) => { const d = { id: Date.now() + i }; head.forEach((h, j) => d[h] = r[j]); d.fit = +d.fit || 2; if (!STAGES.includes(d.stage)) d.stage = "Idea"; return d; });
+  save(); draw();
+});
+draw();
+</script></body></html>

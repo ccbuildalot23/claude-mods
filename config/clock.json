@@ -1,0 +1,9 @@
+{
+  "_note": "One clock for the mods (cache-clock status line, needs-you quiet hours, lightweek). Times are the Mac's local time, 24-hour. Edit to match your Week Ahead; the mods re-read this file every few minutes. Days: sun mon tue wed thu fri sat.",
+  "aiWindows": [
+    { "days": ["mon", "wed", "fri"], "from": "14:30", "to": "16:00" },
+    { "days": ["sun"], "from": "14:00", "to": "16:00" }
+  ],
+  "quietFrom": "17:00",
+  "quietTo": "08:40"
+}

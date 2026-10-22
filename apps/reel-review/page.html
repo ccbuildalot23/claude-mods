@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reel Review</title>
+<style>
+:root { --bg:#f8f5f3; --surface:#fff; --ink:#23213a; --muted:#6b6680; --line:#e6dfe0; --sun:#e7774f; --sun-soft:#fbe3d8; --sea:#2f7f86; --sea-soft:#dcefef; --gold:#b8862a; --gold-soft:#f6ead0;
+  --display:"Iowan Old Style","Palatino Linotype",Georgia,serif; --body:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; --mono:ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg:#17162a; --surface:#211f37; --ink:#f1ecef; --muted:#a9a3bd; --line:#343150; --sun:#f39371; --sun-soft:#4a2c2a; --sea:#6cc3c9; --sea-soft:#1d3b40; --gold:#e1b45c; --gold-soft:#3d3220; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 var(--body); }
+.wrap { max-width:1000px; margin:0 auto; padding:28px max(16px, env(safe-area-inset-right)) 80px max(16px, env(safe-area-inset-left)); display:grid; gap:18px; }
+h1 { font:400 34px/1.1 var(--display); margin:0; }
+.sub { color:var(--muted); margin:0; max-width:70ch; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+input[type=search], input[type=text], select, textarea { font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:7px 10px; }
+button, .chip { font:600 13px var(--body); border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:999px; cursor:pointer; }
+button.primary { background:var(--sun); border-color:var(--sun); color:#1b1a2c; }
+.chip[aria-pressed=true] { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+button:focus-visible, .chip:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:2px solid var(--sea); outline-offset:2px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+.pill { font:600 11px var(--body); letter-spacing:.06em; text-transform:uppercase; padding:2px 8px; border-radius:6px; background:var(--sea-soft); color:var(--sea); }
+.pill.sun { background:var(--sun-soft); color:var(--sun); } .pill.gold { background:var(--gold-soft); color:var(--gold); }
+.muted { color:var(--muted); } .mono { font-family:var(--mono); font-size:12.5px; }
+table { width:100%; border-collapse:collapse; } th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; } th { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.scroll { overflow-x:auto; }
+
+.stage { display:grid; grid-template-columns:minmax(0, 360px) minmax(0, 1fr); gap:18px; align-items:start; }
+@media (max-width:760px) { .stage { grid-template-columns:1fr; } }
+video { width:100%; aspect-ratio:9/16; background:#000; border-radius:12px; display:block; }
+.drop { aspect-ratio:9/16; border:2px dashed var(--line); border-radius:12px; display:grid; place-items:center; text-align:center; padding:20px; color:var(--muted); cursor:pointer; }
+.drop.over { border-color:var(--sun); color:var(--ink); }
+.track { position:relative; height:28px; background:var(--surface); border:1px solid var(--line); border-radius:8px; cursor:pointer; margin-top:10px; }
+.track .head { position:absolute; top:0; bottom:0; width:2px; background:var(--sun); }
+.track .mark { position:absolute; top:4px; width:10px; height:18px; margin-left:-5px; border-radius:3px; background:var(--sea); }
+.notes { display:grid; gap:8px; }
+.note { display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:10px; align-items:start; }
+.note .t { font:600 13px var(--mono); color:var(--sea); background:var(--sea-soft); padding:3px 8px; border-radius:6px; cursor:pointer; border:0; }
+.note textarea { width:100%; min-height:38px; resize:vertical; }
+kbd { font:12px var(--mono); border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 4px; }
+</style></head>
+<body><div class="wrap">
+  <header><h1>Reel Review</h1>
+  <p class="sub">Open a Reel, pause where something is off, and pin a note to that moment. The notes become a fix list for the Reel Director. Everything stays on this Mac; notes are kept per file in this browser until you save them.</p></header>
+  <div class="stage">
+    <div>
+      <label class="drop" id="drop" for="file">Drop a Reel here, or click to choose one (.mp4, .mov)</label>
+      <input type="file" id="file" accept="video/*" hidden>
+      <video id="video" controls playsinline hidden></video>
+      <div class="track" id="track" hidden aria-label="Timeline with notes"><div class="head" id="head"></div></div>
+      <p class="muted" id="name"></p>
+    </div>
+    <div style="display:grid; gap:12px; min-width:0">
+      <div class="bar">
+        <button class="primary" id="add" disabled>Note at this moment</button>
+        <button id="copy" disabled>Copy fix list</button>
+        <button id="save" disabled>Save fix list (.md)</button>
+        <span class="muted">Shortcuts: <kbd>N</kbd> note · <kbd>Space</kbd> play/pause · <kbd>,</kbd> <kbd>.</kbd> step a frame</span>
+      </div>
+      <div class="notes" id="notes"><p class="muted">No notes yet. Open a Reel to start.</p></div>
+    </div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const video = $("video");
+let fileName = "", notes = [];
+const KEY = () => "reel-review:" + fileName;
+const fmt = t => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, "0")}`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function store() { try { localStorage.setItem(KEY(), JSON.stringify(notes)); } catch (e) {} }
+function load() { try { notes = JSON.parse(localStorage.getItem(KEY()) || "[]"); } catch (e) { notes = []; } }
+function open(file) {
+  if (!file) return;
+  fileName = file.name;
+  video.src = URL.createObjectURL(file);
+  video.hidden = false; $("track").hidden = false; $("drop").hidden = true;
+  $("name").textContent = fileName;
+  for (const id of ["add", "copy", "save"]) $(id).disabled = false;
+  load(); draw();
+}
+$("file").addEventListener("change", e => open(e.target.files[0]));
+const drop = $("drop");
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); open(e.dataTransfer.files[0]); });
+function add() {
+  if (!fileName) return;
+  video.pause();
+  notes.push({ t: video.currentTime, text: "" });
+  notes.sort((a, b) => a.t - b.t);
+  store(); draw();
+  const i = notes.findIndex(n => n.text === "" && Math.abs(n.t - video.currentTime) < 0.01);
+  document.querySelector(`[data-edit="${i}"]`)?.focus();
+}
+$("add").addEventListener("click", add);
+function draw() {
+  const d = video.duration || 1;
+  $("track").querySelectorAll(".mark").forEach(m => m.remove());
+  notes.forEach(n => { const m = document.createElement("div"); m.className = "mark"; m.style.left = (n.t / d * 100) + "%"; m.title = fmt(n.t) + " " + n.text; $("track").appendChild(m); });
+  $("notes").innerHTML = notes.length ? notes.map((n, i) => `<div class="note card"><button class="t" data-jump="${i}">${fmt(n.t)}</button>
+    <textarea data-edit="${i}" aria-label="Note at ${fmt(n.t)}" placeholder="What's off here? e.g. line lands before the beat">${esc(n.text)}</textarea>
+    <button data-del="${i}" aria-label="Delete note">Delete</button></div>`).join("") : '<p class="muted">No notes yet. Pause on a moment and press N.</p>';
+}
+video.addEventListener("loadedmetadata", draw);
+video.addEventListener("timeupdate", () => { $("head").style.left = (video.currentTime / (video.duration || 1) * 100) + "%"; });
+$("track").addEventListener("click", e => { const r = e.currentTarget.getBoundingClientRect(); video.currentTime = (e.clientX - r.left) / r.width * (video.duration || 0); });
+$("notes").addEventListener("click", e => {
+  const j = e.target.closest("[data-jump]"); if (j) { video.currentTime = notes[+j.dataset.jump].t; video.pause(); }
+  const d = e.target.closest("[data-del]"); if (d) { notes.splice(+d.dataset.del, 1); store(); draw(); }
+});
+$("notes").addEventListener("input", e => { const t = e.target.closest("[data-edit]"); if (!t) return; notes[+t.dataset.edit].text = t.value; store(); });
+function fixList() {
+  return `# Fix list: ${fileName}\nReviewed ${new Date().toLocaleString()}\n\n` + notes.map(n => `- ${fmt(n.t)}  ${n.text || "(no note)"}`).join("\n") + "\n";
+}
+$("copy").addEventListener("click", () => navigator.clipboard.writeText(fixList()).then(() => { $("copy").textContent = "Copied"; setTimeout(() => $("copy").textContent = "Copy fix list", 1200); }, () => {}));
+$("save").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([fixList()], { type: "text/markdown" }));
+  a.download = fileName.replace(/\.[^.]+$/, "") + ".fix-list.md";
+  a.click();
+});
+document.addEventListener("keydown", e => {
+  if (e.target.matches("textarea, input")) return;
+  if (e.key === "n" || e.key === "N") { e.preventDefault(); add(); }
+  if (e.key === " " && fileName) { e.preventDefault(); video.paused ? video.play() : video.pause(); }
+  if (e.key === "," && fileName) { video.pause(); video.currentTime = Math.max(0, video.currentTime - 1 / 30); }
+  if (e.key === "." && fileName) { video.pause(); video.currentTime = Math.min(video.duration, video.currentTime + 1 / 30); }
+});
+</script></body></html>

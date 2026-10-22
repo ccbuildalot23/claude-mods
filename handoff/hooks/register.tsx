@@ -17,6 +17,24 @@ const ASK = `Write a handoff prompt so a brand-new Claude Code chat can pick up 
 8. The exact next step
 Write it as a prompt addressed to the new chat. Do not include secrets, keys or recovery/health/legal details; name the category only.`
 
+// /wrap closes a session (Oct 22, 2026, shortlist item 9). The closing question is for Chris to answer in
+// his own words; the AI never answers it or writes diary lines for him.
+const WRAP = `Close this session for Chris in under 15 lines, plain words, no headings beyond these three:
+Done: what got finished this session (bullets, one line each, with file paths where useful).
+Still open: what is unfinished or waiting on Chris's yes, and the one next step.
+For you: one short question for Chris to answer in his own words about this session (what he learned, what felt off, what he'd change). Ask it; never answer it.
+Do not include secrets, keys or recovery, health, legal or money details; name the category only.`
+
+async function writeWrap($: EngineInterface): Promise<string> {
+  const r = await $.model.fork({ prompt: WRAP })
+  if (!r.isAnswered) return `The wrap could not be written (${r.reason}).`
+  const home = (await $.env.get('HOME')) ?? '.'
+  const stamp = new Date(await $.clock.now()).toISOString().replace(/[:.]/g, '-').slice(0, 19)
+  const path = `${home}/Developer/claude-mods/handoffs/wrap-${stamp}.md`
+  await $.fs.write(path, r.text)
+  return `${r.text}\n\nSaved to ${path}. Answer the question in your own words whenever you like; nothing else needs doing.`
+}
+
 async function writeHandoff($: EngineInterface): Promise<string> {
   const r = await $.model.fork({ prompt: ASK })
   if (!r.isAnswered) return `Handoff could not be written (${r.reason}).`
@@ -31,6 +49,7 @@ async function writeHandoff($: EngineInterface): Promise<string> {
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'handoff', description: 'Write a detailed handoff prompt for a fresh chat (uses one AI call over this chat)' })
+    await $.command.register({ name: 'wrap', description: 'Close this session: what got done, what is open, and one question for you (uses one AI call)' })
     await $.command.register({ name: 'handoff-mod', description: 'Handoff suggestions on or off', argumentHint: 'on|off', immediate: true })
     return next(e)
   })
@@ -40,6 +59,8 @@ export const register: Register = on => {
     await update($, state, s => ({ ...s, isOn: turnOn }))
     return { text: `Handoff suggestions are ${turnOn ? 'on' : 'off'}. /handoff still works either way.` }
   })
+
+  on('command.run', { command: 'wrap' }, async $ => ({ text: await writeWrap($) }))
 
   on('command.run', { command: 'handoff' }, async $ => {
     const path = await writeHandoff($)
