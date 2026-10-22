@@ -1,11 +1,80 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-const dump = atom({ plugin: 'brain-dump', key: 'dump' } as const, { isOn: false, original: '', tidy: '', isWorking: false, bypass: '' })
+import type { DumpKind, SavedDump } from '../types'
 
-const LONG = 900
+const dump = atom({ plugin: 'brain-dump', key: 'dump' } as const, { isOn: true, kind: 'dump' as DumpKind, original: '', tidy: '', isWorking: false, bypass: '', passNext: false, notice: '' })
+const saved = atom({ plugin: 'brain-dump', key: 'saved' } as const, [] as SavedDump[])
 
-const SYSTEM = `You turn a person's messy spoken brain dump into a clear prompt for Claude Code. Fix obvious transcription errors and order the thoughts, using these headings: Task, Why, Guardrails, What done looks like, Open questions. Keep the person's meaning and decisions; add nothing they did not say. Hard rule: any poem lines, lyrics or creative writing in the dump are copied verbatim inside quotes, never edited, completed or improved. Output only the prompt.`
+const PANE = 'brain-dumps'
+const LONG = 600
+
+// First word routes the dump, the same words the Voice Inbox router reads.
+const PRIVATE = /^\s*(private|vault|journal|recovery)\s*[:\-—]\s*/i
+const LINE = /^\s*(line bank|poem line|line|labeau)\s*[:\-—]\s*/i
+
+const SYSTEM = `You turn a person's messy spoken brain dump into a clear prompt for Claude Code. Fix obvious transcription errors and order the thoughts, using these headings: Task, Why, Guardrails, What done looks like, To-dos (a checkbox list, one action each, in the order they should happen), Open questions. Keep the person's meaning and decisions; add nothing they did not say. Hard rule: any poem lines, lyrics or creative writing in the dump are copied verbatim inside quotes, never edited, completed or improved. Output only the prompt.`
+
+// Pasted code, logs and stack traces are long too; only speech-like text is held.
+function looksLikeDump(text: string): boolean {
+  if (text.length < LONG || text.trim().startsWith('/') || text.includes('```')) return false
+  const lines = text.split('\n').filter(l => l.trim().length > 0)
+  const codey = lines.filter(l => /[{};]\s*$|^\s*(at |\$ |>>>|import |export |def |function |const |let |<\/?[a-z]+[ >])/.test(l)).length
+  if (codey > Math.max(2, lines.length * 0.2)) return false
+  const words = text.split(/\s+/).filter(w => /^[a-z']+[,.!?]?$/i.test(w)).length
+  return words > text.split(/\s+/).length * 0.7
+}
+
+async function home($: EngineInterface): Promise<string> {
+  return (await $.env.get('HOME')) ?? '.'
+}
+
+async function stamp($: EngineInterface): Promise<string> {
+  return new Date(await $.clock.now()).toISOString().replace(/[:.]/g, '-').slice(0, 19)
+}
+
+// Two saves in the same second must not overwrite each other.
+async function freshPath($: EngineInterface, base: string, ext: string): Promise<string> {
+  let path = `${base}${ext}`
+  for (let n = 2; await $.fs.exists(path).catch(() => false); n += 1) path = `${base}-${n}${ext}`
+  return path
+}
+
+async function inboxDir($: EngineInterface): Promise<string> {
+  return `${await home($)}/Developer/claude-mods/brain-dump/inbox`
+}
+
+// Hands a dump to the Voice Inbox router, which files Line dumps into the line bank
+// word for word and everything else into the Recovery vault. Nothing goes to Claude.
+async function toVoiceInbox($: EngineInterface, trigger: 'Private' | 'Line', body: string): Promise<string> {
+  const path = await freshPath($, `${await home($)}/Voice Inbox/braindump-${await stamp($)}`, '.txt')
+  await $.fs.write(path, `${trigger}\n\n${body}\n`)
+  return path
+}
+
+async function saveForLater($: EngineInterface, text: string): Promise<string> {
+  const path = await freshPath($, `${await inboxDir($)}/dump-${await stamp($)}`, '.md')
+  await $.fs.write(path, `${text}\n`)
+  await refreshSaved($)
+  return path
+}
+
+async function refreshSaved($: EngineInterface): Promise<void> {
+  const dir = await inboxDir($)
+  const done = ((await $.store.get('done')) as string[] | undefined) ?? []
+  const entries = await $.fs.list(dir).catch(() => [])
+  const files = entries.filter(f => f.kind === 'file' && f.name.endsWith('.md') && !done.includes(f.name)).sort((a, b) => b.mtimeMs - a.mtimeMs).slice(0, 20)
+  const list: SavedDump[] = []
+  for (const f of files) {
+    const text = await $.fs.read(`${dir}/${f.name}`).catch(() => '')
+    list.push({ path: `${dir}/${f.name}`, name: f.name, preview: text.replace(/\s+/g, ' ').trim().slice(0, 120), mtimeMs: f.mtimeMs })
+  }
+  await update($, saved, () => list)
+}
+
+async function clear($: EngineInterface, notice: string): Promise<void> {
+  await update($, dump, v => ({ ...v, kind: 'dump' as const, original: '', tidy: '', notice }))
+}
 
 async function tidy($: EngineInterface): Promise<void> {
   const d = await read($, dump)
@@ -16,23 +85,64 @@ async function tidy($: EngineInterface): Promise<void> {
 }
 
 async function send($: EngineInterface, text: string): Promise<void> {
-  await update($, dump, v => ({ ...v, original: '', tidy: '', bypass: text }))
+  await update($, dump, v => ({ ...v, kind: 'dump' as const, original: '', tidy: '', notice: '', bypass: text }))
   await $.prompt.submit({ text, asUser: true })
+}
+
+async function editFirst($: EngineInterface, text: string): Promise<void> {
+  const r = await $.prompt.fill({ text })
+  if (!r.isFilled) {
+    $.ui.toast('brain-dump: could not put it in the prompt box; use Copy instead.')
+    return
+  }
+  await update($, dump, v => ({ ...v, kind: 'dump' as const, original: '', tidy: '', notice: '', passNext: true }))
+}
+
+async function file($: EngineInterface, trigger: 'Private' | 'Line'): Promise<void> {
+  const d = await read($, dump)
+  const body = d.original.replace(trigger === 'Private' ? PRIVATE : LINE, '')
+  const path = await toVoiceInbox($, trigger, body).catch(() => '')
+  if (path.length === 0) {
+    $.ui.toast('brain-dump: could not write to ~/Voice Inbox. Your dump is still held; copy it to keep it.')
+    return
+  }
+  await clear($, trigger === 'Private' ? 'Sent to the Recovery vault inbox. Claude never saw it.' : 'Sent to the line bank inbox, word for word.')
 }
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'braindump', description: 'Catch long brain dumps and offer a tidy prompt: /braindump on|off', argumentHint: 'on|off', immediate: true })
-    const saved = await $.store.get('isOn')
-    if (saved === true) await update($, dump, v => ({ ...v, isOn: true }))
+    await $.command.register({ name: 'braindump', description: 'Brain dump catcher: /braindump on|off|status (Private: is always held), or /braindump save TEXT to keep a thought for later', argumentHint: 'on|off|status|save TEXT', immediate: true })
+    await $.command.register({ name: 'dumps', description: 'Open your saved brain dumps beside the chat', immediate: true })
+    const isOn = await $.store.get('isOn')
+    await update($, dump, v => ({ ...v, isOn: isOn !== false }))
+    await refreshSaved($)
     return next(e)
   })
 
   on('command.run', { command: 'braindump' }, async ($, e) => {
-    const turnOn = e.args.trim().toLowerCase() !== 'off'
+    const args = e.args.trim()
+    const word = args.split(/\s+/)[0]?.toLowerCase() ?? ''
+    if (word === 'save') {
+      const text = args.slice(4).trim()
+      if (text.length === 0) return { text: 'Usage: /braindump save your thought here' }
+      const path = await saveForLater($, text)
+      return { text: `Saved for later: ${path}. /dumps shows it.` }
+    }
+    if (word === 'status') {
+      const d = await read($, dump)
+      const list = await read($, saved)
+      return { text: `Brain dump catcher is ${d.isOn ? 'on' : 'off'}; ${list.length} saved dump${list.length === 1 ? '' : 's'} waiting (/dumps).` }
+    }
+    const turnOn = word !== 'off'
     await update($, dump, v => ({ ...v, isOn: turnOn }))
     await $.store.set('isOn', turnOn)
     return { text: `Brain dump catcher is ${turnOn ? 'on' : 'off'}.` }
+  })
+
+  on('command.run', { command: 'dumps' }, async $ => {
+    await refreshSaved($)
+    await $.ui.open({ id: PANE, title: 'Brain dumps' })
+    return { text: 'Brain dumps opened.' }
   })
 
   on('prompt.submit', async ($, e, next) => {
@@ -42,15 +152,57 @@ export const register: Register = on => {
       await update($, dump, v => ({ ...v, bypass: '' }))
       return next(e)
     }
-    if (!d.isOn || text.length < LONG || text.trim().startsWith('/') || e.origin.kind !== 'composer') return next(e)
-    await update($, dump, v => ({ ...v, original: text, tidy: '' }))
-    return { drop: 'Held your brain dump: choose Tidy it or Send as is above the prompt.' }
+    if (e.origin.kind !== 'composer') return next(e)
+    if (d.passNext) {
+      await update($, dump, v => ({ ...v, passNext: false }))
+      return next(e)
+    }
+    // The private guard stays on even with the catcher off: Private: never reaches Claude.
+    if (PRIVATE.test(text)) {
+      await update($, dump, v => ({ ...v, kind: 'private' as const, original: text, tidy: '', notice: '' }))
+      return { drop: 'Held a private dump. It has not gone to Claude: choose Send to vault or Discard above the prompt.' }
+    }
+    if (!d.isOn) return next(e)
+    if (LINE.test(text)) {
+      await update($, dump, v => ({ ...v, kind: 'line' as const, original: text, tidy: '', notice: '' }))
+      return { drop: 'Held your line: choose To line bank or Send to Claude above the prompt.' }
+    }
+    if (!looksLikeDump(text)) return next(e)
+    await update($, dump, v => ({ ...v, kind: 'dump' as const, original: text, tidy: '', notice: '' }))
+    return { drop: 'Held your brain dump: choose Tidy it, Send as is or Save for later above the prompt.' }
   }).catch(($, e, next) => next(e))
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const d = await read($, dump)
-    if (e.props.hasSurvey || d.original.length === 0) return next(e)
+    if (e.props.hasSurvey) return next(e)
     const { Box, Text, Button } = $.ui.resolve(e)
+    if (d.original.length === 0) {
+      if (d.notice.length === 0) return next(e)
+      return (
+        <Box flexDirection="row">
+          <Text color="green">{d.notice} </Text>
+          <Button key="ok" label="OK" onPress={() => update($, dump, v => ({ ...v, notice: '' }))} />
+        </Box>
+      )
+    }
+    if (d.kind === 'private') {
+      return (
+        <Box flexDirection="row">
+          <Text color="magenta">Private dump held ({d.original.length} chars). Claude has not seen it. </Text>
+          <Button key="vault" variant="primary" label="Send to vault" onPress={() => file($, 'Private')} />
+          <Button key="discard" label="Discard" onPress={() => clear($, 'Private dump discarded.')} />
+        </Box>
+      )
+    }
+    if (d.kind === 'line') {
+      return (
+        <Box flexDirection="row">
+          <Text color="yellow">Line held, kept word for word. </Text>
+          <Button key="line" variant="primary" label="To line bank" onPress={() => file($, 'Line')} />
+          <Button key="as-is" label="Send to Claude" onPress={() => send($, d.original)} />
+        </Box>
+      )
+    }
     if (d.isWorking) return <Text dimColor>Tidying your brain dump...</Text>
     if (d.tidy.length > 0) {
       const tidyText = d.tidy
@@ -59,6 +211,7 @@ export const register: Register = on => {
           <Text dimColor>{tidyText.length > 600 ? tidyText.slice(0, 600) + '...' : tidyText}</Text>
           <Box flexDirection="row">
             <Button key="send-tidy" variant="primary" label="Send tidy" onPress={() => send($, tidyText)} />
+            <Button key="edit" label="Edit first" onPress={() => editFirst($, tidyText)} />
             <Button key="send-orig" label="Send original" onPress={() => send($, d.original)} />
             <Button key="copy" label="Copy tidy" onPress={press => $.ui.copy({ text: tidyText, surface: press.surface })} />
           </Box>
@@ -70,6 +223,37 @@ export const register: Register = on => {
         <Text color="cyan">Long brain dump caught ({d.original.length} chars). </Text>
         <Button key="tidy" variant="primary" label="Tidy it" onPress={() => tidy($)} />
         <Button key="as-is" label="Send as is" onPress={() => send($, d.original)} />
+        <Button key="later" label="Save for later" onPress={async () => {
+          const path = await saveForLater($, d.original)
+          await clear($, `Saved for later (${path.split('/').pop()}). /dumps shows it.`)
+        }} />
+      </Box>
+    )
+  })
+
+  on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
+    const { Box, Text, Button } = $.ui.resolve(e)
+    const list = await read($, saved)
+    const room = Math.max(1, Math.floor(((e.viewport?.rows ?? 24) - 3) / 3))
+    return (
+      <Box flexDirection="column">
+        {list.length === 0 && <Text dimColor>No saved dumps. Press Save for later on a held dump, or /braindump save TEXT.</Text>}
+        {list.slice(0, room).map(one => (
+          <Box key={one.name} flexDirection="column">
+            <Text>{one.preview}</Text>
+            <Box flexDirection="row">
+              <Button key={`work-${one.name}`} label="Work on this" onPress={async () => {
+                const text = await $.fs.read(one.path).catch(() => '')
+                if (text.length > 0) await editFirst($, text.trim())
+              }} />
+              <Button key={`done-${one.name}`} label="Done" onPress={async () => {
+                const done = ((await $.store.get('done')) as string[] | undefined) ?? []
+                await $.store.set('done', [...done, one.name].slice(-500))
+                await refreshSaved($)
+              }} />
+            </Box>
+          </Box>
+        ))}
       </Box>
     )
   })

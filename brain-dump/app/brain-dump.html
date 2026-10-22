@@ -1,0 +1,400 @@
+<title>Brain Dump</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column, a pocket notebook. Capture on top, then today's list, then the stack of dumps. */
+:root {
+  --bg: #f3f4f7;
+  --page: #ffffff;
+  --ink: #1b1f2a;
+  --muted: #5d6475;
+  --rule: #dfe2ea;
+  --accent: #3446c9;
+  --accent-ink: #ffffff;
+  --gold: #9a6b00;
+  --gold-bg: #fff4d6;
+  --plum: #7a2e6b;
+  --plum-bg: #f7e8f3;
+  --sage: #2f6b4f;
+  --sage-bg: #e4f2ea;
+  --display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --body: "Atkinson Hyperlegible", -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12141b; --page: #1b1e28; --ink: #e9ebf2; --muted: #9aa1b4; --rule: #2c3140;
+    --accent: #8d9bff; --accent-ink: #10132a; --gold: #f2c35b; --gold-bg: #33290f;
+    --plum: #e59bd3; --plum-bg: #351c30; --sage: #8fd3ad; --sage-bg: #18301f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12141b; --page: #1b1e28; --ink: #e9ebf2; --muted: #9aa1b4; --rule: #2c3140;
+  --accent: #8d9bff; --accent-ink: #10132a; --gold: #f2c35b; --gold-bg: #33290f;
+  --plum: #e59bd3; --plum-bg: #351c30; --sage: #8fd3ad; --sage-bg: #18301f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 640px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--display); font-weight: 400; font-size: 2.4rem; line-height: 1; margin: 0; letter-spacing: -0.01em; }
+h1 em { color: var(--accent); }
+.date { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+h2 { font-family: var(--display); font-weight: 400; font-size: 1.5rem; margin: 0; text-wrap: balance; }
+.label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+.capture { background: var(--page); border: 1px solid var(--rule); border-radius: 14px; padding: 14px; display: grid; gap: 12px; }
+textarea { width: 100%; min-height: 9.5rem; resize: vertical; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 1.05rem; line-height: 1.55; outline: none; }
+textarea::placeholder { color: var(--muted); }
+.lanes { display: flex; flex-wrap: wrap; gap: 8px; }
+.lane { border: 1px solid var(--rule); background: transparent; color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 0.88rem; cursor: pointer; }
+.lane[aria-pressed="true"] { background: var(--ink); color: var(--page); border-color: var(--ink); }
+.lane[data-lane="line"][aria-pressed="true"] { background: var(--gold-bg); color: var(--gold); border-color: var(--gold); }
+.lane[data-lane="private"][aria-pressed="true"] { background: var(--plum-bg); color: var(--plum); border-color: var(--plum); }
+.hint { font-size: 0.85rem; color: var(--muted); margin: 0; }
+.hint.private { color: var(--plum); }
+.hint.line { color: var(--gold); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+button.primary, button.ghost { font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; border: 1px solid transparent; }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button.ghost { background: transparent; color: var(--ink); border-color: var(--rule); font-weight: 400; }
+button.small { padding: 6px 10px; font-size: 0.85rem; }
+button:disabled { opacity: 0.5; cursor: default; }
+button:focus-visible, .lane:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.status { font-size: 0.85rem; color: var(--sage); min-height: 1.3em; margin: 0; }
+.status.warn { color: var(--plum); }
+section { display: grid; gap: 10px; }
+.big3 { display: grid; gap: 6px; }
+.todo { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.todo input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent); flex: none; }
+.todo span { min-width: 0; overflow-wrap: anywhere; }
+.todo.done span { color: var(--muted); text-decoration: line-through; }
+.todo .from { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-left: auto; flex: none; }
+.star { color: var(--accent); font-weight: 700; }
+.empty { color: var(--muted); font-size: 0.92rem; margin: 0; }
+.dump { background: var(--page); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; min-width: 0; }
+.dump.private { border-color: var(--plum); }
+.dump.line { border-color: var(--gold); }
+.meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.tag { border-radius: 999px; padding: 1px 8px; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 0.75rem; }
+.tag.line { background: var(--gold-bg); color: var(--gold); }
+.tag.private { background: var(--plum-bg); color: var(--plum); }
+.tag.sorted { background: var(--sage-bg); color: var(--sage); }
+.text { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.text.verbatim { color: var(--gold); font-family: var(--display); font-size: 1.2rem; line-height: 1.4; }
+.sorted-out { display: grid; gap: 6px; border-top: 1px dashed var(--rule); padding-top: 8px; font-size: 0.92rem; }
+.sorted-out ul { margin: 0; padding-left: 1.1rem; }
+.sorted-out .lines li { color: var(--gold); font-family: var(--display); font-size: 1.1rem; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+@media (prefers-reduced-motion: no-preference) { .dump { transition: border-color 0.2s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Brain <em>Dump</em></h1>
+    <span class="date" id="today"></span>
+  </header>
+
+  <form class="capture" id="capture" autocomplete="off">
+    <label class="label" for="dump-text">Say it or type it</label>
+    <textarea id="dump-text" placeholder="Tap the mic on your keyboard and just talk. Messy is fine."></textarea>
+    <div class="lanes" role="group" aria-label="Where it goes">
+      <button type="button" class="lane" data-lane="auto" aria-pressed="true">Sort it for me</button>
+      <button type="button" class="lane" data-lane="todo" aria-pressed="false">To-do</button>
+      <button type="button" class="lane" data-lane="idea" aria-pressed="false">Idea</button>
+      <button type="button" class="lane" data-lane="harmoniq" aria-pressed="false">Harmoniq</button>
+      <button type="button" class="lane" data-lane="line" aria-pressed="false">LaBeau line</button>
+      <button type="button" class="lane" data-lane="private" aria-pressed="false">Private</button>
+    </div>
+    <p class="hint" id="lane-hint">Saved to your list, then Claude splits it into to-dos, ideas, Harmoniq items and LaBeau lines. Poem lines stay word for word.</p>
+    <div class="row">
+      <button type="submit" class="primary" id="save">Save dump</button>
+      <p class="status" id="status" role="status"></p>
+    </div>
+  </form>
+
+  <section aria-labelledby="todo-h">
+    <div class="row" style="justify-content: space-between">
+      <h2 id="todo-h">Today's list</h2>
+      <button type="button" class="ghost small" id="big3">Pick my Big 3</button>
+    </div>
+    <div class="big3" id="big3-list" hidden></div>
+    <div id="todos"><p class="empty">To-dos from your dumps land here. Check them off as you go.</p></div>
+  </section>
+
+  <section aria-labelledby="dumps-h">
+    <div class="row" style="justify-content: space-between">
+      <h2 id="dumps-h">Your dumps</h2>
+      <div class="filters" role="group" aria-label="Show">
+        <button type="button" class="lane small" data-filter="open" aria-pressed="true">Open</button>
+        <button type="button" class="lane small" data-filter="all" aria-pressed="false">All</button>
+      </div>
+    </div>
+    <div id="dumps" class="big3"><p class="empty">Nothing here yet. Your first dump shows up as soon as you save it.</p></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var LANES = {
+    auto: { tag: 'Sorting', hint: 'Saved to your list, then Claude splits it into to-dos, ideas, Harmoniq items and LaBeau lines. Poem lines stay word for word.', cls: '' },
+    todo: { tag: 'To-do', hint: 'Saved as to-dos. One line per task works best.', cls: '' },
+    idea: { tag: 'Idea', hint: 'Saved to your ideas. Nothing is sent anywhere.', cls: '' },
+    harmoniq: { tag: 'Harmoniq', hint: 'Saved as a Harmoniq note. Leave client names out if you can.', cls: '' },
+    line: { tag: 'LaBeau line', hint: 'Kept exactly as you wrote it. Nobody edits or finishes it. Use "Send to line bank" to file it on the Mac.', cls: 'line' },
+    private: { tag: 'Private', hint: 'Stays on this phone only. Claude never reads it and it is never saved online. Use "Send to vault" to file it into the Recovery vault.', cls: 'private' }
+  };
+  var SORT_PROMPT = 'You sort a spoken brain dump from Chris, a poet (LaBeau) and risk consultant (Harmoniq). Return JSON only: {"todos": [short action strings], "ideas": [strings], "harmoniq": [strings], "lines": [strings], "big3": [up to 3 strings copied from todos]}. Rules: todos are concrete actions, one per item, starting with a verb. ideas are LaBeau or general creative or business ideas that are not actions. harmoniq is anything about risk consulting, clients or GRC. lines are any poem lines, lyrics or phrases he wants to keep: copy them EXACTLY, character for character, never edit, finish or improve them. Add nothing he did not say. If a list is empty return []. The dump:\n\n';
+
+  var lane = 'auto';
+  var filter = 'open';
+  var db = null, sample = null, downloads = null, uid = null;
+  var online = [];
+  var privateDumps = loadPrivate();
+  var big3 = [];
+  var $ = function (id) { return document.getElementById(id); };
+
+  $('today').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+
+  function loadPrivate() {
+    try { return JSON.parse(localStorage.getItem('bd-private') || '[]'); } catch (e) { return []; }
+  }
+  function savePrivate() {
+    try { localStorage.setItem('bd-private', JSON.stringify(privateDumps)); return true; } catch (e) { return false; }
+  }
+  function setStatus(text, warn) {
+    var s = $('status'); s.textContent = text; s.className = 'status' + (warn ? ' warn' : '');
+  }
+  function stamp(ms) {
+    var d = new Date(ms);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
+  function fileStamp(ms) { return new Date(ms).toISOString().replace(/[:.]/g, '-').slice(0, 19); }
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  document.querySelectorAll('.lane[data-lane]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      lane = b.dataset.lane;
+      document.querySelectorAll('.lane[data-lane]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      var h = $('lane-hint'); h.textContent = LANES[lane].hint; h.className = 'hint ' + LANES[lane].cls;
+    });
+  });
+  document.querySelectorAll('.lane[data-filter]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      filter = b.dataset.filter;
+      document.querySelectorAll('.lane[data-filter]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      render();
+    });
+  });
+
+  $('capture').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var text = $('dump-text').value.trim();
+    if (!text) { setStatus('Write or dictate something first.', true); return; }
+    var now = Date.now();
+    if (lane === 'private') {
+      privateDumps.unshift({ id: 'p' + now, text: text, lane: 'private', createdAt: now, done: false });
+      var kept = savePrivate();
+      $('dump-text').value = '';
+      setStatus(kept ? 'Kept on this phone only.' : 'Held for now, but this browser will not keep it after you close the page. Send it to the vault now.', !kept);
+      render();
+      return;
+    }
+    if (!db || !uid) { setStatus('Saving needs you signed in to claude.ai. Your words are still in the box.', true); return; }
+    var doc = { text: text, lane: lane, createdAt: now, done: false };
+    if (lane === 'todo') doc.sorted = { todos: text.split(/\n+/).map(function (t) { return t.trim(); }).filter(Boolean), ideas: [], harmoniq: [], lines: [] };
+    if (lane === 'idea') doc.sorted = { todos: [], ideas: [text], harmoniq: [], lines: [] };
+    if (lane === 'harmoniq') doc.sorted = { todos: [], ideas: [], harmoniq: [text], lines: [] };
+    try {
+      var ref = await db.collection('data/users/' + uid).add(doc);
+      $('dump-text').value = '';
+      setStatus('Saved.');
+      if (lane === 'auto') sortDump(ref.id, text);
+    } catch (e) {
+      setStatus('Could not save (' + (e && e.code || 'error') + '). Your words are still in the box; try again.', true);
+    }
+  });
+
+  async function sortDump(id, text) {
+    if (!sample) { setStatus('Saved. Sorting is not available in this view, so it stays as one dump.', true); return; }
+    setStatus('Saved. Sorting it...');
+    try {
+      var out = await sample.json(SORT_PROMPT + text, { modelTier: 'quick' });
+      var clean = function (a) { return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string' && x.trim(); }) : []; };
+      // Lines must be his exact words: drop any "line" that does not appear verbatim in the dump.
+      var lines = clean(out && out.lines).filter(function (l) { return text.indexOf(l) !== -1; });
+      var sorted = { todos: clean(out && out.todos), ideas: clean(out && out.ideas), harmoniq: clean(out && out.harmoniq), lines: lines };
+      await db.doc('data/users/' + uid + '/' + id).update({ sorted: sorted, done_todos: [] });
+      setStatus('Sorted: ' + sorted.todos.length + ' to-do' + (sorted.todos.length === 1 ? '' : 's') + ', ' + sorted.ideas.length + ' idea' + (sorted.ideas.length === 1 ? '' : 's') + ', ' + lines.length + ' line' + (lines.length === 1 ? '' : 's') + '.');
+    } catch (e) {
+      if (e && e.code === 'not_granted') setStatus('Saved. Sorting needs your OK to ask Claude; it stays as one dump.', true);
+      else setStatus('Saved, but sorting did not finish (' + (e && e.code || 'error') + '). Press Sort on the dump to try again.', true);
+    }
+  }
+
+  $('big3').addEventListener('click', async function () {
+    var open = allTodos().filter(function (t) { return !t.done; });
+    if (open.length === 0) { setStatus('No open to-dos to pick from yet.', true); return; }
+    if (open.length <= 3 || !sample) { big3 = open.slice(0, 3).map(function (t) { return t.text; }); renderBig3(); return; }
+    this.disabled = true;
+    try {
+      var picks = await sample.json('From this to-do list, pick the 3 that matter most today for a solo founder in recovery who works best with small, clear wins. Return JSON only: {"big3": [3 strings copied exactly from the list]}.\n\n' + open.map(function (t) { return '- ' + t.text; }).join('\n'), { modelTier: 'quick' });
+      big3 = (picks && Array.isArray(picks.big3) ? picks.big3 : []).filter(function (p) { return open.some(function (t) { return t.text === p; }); }).slice(0, 3);
+      if (big3.length === 0) big3 = open.slice(0, 3).map(function (t) { return t.text; });
+    } catch (e) {
+      big3 = open.slice(0, 3).map(function (t) { return t.text; });
+    }
+    this.disabled = false;
+    renderBig3();
+  });
+
+  function allTodos() {
+    var list = [];
+    online.forEach(function (d) {
+      var s = d.sorted; if (!s || !Array.isArray(s.todos)) return;
+      var done = Array.isArray(d.done_todos) ? d.done_todos : [];
+      s.todos.forEach(function (t, i) { list.push({ dumpId: d.id, index: i, text: t, done: done.indexOf(i) !== -1, createdAt: d.createdAt }); });
+    });
+    return list;
+  }
+
+  async function toggleTodo(t, checked) {
+    var d = online.find(function (x) { return x.id === t.dumpId; }); if (!d) return;
+    var done = (Array.isArray(d.done_todos) ? d.done_todos : []).filter(function (i) { return i !== t.index; });
+    if (checked) done.push(t.index);
+    try { await db.doc('data/users/' + uid + '/' + d.id).update({ done_todos: done }); }
+    catch (e) { setStatus('Could not save that check (' + (e && e.code || 'error') + ').', true); }
+  }
+
+  async function exportFor(d, trigger) {
+    var body = trigger + '\n\n' + d.text + '\n';
+    var name = 'braindump-' + fileStamp(d.createdAt) + '.txt';
+    if (downloads) {
+      try {
+        await downloads.save({ filename: name, data: body });
+        setStatus('File ready. AirDrop it to your Mac and drop it in Voice Inbox; the router files it.');
+        return true;
+      } catch (e) {
+        if (e && e.code === 'declined') { setStatus('Not saved.', true); return false; }
+      }
+    }
+    try { await navigator.clipboard.writeText(body); setStatus('Copied. Paste it into a new note in Voice Inbox on your Mac.'); return true; }
+    catch (e) { setStatus('Could not copy here. Select the text and copy it by hand.', true); return false; }
+  }
+
+  async function copyForClaude(d) {
+    var parts = ['Brain dump from my phone (' + stamp(d.createdAt) + '). Turn it into a plan; keep any poem lines exactly as written.', '', d.text];
+    try { await navigator.clipboard.writeText(parts.join('\n')); setStatus('Copied. Paste it into Claude Code.'); }
+    catch (e) { setStatus('Could not copy here. Select the text and copy it by hand.', true); }
+  }
+
+  async function setDone(d, done) {
+    if (d.lane === 'private') {
+      d.done = done; savePrivate(); render(); return;
+    }
+    try { await db.doc('data/users/' + uid + '/' + d.id).update({ done: done }); }
+    catch (e) { setStatus('Could not update (' + (e && e.code || 'error') + ').', true); }
+  }
+
+  function renderBig3() {
+    var box = $('big3-list'); box.innerHTML = '';
+    box.hidden = big3.length === 0;
+    big3.forEach(function (t, i) {
+      var row = el('div', 'todo'); row.appendChild(el('span', 'star', String(i + 1))); row.appendChild(el('span', '', t)); box.appendChild(row);
+    });
+  }
+
+  function render() {
+    var todos = allTodos();
+    var tbox = $('todos'); tbox.innerHTML = '';
+    var shown = todos.filter(function (t) { return !t.done; }).concat(todos.filter(function (t) { return t.done; }).slice(0, 5));
+    if (shown.length === 0) tbox.appendChild(el('p', 'empty', 'To-dos from your dumps land here. Check them off as you go.'));
+    shown.forEach(function (t) {
+      var row = el('label', 'todo' + (t.done ? ' done' : ''));
+      var box = document.createElement('input'); box.type = 'checkbox'; box.checked = t.done; box.id = 'todo-' + t.dumpId + '-' + t.index;
+      box.addEventListener('change', function () { toggleTodo(t, box.checked); });
+      row.appendChild(box); row.appendChild(el('span', '', t.text)); row.appendChild(el('span', 'from', stamp(t.createdAt)));
+      tbox.appendChild(row);
+    });
+
+    var dbox = $('dumps'); dbox.innerHTML = '';
+    var all = privateDumps.concat(online).sort(function (a, b) { return b.createdAt - a.createdAt; });
+    var list = filter === 'open' ? all.filter(function (d) { return !d.done; }) : all;
+    if (list.length === 0) dbox.appendChild(el('p', 'empty', filter === 'open' ? 'All clear. Nothing open.' : 'Nothing here yet. Your first dump shows up as soon as you save it.'));
+    list.forEach(function (d) {
+      var info = LANES[d.lane] || LANES.auto;
+      var card = el('article', 'dump ' + info.cls);
+      var meta = el('div', 'meta');
+      meta.appendChild(el('span', '', stamp(d.createdAt)));
+      meta.appendChild(el('span', 'tag ' + info.cls, d.lane === 'auto' ? (d.sorted ? 'Sorted' : 'Not sorted yet') : info.tag));
+      if (d.lane === 'private') meta.appendChild(el('span', '', 'this phone only'));
+      if (d.done) meta.appendChild(el('span', 'tag sorted', 'Done'));
+      card.appendChild(meta);
+      card.appendChild(el('p', 'text' + (d.lane === 'line' ? ' verbatim' : ''), d.text));
+
+      if (d.lane === 'auto' && d.sorted) {
+        var s = d.sorted, out = el('div', 'sorted-out');
+        [['ideas', 'Ideas'], ['harmoniq', 'Harmoniq'], ['lines', 'LaBeau lines, word for word']].forEach(function (k) {
+          var items = s[k[0]] || []; if (!items.length) return;
+          out.appendChild(el('span', 'label', k[1]));
+          var ul = el('ul', k[0] === 'lines' ? 'lines' : ''); items.forEach(function (x) { ul.appendChild(el('li', '', x)); }); out.appendChild(ul);
+        });
+        if ((s.todos || []).length) out.appendChild(el('span', 'label', s.todos.length + ' to-do' + (s.todos.length === 1 ? '' : 's') + ' added to today\'s list'));
+        if (out.childNodes.length) card.appendChild(out);
+      }
+
+      var row = el('div', 'row');
+      if (d.lane === 'private') {
+        var v = el('button', 'primary small', 'Send to vault'); v.type = 'button';
+        v.addEventListener('click', async function () { if (await exportFor(d, 'Private')) { d.filed = true; savePrivate(); } });
+        row.appendChild(v);
+      } else if (d.lane === 'line') {
+        var l = el('button', 'primary small', 'Send to line bank'); l.type = 'button';
+        l.addEventListener('click', function () { exportFor(d, 'Line'); });
+        row.appendChild(l);
+      } else {
+        var c = el('button', 'ghost small', 'Copy for Claude Code'); c.type = 'button';
+        c.addEventListener('click', function () { copyForClaude(d); });
+        row.appendChild(c);
+        if (d.lane === 'auto' && !d.sorted) {
+          var so = el('button', 'ghost small', 'Sort'); so.type = 'button';
+          so.addEventListener('click', function () { sortDump(d.id, d.text); });
+          row.appendChild(so);
+        }
+      }
+      var dn = el('button', 'ghost small', d.done ? 'Reopen' : 'Done'); dn.type = 'button';
+      dn.addEventListener('click', function () { setDone(d, !d.done); });
+      row.appendChild(dn);
+      if (d.lane === 'private') {
+        var del = el('button', 'ghost small', 'Delete from phone'); del.type = 'button';
+        del.addEventListener('click', function () {
+          if (del.dataset.armed !== '1') { del.dataset.armed = '1'; del.textContent = 'Tap again to delete'; return; }
+          privateDumps = privateDumps.filter(function (p) { return p.id !== d.id; }); savePrivate(); render();
+        });
+        row.appendChild(del);
+      }
+      card.appendChild(row);
+      dbox.appendChild(card);
+    });
+  }
+
+  render();
+
+  if (window.claude && window.claude.use) {
+    (async function () {
+      var user = await window.claude.use('user');
+      db = await window.claude.use('db');
+      sample = await window.claude.use('sample');
+      downloads = await window.claude.use('downloads');
+      if (user) uid = await user.id();
+      if (!db || !uid) { setStatus('Sign in to claude.ai to save dumps. Private ones still work on this phone.', true); return; }
+      db.collection('data/users/' + uid).orderBy('createdAt', 'desc').limit(300).onSnapshot(function (snap) {
+        online = snap.docs.map(function (s) { var v = s.data() || {}; v.id = s.id; return v; }).filter(function (v) { return typeof v.text === 'string'; });
+        render();
+      }, function (e) { setStatus('Lost the connection to your dumps (' + (e && e.code || 'error') + '). Reload to reconnect.', true); });
+    })();
+  } else {
+    setStatus('Open this on claude.ai to save dumps. Private ones still work on this phone.', true);
+  }
+})();
+</script>
