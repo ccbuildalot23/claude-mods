@@ -11,3 +11,5 @@ config/private-names.txt
 config/private-words.txt
 config/lightweek.json
 config/grid-pins.json
+brain-dump/inbox/
+__pycache__/

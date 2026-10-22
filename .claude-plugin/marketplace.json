@@ -17,7 +17,7 @@
     {
       "name": "brain-dump",
       "source": "./brain-dump",
-      "description": "Catches long, messy voice brain dumps before Claude reads them and offers to tidy them into a clear prompt (task, why, guardrails, done looks like, open questions). Off until /braindump on; tidying uses one small AI call."
+      "description": "Catches long, messy voice brain dumps before Claude reads them and offers to tidy them into a clear prompt (task, why, guardrails, done looks like, open questions). On by default (pasted code and logs pass through). Private: and Line: dumps never reach Claude and go to the Voice Inbox router; /dumps keeps saved thoughts. Tidying uses one small AI call."
     },
     {
       "name": "bridge-inbox",
@@ -38,6 +38,11 @@
       "name": "chat-inventory",
       "source": "./chat-inventory",
       "description": "An 'In this chat' panel like Cowork's: the goal, connectors called and how often, skills used, links fetched, and a file tree that shows which files Claude read, is editing, or changed. Uses no AI."
+    },
+    {
+      "name": "crew",
+      "source": "./crew",
+      "description": "Gives every subagent a name, its own color and a character (fox, owl, octopus...), and shows live what each one is doing and how far along it is, above the prompt and in a /crew panel. Uses no AI."
     },
     {
       "name": "handoff",

@@ -1,0 +1,1 @@
+{ "name": "crew", "version": "0.1.0", "description": "Gives every subagent a name, its own color and a character, and shows live what each one is doing and how far along it is, above the prompt and in a /crew panel. Uses no AI.", "types": "./types/index.d.ts" }

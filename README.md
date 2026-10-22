@@ -15,12 +15,13 @@ Then restart Claude Code (or run `/reload-plugins` in an open session). Uninstal
 | screen-share | /screenshare, /screenshare add NAME | no | Gray bars over names, emails, phones, money, keys; hides tool details. Names list stays on this Mac. |
 | switchboard | /mods | no | One panel to switch each mod on/off mid-chat, and block any other plugin from loading next time. blast-radius is locked on. |
 | helper-desk | /helperdesk | no | Purple progress bar above the prompt; panel of subagents with time, tokens, API-equivalent cost. |
+| crew | /crew, /crew on/off | no | Every subagent gets its own character, name and color (🦊 Ember, 🦉 Sage, 🐙 Inky...). A colored row per working agent above the prompt shows what it is doing right now ("Reading README.md", "Run unit tests") and its progress: a bar from its own to-do list, or its step count, plus elapsed time. /crew opens the full roster with each agent's task and checklist. |
 | cache-clock | /keepwarm, /cacheclock | only /keepwarm pings | Status line: today's AI window or quiet hours (from `config/clock.json`), your 5-hour and weekly limits, and the countdown until the prompt cache goes cold; warns before a cold, expensive message; /keepwarm pings for up to 2 h. |
 | handoff | /handoff, /wrap | yes, one call | /handoff writes a full prompt for a fresh chat; /wrap closes a session with Done, Still open and one question for you. Both saved to ~/Developer/claude-mods/handoffs/. |
 | reflect | /reflect on/off | no | Spots rules you give ("never", "always", "from now on") and saves the ones you pick to rules-inbox.md. Give the same rule twice and it offers to promote it into ~/.claude/CLAUDE.md. |
 | chat-inventory | /inventory | no | Cowork-style "In this chat" panel: goal, connectors, skills, links and a file tree (read / editing / changed). Covers the File Tree mod too. |
 | replay-theater | /replay | no | Steps through each file edit from the last reply as a diff. Read-only. |
-| brain-dump | /braindump on | yes, one small call | Off by default. Holds long voice dumps and offers a tidy prompt; poem lines are kept verbatim. |
+| brain-dump | /braindump on/off/status, /braindump save TEXT, /dumps | yes, one small call per Tidy | On by default. Holds long spoken rambles (pasted code and logs pass through) with Tidy it / Send as is / Save for later; Tidy adds a to-do list and offers Edit first. A prompt starting `Private:` (or Vault:, Journal:, Recovery:) is always held and never reaches Claude: Send to vault drops it in ~/Voice Inbox for the vault router. `Line:` dumps go to the line bank inbox word for word. /dumps lists saved thoughts beside the chat. Phone app: https://claude.ai/artifact/9xMve7HGWkuoSbFmXkjNw8 (source in brain-dump/app/). |
 | heads-up | /headsup on/off | yes, small, long replies only | The "you should know" mod: pops up costs, irreversible steps, deadlines, asks for your yes. |
 | skins | /skin labeau, noir, tokyo, off | no | Icons and colors per tool call, themed spinner words. |
 | browser-peek | /peek URL | no | The terminal-browser mod: headless Chrome screenshot of a page in a side panel (picture shows in the terminal app; desktop shows the saved file). In cloud sessions it uses the bundled Chromium. |
@@ -31,7 +32,7 @@ Then restart Claude Code (or run `/reload-plugins` in an open session). Uninstal
 | needs-you | /needsyou on/off | no | Desktop ping when a long turn finishes or Claude waits on you. Quiet hours hold them and send one roundup after. |
 | lightweek | /lightweek [days], /lightweek off | no | Tells every session to keep to essentials for 7 days (or the days you give); a quiet line shows it's on. |
 
-All 13 mods named in the Oct 21 lecture are covered (File Tree lives inside chat-inventory). The Oct 22 shortlist added privacy-preflight, outbox, action-log, bridge-inbox, needs-you and lightweek, and grew cache-clock, handoff and reflect.
+All 13 mods named in the Oct 21 lecture are covered (File Tree lives inside chat-inventory). crew was added Oct 22. The Oct 22 shortlist added privacy-preflight, outbox, action-log, bridge-inbox, needs-you and lightweek, and grew cache-clock, handoff and reflect.
 
 Your private settings live in `config/` and never reach git: `private-names.txt` and `private-words.txt` (one per line, for privacy-preflight), `lightweek.json`, `grid-pins.json`. `config/clock.json` (AI windows and quiet hours) is shared by cache-clock and needs-you.
 
@@ -51,6 +52,7 @@ cd ~/Developer/claude-mods/apps && ./open.sh line-bank
 | Reel review board | `./open.sh reel-review` | Load a Reel, drop timed notes as you watch, save a fix list. Notes stay in the browser. |
 | Brand-deal tracker | `./open.sh brand-deals` | Idea → Researching → Warm intro → In talks → Agreed or Passed, with notes and CSV export. Stays in the browser; nothing is sent. |
 
+Not a plugin, but living here too: **voice-vault/** (voice memos and text dumps transcribed on the Mac and filed to the line bank or the Recovery vault). See `voice-vault/README.md`.
 
 ## Tests
 Each mod has engine tests under `<mod>/tests/`. Run one with `claude plugin test <mod>`, or all with:

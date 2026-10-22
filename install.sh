@@ -2,7 +2,7 @@
 # Installs every mod in this folder as a user-scope Claude Code plugin.
 cd "$(dirname "$0")"
 claude plugin marketplace add "$PWD" 2>/dev/null || claude plugin marketplace update chris-mods
-for m in switchboard blast-radius screen-share helper-desk chat-inventory replay-theater reflect cache-clock handoff brain-dump heads-up skins browser-peek privacy-preflight outbox action-log bridge-inbox needs-you lightweek; do
+for m in switchboard blast-radius screen-share helper-desk chat-inventory replay-theater reflect cache-clock handoff brain-dump heads-up skins browser-peek crew privacy-preflight outbox action-log bridge-inbox needs-you lightweek; do
   claude plugin install "$m@chris-mods" || echo "  ($m: already installed or failed, see above)"
 done
 claude plugin list | grep -A4 "@chris-mods" | grep -E "@chris-mods|Status"

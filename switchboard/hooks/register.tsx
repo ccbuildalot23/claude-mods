@@ -17,6 +17,7 @@ const SUITE: { name: string; command?: string; what: string; isLocked?: boolean 
   { name: 'heads-up', command: 'headsup', what: 'Pops up what you must not miss in long replies (uses AI)' },
   { name: 'skins', command: 'skin', what: 'Icons and colors for tool calls' },
   { name: 'browser-peek', what: 'Screenshot a page into a panel with /peek URL' },
+  { name: 'crew', command: 'crew', what: 'Named, colored subagents with live progress' },
   { name: 'privacy-preflight', what: 'Blocks private names, private-life words and keys from shared writes', isLocked: true },
   { name: 'outbox', what: 'Holds sends, posts and pushes until you type /outbox release', isLocked: true },
   { name: 'action-log', what: 'One log line per tool call, before it runs; /log', isLocked: true },
