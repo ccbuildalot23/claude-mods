@@ -35,6 +35,7 @@
   --plum: #e59bd3; --plum-bg: #351c30; --sage: #8fd3ad; --sage-bg: #18301f; color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
 .wrap { max-width: 640px; margin: 0 auto; padding-block: 20px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
 header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -58,7 +59,13 @@ textarea::placeholder { color: var(--muted); }
 button.primary, button.ghost { font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; border: 1px solid transparent; }
 button.primary { background: var(--accent); color: var(--accent-ink); }
 button.ghost { background: transparent; color: var(--ink); border-color: var(--rule); font-weight: 400; }
-button.small { padding: 6px 10px; font-size: 0.85rem; }
+button.small { padding: 8px 12px; font-size: 0.88rem; min-height: 40px; }
+.lane { min-height: 40px; }
+.toast { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: var(--ink); color: var(--page); font-size: 0.95rem; text-align: center; }
+.toast.warn { background: var(--plum); color: #ffffff; }
+.sheet { position: fixed; inset: auto 0 0 0; z-index: 30; background: var(--page); border-top: 1px solid var(--rule); box-shadow: 0 -8px 24px rgba(0,0,0,0.18); padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 10px; max-height: 75vh; }
+.sheet textarea { min-height: 12rem; max-height: 50vh; font-family: var(--mono); font-size: 0.78rem; background: var(--bg); border-radius: 8px; padding: 10px; }
+.foot { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-align: center; margin: 0; padding-bottom: 56px; }
 button:disabled { opacity: 0.5; cursor: default; }
 button:focus-visible, .lane:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .status { font-size: 0.85rem; color: var(--sage); min-height: 1.3em; margin: 0; }
@@ -142,6 +149,17 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
     </div>
     <div id="dumps" class="big3"><p class="empty">Nothing here yet. Your first dump shows up as soon as you save it.</p></div>
   </section>
+  <p class="foot" id="foot">Brain Dump v5 · tested Oct 22, 11:25 PM</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-labelledby="sheet-h" hidden>
+  <h2 id="sheet-h" style="font-size:1.2rem">Ready to paste into Claude</h2>
+  <textarea id="sheet-text" readonly></textarea>
+  <p class="hint" id="sheet-hint">Tap Copy. If your phone blocks it, press and hold the text, Select All, then Copy.</p>
+  <div class="row">
+    <button type="button" class="primary" id="sheet-copy">Copy</button>
+    <button type="button" class="ghost" id="sheet-close">Close</button>
+  </div>
 </div>
 
 <script>
@@ -190,9 +208,15 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
   function savePrivate() {
     try { localStorage.setItem('bd-private', JSON.stringify(privateDumps)); return true; } catch (e) { return false; }
   }
+  var toastTimer = null;
   function setStatus(text, warn) {
     var s = $('status'); s.textContent = text; s.className = 'status' + (warn ? ' warn' : '');
+    // The status line sits at the top; a toast shows the result wherever the button was.
+    var t = $('toast'); t.textContent = text; t.className = 'toast' + (warn ? ' warn' : ''); t.hidden = !text;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, warn ? 6000 : 3000);
   }
+  window.addEventListener('error', function (e) { setStatus('Something broke: ' + (e && e.message || 'unknown error') + '. Reload the page.', true); });
+  window.addEventListener('unhandledrejection', function (e) { var r = e && e.reason; setStatus('Something did not finish (' + (r && (r.code || r.message) || 'error') + ').', true); });
   function stamp(ms) {
     var d = new Date(ms);
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
@@ -238,6 +262,7 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       $('dump-text').value = '';
       setStatus('Saved.');
       if (lane === 'auto') sortDump(ref.id, text);
+      else if (lane !== 'line') promptOnly(ref.id, text);
     } catch (e) {
       setStatus('Could not save (' + (e && e.code || 'error') + '). Your words are still in the box; try again.', true);
     }
@@ -264,6 +289,14 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       if (e && e.code === 'not_granted') setStatus('Saved. Sorting needs your OK to ask Claude; it stays as one dump.', true);
       else setStatus('Saved, but sorting did not finish (' + (e && e.code || 'error') + '). Press Sort on the dump to try again.', true);
     }
+  }
+
+  async function promptOnly(id, text) {
+    if (!sample) return;
+    try {
+      var prompt = await buildPrompt(text);
+      if (prompt) await db.doc('data/users/' + uid + '/' + id).update({ prompt: prompt });
+    } catch (e) { /* Copy offers to write it again */ }
   }
 
   $('big3').addEventListener('click', async function () {
@@ -344,9 +377,26 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
     return guardVerbatim(prompt, d) + '\n\n<original_dump recorded="' + stamp(d.createdAt) + '">\n' + d.text + '\n</original_dump>';
   }
 
-  async function copyText(text, okMsg) {
-    try { await navigator.clipboard.writeText(text); setStatus(okMsg); return true; }
-    catch (e) { setStatus('Could not copy here. Open "Show the prompt" and copy it by hand.', true); return false; }
+  var sheetMsg = '';
+  function openSheet(text, okMsg, title) {
+    sheetMsg = okMsg;
+    $('sheet-h').textContent = title || 'Ready to paste into Claude';
+    $('sheet-text').value = text;
+    $('sheet').hidden = false;
+  }
+  $('sheet-close').addEventListener('click', function () { $('sheet').hidden = true; });
+  $('sheet-copy').addEventListener('click', function () {
+    var ta = $('sheet-text');
+    var done = function () { setStatus(sheetMsg); $('sheet').hidden = true; };
+    var manual = function () { ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); setStatus('Your phone blocked the copy. The text is selected: tap Copy in the menu.', true); };
+    try { navigator.clipboard.writeText(ta.value).then(done, manual); } catch (e) { manual(); }
+  });
+
+  // Copies inside the tap; if the clipboard refuses, the text opens in a sheet to copy by hand.
+  function copyText(text, okMsg, title) {
+    try {
+      navigator.clipboard.writeText(text).then(function () { setStatus(okMsg); }, function () { openSheet(text, okMsg, title); });
+    } catch (e) { openSheet(text, okMsg, title); }
   }
 
   var preparing = {};
@@ -362,7 +412,9 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       if (!prompt) throw { code: 'empty' };
       d.prompt = prompt;
       await db.doc('data/users/' + uid + '/' + d.id).update({ prompt: prompt });
-      setStatus('Prompt ready. Tap Copy for Claude Code again to copy it.');
+      // The tap that started this has expired, so hand over the prompt in the sheet for one fresh tap.
+      setStatus('Prompt ready.');
+      openSheet(withOriginal(prompt, d), 'Copied a Claude-ready prompt. Paste it into Claude Code.');
     } catch (e) {
       setStatus(e && e.code === 'not_granted' ? 'Rewriting needs your OK to ask Claude.' : 'Could not write the prompt (' + (e && e.code || 'error') + '). Try again.', true);
     }
@@ -415,6 +467,14 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
     });
   }
 
+  var openPanels = {};
+  function keepOpen(det, key) {
+    det.open = !!openPanels[key];
+    det.addEventListener('toggle', function () { openPanels[key] = det.open; });
+    return det;
+  }
+  var armed = {};
+
   function render() {
     var todos = allTodos();
     var tbox = $('todos'); tbox.innerHTML = '';
@@ -444,7 +504,7 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       var notes = d.lane !== 'private' && d.lane !== 'line' ? cleanNotes(d.notes) : null;
       if (notes) {
         card.appendChild(renderNotes(notes));
-        var raw = el('details', 'raw'); raw.appendChild(el('summary', '', 'What I actually said')); raw.appendChild(el('p', 'text', d.text)); card.appendChild(raw);
+        var raw = keepOpen(el('details', 'raw'), d.id + ':raw'); raw.appendChild(el('summary', '', 'What I actually said')); raw.appendChild(el('p', 'text', d.text)); card.appendChild(raw);
       } else {
         card.appendChild(el('p', 'text' + (d.lane === 'line' ? ' verbatim' : ''), d.text));
       }
@@ -470,13 +530,13 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
         l.addEventListener('click', function () { exportFor(d, 'Line'); });
         row.appendChild(l);
       } else {
-        var c = el('button', 'primary small', preparing[d.id] ? 'Writing prompt...' : 'Copy for Claude Code'); c.type = 'button';
+        var c = el('button', 'primary small', preparing[d.id] ? 'Writing prompt...' : (d.prompt || !sample ? 'Copy for Claude Code' : 'Make Claude prompt')); c.type = 'button';
         c.disabled = !!preparing[d.id];
         c.addEventListener('click', function () { copyForClaude(d); });
         row.appendChild(c);
         if (notes) {
           var cn = el('button', 'ghost small', 'Copy my notes'); cn.type = 'button';
-          cn.addEventListener('click', function () { copyText(notesAsText(notes), 'Notes copied.'); });
+          cn.addEventListener('click', function () { copyText(notesAsText(notes), 'Notes copied.', 'Your notes'); });
           row.appendChild(cn);
         }
         if (d.lane === 'auto' && !d.notes) {
@@ -489,16 +549,17 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       dn.addEventListener('click', function () { setDone(d, !d.done); });
       row.appendChild(dn);
       if (d.lane === 'private') {
-        var del = el('button', 'ghost small', 'Delete from phone'); del.type = 'button';
+        var del = el('button', 'ghost small', armed[d.id] ? 'Tap again to delete' : 'Delete from phone'); del.type = 'button';
         del.addEventListener('click', function () {
-          if (del.dataset.armed !== '1') { del.dataset.armed = '1'; del.textContent = 'Tap again to delete'; return; }
+          if (!armed[d.id]) { armed[d.id] = true; del.textContent = 'Tap again to delete'; return; }
+          delete armed[d.id];
           privateDumps = privateDumps.filter(function (p) { return p.id !== d.id; }); savePrivate(); render();
         });
         row.appendChild(del);
       }
       card.appendChild(row);
       if (d.prompt && d.lane !== 'private') {
-        var pv = el('details', 'raw'); pv.appendChild(el('summary', '', 'Show the prompt')); pv.appendChild(el('pre', 'prompt', withOriginal(d.prompt, d))); card.appendChild(pv);
+        var pv = keepOpen(el('details', 'raw'), d.id + ':prompt'); pv.appendChild(el('summary', '', 'Show the prompt')); pv.appendChild(el('pre', 'prompt', withOriginal(d.prompt, d))); card.appendChild(pv);
       }
       dbox.appendChild(card);
     });
@@ -515,7 +576,8 @@ pre.prompt { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--
       if (user) uid = await user.id();
       if (!db || !uid) { setStatus('Sign in to claude.ai to save dumps. Private ones still work on this phone.', true); return; }
       db.collection('data/users/' + uid).orderBy('createdAt', 'desc').limit(300).onSnapshot(function (snap) {
-        online = snap.docs.map(function (s) { var v = s.data() || {}; v.id = s.id; return v; }).filter(function (v) { return typeof v.text === 'string'; });
+        // Snapshot data is frozen: copy it, or the id (and any field set later) silently never sticks.
+        online = snap.docs.map(function (s) { var v = Object.assign({}, s.data() || {}); v.id = s.id; return v; }).filter(function (v) { return typeof v.text === 'string'; });
         render();
       }, function (e) { setStatus('Lost the connection to your dumps (' + (e && e.code || 'error') + '). Reload to reconnect.', true); });
     })();
