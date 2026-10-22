@@ -12,7 +12,7 @@
     {
       "name": "brain-dump",
       "source": "./brain-dump",
-      "description": "Catches long, messy voice brain dumps before Claude reads them and offers to tidy them into a clear prompt (task, why, guardrails, done looks like, open questions). Off until /braindump on; tidying uses one small AI call."
+      "description": "Catches long, messy voice brain dumps before Claude reads them and offers to tidy them into a clear prompt (task, why, guardrails, done looks like, open questions). On by default (pasted code and logs pass through). Private: and Line: dumps never reach Claude and go to the Voice Inbox router; /dumps keeps saved thoughts. Tidying uses one small AI call."
     },
     {
       "name": "browser-peek",
