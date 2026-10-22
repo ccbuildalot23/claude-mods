@@ -163,10 +163,21 @@ def unique(path: Path) -> Path:
         n += 1
 
 
+VOICE_MEMO_NAME = re.compile(r"^(\d{8} \d{6})")
+
+
 def recorded_at(audio: Path) -> dt.datetime:
+    # Voice Memos names files by recording time; iCloud gives synced copies a new
+    # creation date, so trust the name first.
+    m = VOICE_MEMO_NAME.match(audio.name)
+    if m:
+        try:
+            return dt.datetime.strptime(m.group(1), "%Y%m%d %H%M%S")
+        except ValueError:
+            pass
     st = audio.stat()
-    ts = getattr(st, "st_birthtime", None) or st.st_mtime
-    return dt.datetime.fromtimestamp(ts)
+    times = [t for t in (getattr(st, "st_birthtime", None), st.st_mtime) if t]
+    return dt.datetime.fromtimestamp(min(times))
 
 
 def file_memo(audio: Path, text: str, cfg: dict, move_audio: bool) -> tuple[str, Path]:
@@ -277,6 +288,8 @@ def run(cfg: dict, transcriber=transcribe) -> int:
         state_path.write_text(json.dumps(state, indent=1))
     state_path.parent.mkdir(parents=True, exist_ok=True)
     state_path.write_text(json.dumps(state, indent=1))
+    # Heartbeat, so a quiet run (nothing new) can be told apart from no run.
+    (state_path.parent / "last_run.txt").write_text(dt.datetime.now().isoformat(timespec="seconds") + "\n")
     return filed
 
 
