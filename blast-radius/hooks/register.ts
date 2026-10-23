@@ -2,11 +2,11 @@ import type { EngineInterface, Register } from 'claude-code'
 
 // Pen rule: no AI writes inside these folders, ever. Matched anywhere in the path,
 // any letter case (the Mac's disk treats Poems/ and poems/ as one folder).
-const PEN_ZONES = /(^|\/)(poems|line-bank|public-copy)(\/|$)/i
+const PEN_ZONES = /(^|\/)(poems|line-bank|public-copy|share-candidates|hierophant-lens)(\/|$)/i
 // Settings files are Chris's hand.
 const SETTINGS = /(^|\/)\.claude\/settings(\.local)?\.json$|(^|\/)\.claude\.json$/
 // The same two, found inside a shell command's text.
-const PEN_IN_COMMAND = /(^|[\s/'"=])(poems|line-bank|public-copy)(\/|[\s'";|&)]|$)/i
+const PEN_IN_COMMAND = /(^|[\s/'"=])(poems|line-bank|public-copy|share-candidates|hierophant-lens)(\/|[\s'";|&)]|$)/i
 const SETTINGS_IN_COMMAND = /\.claude\/settings(\.local)?\.json\b|(^|[\s/'"])\.claude\.json\b/
 // Shell that can write, move or delete: redirects, in-place edits, file verbs, scripts.
 const SHELL_WRITES = /(^|[^0-9&])>{1,2}(?!&)|(^|[\s;&|(])(cp|mv|rm|rmdir|touch|tee|ln|install|rsync|dd|truncate|mkdir|chmod|chown|unlink|shred|srm|trash|patch|xargs|python3?|node|ruby|perl|osascript|ditto)\b|\bsed\b[^|;&]*\s-[a-zA-Z]*i|\bgit\s+(checkout|restore|apply|mv|rm|stash|reset|clean)\b/
@@ -73,7 +73,7 @@ export const register: Register = on => {
     // The pen rule holds for the shell too: no writing, moving or deleting in those folders.
     if (SHELL_WRITES.test(e.command)) {
       if (PEN_IN_COMMAND.test(e.command)) {
-        return { deny: 'blast-radius: this command could write, move or delete inside a pen-rule folder (poems/, line-bank/, public-copy/). AI never changes those; read them with the Read tool and put metadata in a sidecar file outside.' }
+        return { deny: 'blast-radius: this command could write, move or delete inside a pen-rule folder (poems/, line-bank/, public-copy/, share-candidates/, hierophant-lens/). AI never changes those; read them with the Read tool and put metadata in a sidecar file outside.' }
       }
       if (SETTINGS_IN_COMMAND.test(e.command)) {
         return { deny: "blast-radius: this command could change a Claude settings file, which is Chris's hand. Draft the change in the Outbox and hand him the exact edit." }
@@ -103,7 +103,7 @@ export const register: Register = on => {
     if (path === undefined) return next(e)
     const real = await landsIn($, path)
     if (PEN_ZONES.test(path) || (real !== undefined && PEN_ZONES.test(real))) {
-      return { deny: `blast-radius: ${path} is inside a pen-rule folder (poems/, line-bank/, public-copy/). AI never writes there; put metadata in a sidecar file outside it.` }
+      return { deny: `blast-radius: ${path} is inside a pen-rule folder (poems/, line-bank/, public-copy/, share-candidates/, hierophant-lens/). AI never writes there; put metadata in a sidecar file outside it.` }
     }
     if (SETTINGS.test(path)) {
       return { deny: `blast-radius: ${path} is a settings file, which is Chris's hand. Draft the change in the Outbox and hand him the exact edit.` }

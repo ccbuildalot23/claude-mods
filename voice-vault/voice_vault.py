@@ -4,7 +4,10 @@ Text files (.txt, .md) dropped in the inbox are routed the same way, untranscrib
 
 Routing is by the first words Chris says, never by an AI guess:
   "Line ..." / "Line bank ..." / "LaBeau ..."  -> LaBeau line bank, word for word
+  "Share ..." / "Share LaBeau|Chris|both ..."  -> Brand Message Library share-candidates
   "Private ..." / "Vault ..." / anything else  -> Recovery vault Voice Inbox
+Photos (diary pages) always go to the vault's Diary Pages folder, read on this Mac
+by Apple Vision, and wait for Chris's Sunday harvest (diary_harvest.py).
 
 Private is the default. A line memo that names a real person, therapy, money or
 legal matters is held in the vault instead, with a note saying why.
@@ -26,6 +29,9 @@ import sys
 import time
 from pathlib import Path
 
+import diary_ocr
+import share_library
+
 HERE = Path(__file__).resolve().parent
 HOME = Path.home()
 
@@ -43,6 +49,11 @@ DEFAULTS = {
                        / "Recovery Library/Imported/Voice Inbox"),
     "line_bank_dir": str(HOME / "Developer/labeau-ops/data/line-bank/voice"),
     "line_audio_dir": str(HOME / "LaBeau-Assets/Voice Lines"),
+    # Diary page photos stay in the vault; only lines Chris ticks at harvest leave it.
+    "diary_pages_dir": str(HOME / "Documents/Documents - Christopher\u2019s MacBook Air/Desktop/Recovery"
+                           / "Recovery Library/Imported/Diary Pages"),
+    "share_library": str(HOME / "Developer/labeau-ops/data/share-candidates/share-candidates.csv"),
+    "lens_file": str(HOME / "Developer/labeau-ops/data/hierophant-lens/hierophant-lens.md"),
     "state_file": str(HERE / "state/processed.json"),
     "log_file": str(HERE / "state/voice-vault.log"),
     "mlx_model": "mlx-community/whisper-large-v3-turbo",
@@ -59,12 +70,17 @@ AUDIO_EXT = {".m4a", ".mp3", ".wav", ".aac", ".caf", ".qta", ".aiff", ".flac", "
 # Typed or dictated dumps from the brain-dump mod and phone app use the same
 # triggers and routes; they skip transcription.
 TEXT_EXT = {".txt", ".md"}
+IMAGE_EXT = {".jpg", ".jpeg", ".heic", ".png"}
 SETTLE_SECONDS = 15
 
 # Spoken triggers. Whisper spells LaBeau a few ways, so accept the usual ones.
 _LABEAU = r"(?:la\s?beau|la\s?bo|lebo|labo|le\s?beau)"
 LINE_TRIGGER = re.compile(
     r"^\W*(?:" + _LABEAU + r"(?:\s+line(?:\s+bank)?)?|line\s+bank|poem\s+line|line)\b[\s,.:;!?-]*",
+    re.IGNORECASE,
+)
+SHARE_TRIGGER = re.compile(
+    r"^\W*share(?:\s+line)?\b[\s,.:;!?-]*(?:(" + _LABEAU + r"|chris|both)\b[\s,.:;!?-]*)?",
     re.IGNORECASE,
 )
 PRIVATE_TRIGGER = re.compile(r"^\W*(?:private|vault|journal|recovery)\b[\s,.:;!?-]*", re.IGNORECASE)
@@ -90,7 +106,8 @@ def load_config(path: Path | None = None) -> dict:
     for k in ("inbox", "watch_readonly"):
         cfg[k] = [os.path.expanduser(p) for p in cfg[k]]
     cfg["private_words"] = list(cfg["private_words"]) + shared_list("private-names.txt") + shared_list("private-words.txt")
-    for k in ("vault_inbox", "line_bank_dir", "line_audio_dir", "state_file", "log_file"):
+    for k in ("vault_inbox", "line_bank_dir", "line_audio_dir", "diary_pages_dir", "share_library",
+              "lens_file", "state_file", "log_file"):
         cfg[k] = os.path.expanduser(cfg[k])
     return cfg
 
@@ -111,7 +128,19 @@ def private_reasons(text: str, words: list[str]) -> list[str]:
 
 def route(text: str, private_words: list[str]) -> tuple[str, str, list[str]]:
     """Return (destination, body, held_reasons). Body is the transcript with only
-    the spoken trigger removed; nothing else is changed."""
+    the spoken trigger removed; nothing else is changed. A share memo's
+    destination names its brand: share-labeau, share-chris or share-both."""
+    m = SHARE_TRIGGER.match(text)
+    if m:
+        body = text[m.end():].strip()
+        if not body:
+            return "vault", text.strip(), ["share memo was empty after the trigger word"]
+        held = private_reasons(body, private_words)
+        if held:
+            return "vault", body, held
+        word = (m.group(1) or "both").lower()
+        brand = word if word in ("chris", "both") else "labeau"
+        return "share-" + brand, body, []
     m = LINE_TRIGGER.match(text)
     if m:
         body = text[m.end():].strip()
@@ -191,6 +220,18 @@ def file_memo(audio: Path, text: str, cfg: dict, move_audio: bool) -> tuple[str,
     stamp = when.strftime("%Y-%m-%d %H%M")
     dest, body, held = route(text, cfg["private_words"])
 
+    if dest.startswith("share-"):
+        audio_out = unique(Path(cfg["line_audio_dir"]) / f"{stamp} {'Text' if is_text else 'Voice'} Share{audio.suffix.lower()}")
+        audio_out.parent.mkdir(parents=True, exist_ok=True)
+        if move_audio:
+            shutil.move(str(audio), audio_out)
+        else:
+            shutil.copy2(audio, audio_out)
+        source = "share-text" if is_text else "share-voice (machine transcript, check against the audio)"
+        share_library.append_candidates(Path(cfg["share_library"]),
+                                        [{"line": body, "brand": dest[6:], "source": source, "written_on": when.date()}])
+        return dest, Path(cfg["share_library"])
+
     if dest == "line_bank":
         audio_dir = Path(cfg["line_audio_dir"])
         note_dir = Path(cfg["line_bank_dir"])
@@ -237,6 +278,34 @@ def file_memo(audio: Path, text: str, cfg: dict, move_audio: bool) -> tuple[str,
     return label, note
 
 
+def file_page(photo: Path, cfg: dict, reader=None) -> Path:
+    """Move a diary page photo into the vault and write its sidecar: the machine
+    reading, every line, for Chris to check at harvest. Nothing here is shared."""
+    when = recorded_at(photo)
+    pages = Path(cfg["diary_pages_dir"])
+    pages.mkdir(parents=True, exist_ok=True)
+    note = unique(pages / f"{when.strftime('%Y-%m-%d %H%M')} Diary Page.md")
+    photo_out = unique(pages / f"{note.stem}{photo.suffix.lower()}")
+    shutil.move(str(photo), photo_out)
+    try:
+        lines, how = (reader or diary_ocr.ocr_lines)(photo_out), "machine (Apple Vision on this Mac), not checked yet"
+    except RuntimeError as e:
+        lines, how = [], f"none ({e}); type the marked lines at harvest"
+    front = [
+        "---",
+        "type: diary-page",
+        f"photographed: {when.isoformat(timespec='minutes')}",
+        f"photo: {photo_out.name}",
+        f"reading: {how}",
+        "status: needs-harvest",
+        "tags: [diary, private]",
+        "---",
+        "",
+    ]
+    note.write_text("\n".join(front) + "".join(l + "\n" for l in lines))
+    return note
+
+
 def log(cfg: dict, msg: str) -> None:
     p = Path(cfg["log_file"])
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -249,6 +318,7 @@ def candidates(cfg: dict) -> list[tuple[Path, bool]]:
     now = time.time()
     since = dt.datetime.fromisoformat(cfg["watch_since"]) if cfg.get("watch_since") else None
     for folder, move in [(d, True) for d in cfg["inbox"]] + [(d, False) for d in cfg["watch_readonly"]]:
+        exts = AUDIO_EXT | TEXT_EXT | (IMAGE_EXT if move else set())
         d = Path(folder)
         try:
             entries = sorted(d.iterdir()) if d.is_dir() else []
@@ -256,7 +326,7 @@ def candidates(cfg: dict) -> list[tuple[Path, bool]]:
             log(cfg, f"ERROR cannot read {d.name}: grant Full Disk Access (see README)")
             continue
         for p in entries:
-            if not (p.is_file() and p.suffix.lower() in AUDIO_EXT | TEXT_EXT and now - p.stat().st_mtime > SETTLE_SECONDS):
+            if not (p.is_file() and p.suffix.lower() in exts and now - p.stat().st_mtime > SETTLE_SECONDS):
                 continue
             if not move and since and recorded_at(p) < since:
                 continue
@@ -264,13 +334,19 @@ def candidates(cfg: dict) -> list[tuple[Path, bool]]:
     return out
 
 
-def run(cfg: dict, transcriber=transcribe) -> int:
+def run(cfg: dict, transcriber=transcribe, reader=None) -> int:
     state_path = Path(cfg["state_file"])
     state = json.loads(state_path.read_text()) if state_path.exists() else {}
     filed = 0
     for audio, move in candidates(cfg):
         digest = sha256(audio)
         if digest in state:
+            continue
+        if audio.suffix.lower() in IMAGE_EXT:
+            note = file_page(audio, cfg, reader)
+            state[digest] = {"route": "diary-page", "note": note.name, "at": dt.datetime.now().isoformat(timespec="seconds")}
+            log(cfg, f"FILED {audio.name} -> diary page [{digest[:12]}]")
+            filed += 1
             continue
         try:
             text = audio.read_text() if audio.suffix.lower() in TEXT_EXT else transcriber(audio, cfg)
