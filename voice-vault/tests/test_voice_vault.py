@@ -40,6 +40,14 @@ class RouteTests(unittest.TestCase):
         self.assertEqual(vv.route("Line.", WORDS)[0], "vault")
 
 
+class DefaultPathTests(unittest.TestCase):
+    def test_vault_inbox_is_real_vault(self):
+        # Curly apostrophe; ~/Documents/Desktop/Recovery is the stray copy.
+        inbox = vv.DEFAULTS["vault_inbox"]
+        self.assertIn("Documents - Christopher\u2019s MacBook Air/Desktop/Recovery/", inbox)
+        self.assertNotIn("Documents/Desktop/Recovery", inbox)
+
+
 class SharedListTests(unittest.TestCase):
     def test_reads_privacy_preflight_lists(self):
         tmp = Path(tempfile.mkdtemp())
