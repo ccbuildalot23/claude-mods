@@ -63,6 +63,8 @@ test('the shell cannot write, move or delete inside pen-rule folders', async ($,
     'tee public-copy/caption.txt < x',
     'python3 fix.py poems/',
     'echo {} > ~/.claude/settings.json',
+    'echo "x" >> data/share-candidates/share-candidates.csv',
+    "sed -i '' 's/a/b/' data/hierophant-lens/hierophant-lens.md",
   ]
   for (const command of blocked) {
     const r = await $.tool.call({ tool: 'Bash', command })
@@ -87,4 +89,8 @@ test('pen-rule folders are refused in any letter case and through a symlink', as
   expect(linked.deny ?? '').toContain('pen-rule')
   const lineBank = await $.tool.call({ tool: 'Edit', file_path: '/Users/c/labeau/line-bank/2026.md', old_string: 'a', new_string: 'b' })
   expect(lineBank.deny ?? '').toContain('pen-rule')
+  const shares = await $.tool.call({ tool: 'Write', file_path: '/Users/c/labeau-ops/data/share-candidates/share-candidates.csv', content: 'x' })
+  expect(shares.deny ?? '').toContain('pen-rule')
+  const lens = await $.tool.call({ tool: 'Edit', file_path: '/Users/c/labeau-ops/data/Hierophant-Lens/hierophant-lens.md', old_string: 'a', new_string: 'b' })
+  expect(lens.deny ?? '').toContain('pen-rule')
 })

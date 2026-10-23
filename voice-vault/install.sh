@@ -17,7 +17,7 @@ command -v ffmpeg >/dev/null || { echo "Installing ffmpeg (audio decoder) with H
 
 PY=/opt/homebrew/bin/python3; [ -x "$PY" ] || PY=/usr/bin/python3
 [ -d .venv ] || "$PY" -m venv .venv
-.venv/bin/pip install --quiet --upgrade pip mlx-whisper
+.venv/bin/pip install --quiet --upgrade pip mlx-whisper pyobjc-framework-Vision
 
 echo "Running tests..."
 .venv/bin/python -m unittest discover -s tests -q

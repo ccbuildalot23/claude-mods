@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunday Harvest</title>
+<style>
+  :root { --ink: #1d1a17; --cream: #f6f0e4; --gold: #a8792a; --muted: #6f665b; --line: #ddd2bf; --hold: #9b2c2c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--cream); color: var(--ink); font: 17px/1.5 Georgia, "Times New Roman", serif; }
+  header { padding: 24px 20px 8px; max-width: 1100px; margin: 0 auto; }
+  h1 { font-weight: normal; font-size: 30px; margin: 0 0 6px; }
+  .how { color: var(--muted); margin: 0; max-width: 760px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 20px 200px; }
+  .page { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; border-top: 1px solid var(--line); padding: 22px 0; }
+  .page img { width: 100%; border: 1px solid var(--line); background: #fff; }
+  .meta { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+  .meta input { font: inherit; padding: 2px 6px; }
+  .row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 130px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .row input[type=text] { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid transparent; background: transparent; color: var(--muted); }
+  .row.on input[type=text] { border-color: var(--gold); background: #fffaf0; color: var(--ink); }
+  .row select { font: inherit; font-size: 14px; padding: 4px; }
+  .row select:disabled { opacity: .35; }
+  .nib { width: 26px; height: 26px; accent-color: var(--gold); }
+  .held { color: var(--hold); font-size: 14px; grid-column: 2 / 4; }
+  button { font: inherit; padding: 10px 18px; border-radius: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--cream); cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); }
+  .add { margin-top: 10px; font-size: 15px; padding: 6px 12px; }
+  footer { position: fixed; left: 0; right: 0; bottom: 0; background: var(--cream); border-top: 1px solid var(--line); padding: 12px 20px; }
+  footer .in { max-width: 1100px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  #status { color: var(--muted); }
+  #status.bad { color: var(--hold); }
+  @media (max-width: 760px) { .page { grid-template-columns: 1fr; } .row { grid-template-columns: 34px 1fr; } .row select { grid-column: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sunday Harvest</h1>
+  <p class="how">Tick only the lines you marked with the nib. Fix any misread word so it matches your pen exactly; what you see in a ticked box is what gets kept. Unticked lines stay in the vault. Then choose where each line goes and press Save.</p>
+</header>
+<main id="pages"></main>
+<footer><div class="in">
+  <button id="save" type="button">Save harvest</button>
+  <button id="saveRest" type="button" class="ghost" hidden>Save the rest, keep held lines in the vault</button>
+  <span id="status">Nothing ticked yet.</span>
+</div></footer>
+<script>
+var DATA = /*DATA*/null;
+var KEY = new URLSearchParams(location.search).get("k");
+var PLACES = { labeau: "LaBeau", chris: "Chris", both: "Both", lens: "Lens", echo: "Echo" };
+
+function el(tag, attrs, kids) {
+  var n = document.createElement(tag);
+  Object.keys(attrs || {}).forEach(function (k) {
+    if (k === "text") { n.textContent = attrs[k]; } else { n.setAttribute(k, attrs[k]); }
+  });
+  (kids || []).forEach(function (c) { n.appendChild(c); });
+  return n;
+}
+
+function makeRow(text) {
+  var box = el("input", { type: "checkbox", "class": "nib", "aria-label": "I marked this line" });
+  var input = el("input", { type: "text" });
+  input.value = text;
+  var pick = el("select", { "aria-label": "Where it goes" });
+  DATA.tags.forEach(function (t) { var o = el("option", { value: t, text: PLACES[t] || t }); pick.appendChild(o); });
+  pick.value = "both";
+  pick.disabled = true;
+  var row = el("div", { "class": "row" }, [box, input, pick]);
+  box.addEventListener("change", function () {
+    row.classList.toggle("on", box.checked);
+    pick.disabled = !box.checked;
+    refresh();
+  });
+  input.addEventListener("input", refresh);
+  return row;
+}
+
+function render() {
+  var root = document.getElementById("pages");
+  DATA.pages.forEach(function (p) {
+    var img = el("img", { alt: "Diary page photo", src: "/photo/" + encodeURIComponent(p.photo) + "?k=" + encodeURIComponent(KEY) });
+    var date = el("input", { type: "date" });
+    date.value = p.written_on;
+    var meta = el("div", { "class": "meta" }, [document.createTextNode("Written on "), date, document.createTextNode("  ·  reading: " + p.reading)]);
+    var rows = el("div", { "class": "rows" });
+    p.lines.forEach(function (t) { rows.appendChild(makeRow(t)); });
+    var add = el("button", { type: "button", "class": "ghost add", text: "+ a marked line the reader missed" });
+    add.addEventListener("click", function () { var r = makeRow(""); rows.appendChild(r); r.querySelector("input[type=text]").focus(); });
+    var right = el("div", {}, [meta, rows, add]);
+    var sec = el("section", { "class": "page" }, [el("div", {}, [img]), right]);
+    sec.dataset.note = p.note;
+    sec._date = date;
+    root.appendChild(sec);
+  });
+}
+
+function collect() {
+  return Array.prototype.map.call(document.querySelectorAll("section.page"), function (sec) {
+    var lines = [];
+    sec.querySelectorAll(".row").forEach(function (row) {
+      if (row.querySelector(".nib").checked) {
+        lines.push({ text: row.querySelector("input[type=text]").value, tag: row.querySelector("select").value });
+      }
+    });
+    return { note: sec.dataset.note, written_on: sec._date.value, lines: lines };
+  });
+}
+
+function setStatus(msg, bad) {
+  var s = document.getElementById("status");
+  s.textContent = msg;
+  s.className = bad ? "bad" : "";
+}
+
+function refresh() {
+  var n = 0;
+  collect().forEach(function (p) { p.lines.forEach(function (l) { if (l.text.trim()) { n += 1; } }); });
+  setStatus(n ? n + " line" + (n === 1 ? "" : "s") + " ticked." : "Nothing ticked yet. Saving now marks these pages done with nothing shared.");
+}
+
+function showHeld(held) {
+  document.querySelectorAll(".held").forEach(function (h) { h.remove(); });
+  held.forEach(function (h) {
+    document.querySelectorAll("section.page").forEach(function (sec) {
+      if (sec.dataset.note !== h.note) { return; }
+      sec.querySelectorAll(".row").forEach(function (row) {
+        if (row.querySelector(".nib").checked && row.querySelector("input[type=text]").value.trim() === h.text) {
+          row.appendChild(el("div", { "class": "held", text: "Held for privacy: " + h.why }));
+        }
+      });
+    });
+  });
+}
+
+function send(skipHeld) {
+  setStatus("Saving...");
+  var body = JSON.stringify({ pages: collect(), skip_held: skipHeld });
+  fetch("/save?k=" + encodeURIComponent(KEY), { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res.error) { setStatus("Not saved: " + res.error, true); return; }
+      if (!res.written) {
+        showHeld(res.held);
+        document.getElementById("saveRest").hidden = false;
+        setStatus(res.held.length + " line" + (res.held.length === 1 ? "" : "s") + " held for privacy (shown in red). Nothing saved yet.", true);
+        return;
+      }
+      document.getElementById("save").disabled = true;
+      document.getElementById("saveRest").hidden = true;
+      setStatus("Saved " + res.saved + " line" + (res.saved === 1 ? "" : "s") + (res.held.length ? "; " + res.held.length + " stayed in the vault" : "") + ". You can close this tab.");
+    })
+    .catch(function (e) { setStatus("Not saved: " + e, true); });
+}
+
+document.getElementById("save").addEventListener("click", function () { send(false); });
+document.getElementById("saveRest").addEventListener("click", function () { send(true); });
+render();
+refresh();
+</script>
+</body>
+</html>
