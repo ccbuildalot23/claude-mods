@@ -100,10 +100,14 @@ chatgpt-on)
     [ -n "$URL" ] && break; sleep 1
   done
   [ -n "$URL" ] || { echo "The tunnel did not start. Last lines:"; tail -5 "$RUN/tunnel.log"; exit 1; }
-  sleep 3
-  CODE="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/mcp/$TOK" -H 'Content-Type: application/json' \
-    -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' || true)"
-  NOAUTH="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/mcp" -H 'Content-Type: application/json' -d '{}' || true)"
+  # A new quick-tunnel address takes a few seconds to resolve; retry for up to a minute.
+  CODE=000
+  for _ in $(seq 1 20); do
+    CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 -X POST "$URL/mcp/$TOK" -H 'Content-Type: application/json' \
+      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' || true)"
+    [ "$CODE" = 200 ] && break; sleep 3
+  done
+  NOAUTH="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 -X POST "$URL/mcp" -H 'Content-Type: application/json' -d '{}' || true)"
   printf '%s' "$URL/mcp/$TOK" | pbcopy
   echo "ChatGPT link is ON. Self-test through the tunnel: tools $CODE (want 200), no key $NOAUTH (want 401)."
   echo "The full address (with its key) is on your clipboard: $URL/mcp/•••••"
