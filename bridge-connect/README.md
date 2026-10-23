@@ -45,6 +45,8 @@ No other bridge folder, the vault or anything else on the Mac is reachable. Link
 
 **ChatGPT: a link with a key, on only while you need it.** ChatGPT can only reach a public HTTPS address, so `./bridge-connect.sh chatgpt-on` starts the server on this Mac (local only) plus a Cloudflare quick tunnel in front of it, and puts the address on the clipboard. The address ends in a 48-character key kept in Keychain; without it the server answers 401. `chatgpt-off` closes it. The address changes each time it's turned on.
 
+**Fixed addresses (recommended once you use them daily).** `./bridge-connect.sh fixed-setup` runs once: it signs in to Cloudflare (a browser opens; pick the domain), creates a named tunnel called `grok-bridge`, adds `chatgpt-bridge.labeau.ink` and `perplexity-bridge.labeau.ink` pointing at it (it never overwrites an existing record), and starts both. The domain must already use Cloudflare's nameservers (`dig +short NS labeau.ink`); set `BRIDGE_DOMAIN` for another one. The keys stay the same, so each app's connector is set once with `fixed-copy chatgpt` / `fixed-copy perplexity`. After a restart, `fixed-on` brings both back; `fixed-off` stops them. Starting the fixed addresses stops any quick links. Undo: delete the two DNS records and the tunnel in Cloudflare.
+
 Later upgrade: OpenAI's Secure MCP Tunnel avoids a public address entirely, but it needs an OpenAI platform admin key and client certificates. It's worth it if the link stays on all day.
 
 ## Commands (Terminal)
@@ -57,6 +59,9 @@ cd ~/Developer/claude-mods/bridge-connect
 ./bridge-connect.sh chatgpt-copy   # copies a running address again (or perplexity-copy)
 ./bridge-connect.sh chatgpt-off    # or perplexity-off
 ./bridge-connect.sh perplexity     # JSON for Perplexity apps that run a local command
+./bridge-connect.sh fixed-setup    # once: fixed addresses on your domain
+./bridge-connect.sh fixed-on       # after a restart (fixed-off stops them)
+./bridge-connect.sh fixed-copy chatgpt   # or perplexity
 ./bridge-connect.sh status
 ```
 

@@ -6,11 +6,17 @@
 #   ./bridge-connect.sh chatgpt-copy       copy a running link's address again (or perplexity-copy)
 #   ./bridge-connect.sh chatgpt-off        stop a link (or perplexity-off)
 #   ./bridge-connect.sh perplexity         print the JSON for Perplexity apps that take a local command
+#   ./bridge-connect.sh fixed-setup        once: fixed addresses on your domain through a Cloudflare named tunnel
+#   ./bridge-connect.sh fixed-on           start both AIs on their fixed addresses (fixed-off stops them)
+#   ./bridge-connect.sh fixed-copy chatgpt copy a fixed address with its key (or perplexity)
 #   ./bridge-connect.sh status             show what is running and the newest briefs
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 BRIDGE="$HOME/Developer/grok-bridge"
 RUN="$HERE/../logs/bridge-connect"
+DOMAIN="${BRIDGE_DOMAIN:-labeau.ink}"
+TUNNEL=grok-bridge
+CFG="$HOME/.cloudflared/$TUNNEL.yml"
 PY="$(command -v python3)"
 mkdir -p "$RUN" && chmod 700 "$RUN"
 
@@ -72,6 +78,42 @@ link_copy() {
 link_off() {
   for p in tunnel server; do alive "$p" && kill "$(cat "$RUN/$PRE$p.pid")" && echo "stopped $p"; rm -f "$RUN/$PRE$p.pid"; done
   echo "$NAME link is OFF."
+}
+
+# ---- fixed addresses: one Cloudflare named tunnel, two hostnames, same keys ----
+host() { echo "$1-bridge.$DOMAIN"; }
+
+fixed_on() {
+  [ -f "$CFG" ] || { echo "Run ./bridge-connect.sh fixed-setup first."; exit 1; }
+  for a in chatgpt perplexity; do
+    pick "$a"
+    if alive tunnel; then kill "$(cat "$RUN/${PRE}tunnel.pid")"; rm -f "$RUN/${PRE}tunnel.pid"; fi  # a quick link gives way
+    if ! alive server; then
+      BRIDGE_CONNECT_TOKEN="$(token)" nohup "$PY" "$HERE/bridge_connect.py" --agent "$AGENT" --http "$PORT" >"$RUN/${PRE}server.log" 2>&1 &
+      echo $! >"$RUN/${PRE}server.pid"
+    fi
+  done
+  PRE="fixed-"
+  if ! alive tunnel; then
+    nohup cloudflared tunnel --no-autoupdate --config "$CFG" run "$TUNNEL" >"$RUN/fixed-tunnel.log" 2>&1 &
+    echo $! >"$RUN/fixed-tunnel.pid"
+  fi
+  for a in chatgpt perplexity; do
+    pick "$a"; TOK="$(token)"; CODE=000
+    for _ in $(seq 1 20); do
+      CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 -X POST "https://$(host "$a")/mcp/$TOK" -H 'Content-Type: application/json' \
+        -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' || true)"
+      [ "$CODE" = 200 ] && break; sleep 3
+    done
+    NOAUTH="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 -X POST "https://$(host "$a")/mcp" -H 'Content-Type: application/json' -d '{}' || true)"
+    echo "$NAME: https://$(host "$a")/mcp/••••• tools $CODE (want 200), no key $NOAUTH (want 401)"
+  done
+}
+
+fixed_off() {
+  PRE="fixed-"; if alive tunnel; then kill "$(cat "$RUN/fixed-tunnel.pid")"; echo "stopped the fixed tunnel"; fi; rm -f "$RUN/fixed-tunnel.pid"
+  for a in chatgpt perplexity; do pick "$a"; link_off >/dev/null; done
+  echo "Fixed addresses are OFF (they stay reserved; fixed-on brings them back)."
 }
 
 case "${1:-}" in
@@ -143,15 +185,45 @@ EOF
 chatgpt-on|perplexity-on) pick "${1%-on}"; link_on ;;
 chatgpt-copy|perplexity-copy) pick "${1%-copy}"; link_copy ;;
 chatgpt-off|perplexity-off) pick "${1%-off}"; link_off ;;
+fixed-setup)
+  command -v cloudflared >/dev/null || { echo "cloudflared is missing. Run: brew install cloudflared"; exit 1; }
+  pick perplexity
+  if [ -z "$(token)" ]; then security add-generic-password -U -s "$SERVICE" -a "$USER" -w "$(openssl rand -hex 24)"; fi
+  [ -f "$HOME/.cloudflared/cert.pem" ] || { echo "A browser window opens: sign in to Cloudflare and pick $DOMAIN."; cloudflared tunnel login; }
+  cloudflared tunnel list -o json 2>/dev/null | grep -q "\"name\":\"$TUNNEL\"" || cloudflared tunnel create "$TUNNEL"
+  ID="$(cloudflared tunnel list -o json | "$PY" -c "import json,sys; print(next(t['id'] for t in json.load(sys.stdin) if t['name']=='$TUNNEL'))")"
+  for a in chatgpt perplexity; do cloudflared tunnel route dns "$TUNNEL" "$(host "$a")"; done
+  cat >"$CFG" <<YML
+tunnel: $ID
+credentials-file: $HOME/.cloudflared/$ID.json
+ingress:
+  - hostname: $(host chatgpt)
+    service: http://127.0.0.1:8765
+  - hostname: $(host perplexity)
+    service: http://127.0.0.1:8766
+  - service: http_status:404
+YML
+  fixed_on
+  echo "Fixed addresses are ready. The keys did not change; paste each address into its app once:"
+  echo "  ./bridge-connect.sh fixed-copy chatgpt     then     ./bridge-connect.sh fixed-copy perplexity"
+  ;;
+fixed-on) fixed_on ;;
+fixed-off) fixed_off ;;
+fixed-copy)
+  case "${2:-}" in chatgpt|perplexity) pick "$2" ;; *) echo "Say which: ./bridge-connect.sh fixed-copy chatgpt (or perplexity)"; exit 1 ;; esac
+  printf '%s' "https://$(host "$AGENT")/mcp/$(token)" | pbcopy
+  echo "Copied: https://$(host "$AGENT")/mcp/•••••"
+  ;;
 status)
   for a in chatgpt perplexity; do
-    pick "$a"; alive tunnel && echo "$NAME link: on ($(address))" || echo "$NAME link: off"
+    pick "$a"; alive tunnel && echo "$NAME quick link: on ($(address))" || echo "$NAME quick link: off"
   done
+  PRE="fixed-"; alive tunnel && echo "Fixed addresses: on ($(host chatgpt), $(host perplexity))" || echo "Fixed addresses: off"
   for d in from-chatgpt from-perplexity to-chatgpt to-perplexity; do
     echo "$d: $(ls "$BRIDGE/$d" 2>/dev/null | grep -c '\.md$' || true) briefs"; ls -t "$BRIDGE/$d" 2>/dev/null | grep '\.md$' | head -3 | sed 's/^/  /' || true
   done
   ;;
 *)
-  sed -n '2,9p' "$0"
+  sed -n '2,12p' "$0"
   ;;
 esac
