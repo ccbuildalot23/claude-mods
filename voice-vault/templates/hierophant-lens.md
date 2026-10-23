@@ -24,7 +24,7 @@ LaBeau and Chris's personal brand are one brand now. The diary is the work.
 
 - Chris's words are never changed. Poems, diary lines and share-candidates are quoted exactly. Captions, hooks and Notes go around his words, never inside them.
 - Agents write the full caption (no placeholders), and nothing is sent, posted or bought without his yes.
-- Private life stays private: no recovery language, no therapy, legal or money matters, no real names, no family details. Run the privacy preflight before anything leaves the Mac.
+- Private life stays private: no recovery language, no clinical, legal or money matters, no real names, no family details. Run the privacy preflight before anything leaves the Mac.
 - Only lines Chris marked with the nib, harvested on Sunday into `data/share-candidates/share-candidates.csv`, may be used from the diary. Unmarked diary pages never leave the vault.
 - Format rules still apply: Reels first, carousels as fallback, no single images on Instagram or TikTok, TikTok first.
 

@@ -54,6 +54,10 @@ class LibraryTests(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp)
 
+    def test_lens_template_passes_privacy_check(self):
+        # Agents may quote the Lens onto the bridge, so it must not trip the preflight itself.
+        self.assertEqual(vv.private_reasons(self.lens.read_text(), WORDS), [])
+
     def test_ei_weeks(self):
         self.assertEqual(sl.ei_week(dt.date(2026, 10, 24)), "setup")
         self.assertEqual(sl.ei_week(dt.date(2026, 10, 26)), "week 1")
