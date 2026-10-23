@@ -3,6 +3,7 @@
 #   ./bridge-connect.sh setup            make the 4 folders and the ChatGPT key (in Keychain), run the tests
 #   ./bridge-connect.sh perplexity       print the JSON to paste into Perplexity's Mac app
 #   ./bridge-connect.sh chatgpt-on       start the ChatGPT link and copy its address to the clipboard
+#   ./bridge-connect.sh chatgpt-copy     copy the running link's address to the clipboard again
 #   ./bridge-connect.sh chatgpt-off      stop the ChatGPT link
 #   ./bridge-connect.sh status           show what is running and the newest briefs
 set -euo pipefail
@@ -113,6 +114,12 @@ chatgpt-on)
   echo "The full address (with its key) is on your clipboard: $URL/mcp/•••••"
   echo "The address changes each time you turn it on; paste the new one into ChatGPT's connector."
   ;;
+chatgpt-copy)
+  alive tunnel || { echo "The ChatGPT link is off. Run: ./bridge-connect.sh chatgpt-on"; exit 1; }
+  URL="$(grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' "$RUN/tunnel.log" | head -1 || true)"
+  printf '%s' "$URL/mcp/$(token)" | pbcopy
+  echo "Copied again: $URL/mcp/•••••"
+  ;;
 chatgpt-off)
   for p in tunnel server; do alive "$p" && kill "$(cat "$RUN/$p.pid")" && echo "stopped $p"; rm -f "$RUN/$p.pid"; done
   echo "ChatGPT link is OFF."
@@ -125,6 +132,6 @@ status)
   done
   ;;
 *)
-  sed -n '2,7p' "$0"
+  sed -n '2,8p' "$0"
   ;;
 esac

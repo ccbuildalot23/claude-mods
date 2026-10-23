@@ -54,6 +54,7 @@ cd ~/Developer/claude-mods/bridge-connect
 ./bridge-connect.sh setup          # once: 4 folders, ChatGPT key in Keychain, tests, note to Grok
 ./bridge-connect.sh perplexity     # prints the JSON for Perplexity's Advanced connector
 ./bridge-connect.sh chatgpt-on     # starts the ChatGPT link, self-tests it, copies the address
+./bridge-connect.sh chatgpt-copy     # copies the running address again
 ./bridge-connect.sh chatgpt-off
 ./bridge-connect.sh status
 ```
