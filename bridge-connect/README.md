@@ -41,7 +41,7 @@ No other bridge folder, the vault or anything else on the Mac is reachable. Link
 
 ## How each one connects
 
-**Perplexity (Mac app): a local connector.** Perplexity's Mac app runs the server itself through its Helper App. Nothing is exposed to the internet. It only works in the Mac app, not on the phone or the website.
+**Perplexity: its own keyed link.** Perplexity's current Mac app only accepts a web address for custom connectors, so `./bridge-connect.sh perplexity-on` works exactly like the ChatGPT link below, with its own Keychain key (`bridge-connect-perplexity`, made on first use), its own port (8766) and its own address. In Perplexity: Customize, Connectors, Add custom connector, paste the address as the MCP server URL, Authentication None, Transport Streamable HTTP. Older Perplexity apps that run a local command can use the JSON from `./bridge-connect.sh perplexity` instead; nothing is exposed that way.
 
 **ChatGPT: a link with a key, on only while you need it.** ChatGPT can only reach a public HTTPS address, so `./bridge-connect.sh chatgpt-on` starts the server on this Mac (local only) plus a Cloudflare quick tunnel in front of it, and puts the address on the clipboard. The address ends in a 48-character key kept in Keychain; without it the server answers 401. `chatgpt-off` closes it. The address changes each time it's turned on.
 
@@ -52,10 +52,11 @@ Later upgrade: OpenAI's Secure MCP Tunnel avoids a public address entirely, but 
 ```
 cd ~/Developer/claude-mods/bridge-connect
 ./bridge-connect.sh setup          # once: 4 folders, ChatGPT key in Keychain, tests, note to Grok
-./bridge-connect.sh perplexity     # prints the JSON for Perplexity's Advanced connector
 ./bridge-connect.sh chatgpt-on     # starts the ChatGPT link, self-tests it, copies the address
-./bridge-connect.sh chatgpt-copy     # copies the running address again
-./bridge-connect.sh chatgpt-off
+./bridge-connect.sh perplexity-on  # the same for Perplexity (own key, port and address)
+./bridge-connect.sh chatgpt-copy   # copies a running address again (or perplexity-copy)
+./bridge-connect.sh chatgpt-off    # or perplexity-off
+./bridge-connect.sh perplexity     # JSON for Perplexity apps that run a local command
 ./bridge-connect.sh status
 ```
 
