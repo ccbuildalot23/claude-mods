@@ -6,8 +6,7 @@ Routing is by the first words Chris says, never by an AI guess:
   "Line ..." / "Line bank ..." / "LaBeau ..."  -> LaBeau line bank, word for word
   "Share ..." / "Share LaBeau|Chris|both ..."  -> Brand Message Library share-candidates
   "Private ..." / "Vault ..." / anything else  -> Recovery vault Voice Inbox
-Photos (diary pages) always go to the vault's Diary Pages folder, read on this Mac
-by Apple Vision, and wait for Chris's Sunday harvest (diary_harvest.py).
+Photos of journal pages are left for the overnight gate (journal_gate.py).
 
 Private is the default. A line memo that names a real person, therapy, money or
 legal matters is held in the vault instead, with a note saying why.
@@ -29,7 +28,6 @@ import sys
 import time
 from pathlib import Path
 
-import diary_ocr
 import share_library
 
 HERE = Path(__file__).resolve().parent
@@ -49,9 +47,9 @@ DEFAULTS = {
                        / "Recovery Library/Imported/Voice Inbox"),
     "line_bank_dir": str(HOME / "Developer/labeau-ops/data/line-bank/voice"),
     "line_audio_dir": str(HOME / "LaBeau-Assets/Voice Lines"),
-    # Diary page photos stay in the vault; only lines Chris ticks at harvest leave it.
-    "diary_pages_dir": str(HOME / "Documents/Documents - Christopher\u2019s MacBook Air/Desktop/Recovery"
-                           / "Recovery Library/Imported/Diary Pages"),
+    # Journal page photos and their readings (the gate files them here; not the vault,
+    # which background jobs cannot reach, and the journal is fair game for the brand).
+    "diary_pages_dir": str(HOME / "LaBeau-Assets/Journal Pages"),
     "share_library": str(HOME / "Developer/labeau-ops/data/share-candidates/share-candidates.csv"),
     "lens_file": str(HOME / "Developer/labeau-ops/data/hierophant-lens/hierophant-lens.md"),
     "state_file": str(HERE / "state/processed.json"),
@@ -278,34 +276,6 @@ def file_memo(audio: Path, text: str, cfg: dict, move_audio: bool) -> tuple[str,
     return label, note
 
 
-def file_page(photo: Path, cfg: dict, reader=None) -> Path:
-    """Move a diary page photo into the vault and write its sidecar: the machine
-    reading, every line, for Chris to check at harvest. Nothing here is shared."""
-    when = recorded_at(photo)
-    pages = Path(cfg["diary_pages_dir"])
-    pages.mkdir(parents=True, exist_ok=True)
-    note = unique(pages / f"{when.strftime('%Y-%m-%d %H%M')} Diary Page.md")
-    photo_out = unique(pages / f"{note.stem}{photo.suffix.lower()}")
-    shutil.move(str(photo), photo_out)
-    try:
-        lines, how = (reader or diary_ocr.ocr_lines)(photo_out), "machine (Apple Vision on this Mac), not checked yet"
-    except RuntimeError as e:
-        lines, how = [], f"none ({e}); type the marked lines at harvest"
-    front = [
-        "---",
-        "type: diary-page",
-        f"photographed: {when.isoformat(timespec='minutes')}",
-        f"photo: {photo_out.name}",
-        f"reading: {how}",
-        "status: needs-harvest",
-        "tags: [diary, private]",
-        "---",
-        "",
-    ]
-    note.write_text("\n".join(front) + "".join(l + "\n" for l in lines))
-    return note
-
-
 def log(cfg: dict, msg: str) -> None:
     p = Path(cfg["log_file"])
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -313,12 +283,12 @@ def log(cfg: dict, msg: str) -> None:
         f.write(f"{dt.datetime.now().isoformat(timespec='seconds')} {msg}\n")
 
 
-def candidates(cfg: dict) -> list[tuple[Path, bool]]:
+def candidates(cfg: dict, kinds: set[str] = AUDIO_EXT | TEXT_EXT) -> list[tuple[Path, bool]]:
     out = []
     now = time.time()
     since = dt.datetime.fromisoformat(cfg["watch_since"]) if cfg.get("watch_since") else None
     for folder, move in [(d, True) for d in cfg["inbox"]] + [(d, False) for d in cfg["watch_readonly"]]:
-        exts = AUDIO_EXT | TEXT_EXT | (IMAGE_EXT if move else set())
+        exts = kinds if move else kinds - IMAGE_EXT
         d = Path(folder)
         try:
             entries = sorted(d.iterdir()) if d.is_dir() else []
@@ -334,19 +304,13 @@ def candidates(cfg: dict) -> list[tuple[Path, bool]]:
     return out
 
 
-def run(cfg: dict, transcriber=transcribe, reader=None) -> int:
+def run(cfg: dict, transcriber=transcribe) -> int:
     state_path = Path(cfg["state_file"])
     state = json.loads(state_path.read_text()) if state_path.exists() else {}
     filed = 0
     for audio, move in candidates(cfg):
         digest = sha256(audio)
         if digest in state:
-            continue
-        if audio.suffix.lower() in IMAGE_EXT:
-            note = file_page(audio, cfg, reader)
-            state[digest] = {"route": "diary-page", "note": note.name, "at": dt.datetime.now().isoformat(timespec="seconds")}
-            log(cfg, f"FILED {audio.name} -> diary page [{digest[:12]}]")
-            filed += 1
             continue
         try:
             text = audio.read_text() if audio.suffix.lower() in TEXT_EXT else transcriber(audio, cfg)

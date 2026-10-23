@@ -13,3 +13,5 @@ config/lightweek.json
 config/grid-pins.json
 brain-dump/inbox/
 __pycache__/
+config/name-roles.txt
+config/name-ok.txt
