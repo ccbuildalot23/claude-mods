@@ -37,7 +37,10 @@ DEFAULTS = {
     # Only file read-only memos recorded at or after this time (ISO), so turning on
     # Voice Memos sync does not sweep up every old recording.
     "watch_since": "",
-    "vault_inbox": str(HOME / "Documents/Desktop/Recovery/Recovery Library/Imported/Voice Inbox"),
+    # The real vault sits under "Documents - Christopher’s MacBook Air" (curly
+    # apostrophe). ~/Documents/Desktop/Recovery is a stray copy agents once made.
+    "vault_inbox": str(HOME / "Documents/Documents - Christopher\u2019s MacBook Air/Desktop/Recovery"
+                       / "Recovery Library/Imported/Voice Inbox"),
     "line_bank_dir": str(HOME / "Developer/labeau-ops/data/line-bank/voice"),
     "line_audio_dir": str(HOME / "LaBeau-Assets/Voice Lines"),
     "state_file": str(HERE / "state/processed.json"),
