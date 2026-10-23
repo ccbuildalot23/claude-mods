@@ -26,7 +26,7 @@ Everything in Chris's journal is fair game for the brand (his ruling, Oct 23, 20
 
 Agents read only `cleared.csv` (written beside the library, cleared lines alone) and quote `shared_line`; the full table, with names not yet swapped, stays for the gate. Role options come from `../config/name-roles.txt` (`Name = my brother | my big brother`, Mac only, never committed); words that look like names but are not go in `../config/name-ok.txt`. The `harvest` command reads new photos right away. `journal_gate.py docket` previews the next docket; `journal_gate.py apply "strike 3"` applies a command by hand. Logs hold counts, never journal words.
 
-blast-radius treats `share-candidates/` and `hierophant-lens/` as pen-rule folders: agents read them and never write there. Install once with `./install-gate.sh` (reader, Lens, launchd job, `harvest` command, a self-test on a made-up page and a mail login check; leaves the voice-vault job alone).
+blast-radius treats `share-candidates/` and `hierophant-lens/` as pen-rule folders: agents read them and never write there. Install once with `./install-gate.sh`, then `./wire-agents.sh` (points labeau-ops CLAUDE.md, Grok and Muse at the Lens and cleared.csv; safe to run twice). The installer covers the reader, Lens, launchd job, `harvest` command, a self-test on a made-up page and a mail login check; leaves the voice-vault job alone).
 
 ## Guarantees
 - Transcription is local (mlx-whisper). If it is missing, the job stops and leaves the audio where it is; there is no cloud fallback.
