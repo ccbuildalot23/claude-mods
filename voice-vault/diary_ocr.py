@@ -1,15 +1,16 @@
 """Read a diary page photo on this Mac with Apple's Vision framework.
 
 Nothing leaves the Mac. Language correction is off, so Vision does not swap in
-"likelier" words; what comes back is a first draft that Chris checks against his
-own pen on the harvest page before any line is kept.
+"likelier" words. Lines Vision is unsure of wait on the Monday docket for Chris
+to confirm or fix, so a misread never goes out as his words.
 """
 from __future__ import annotations
 
 from pathlib import Path
 
 
-def ocr_lines(photo: Path) -> list[str]:
+def ocr_read(photo: Path) -> list[tuple[str, float]]:
+    """Every line Vision finds, top to bottom, with its confidence (0 to 1)."""
     try:
         import Vision  # type: ignore  (pyobjc-framework-Vision, installed by install.sh)
         from Foundation import NSURL  # type: ignore
@@ -30,6 +31,10 @@ def ocr_lines(photo: Path) -> list[str]:
             continue
         box = obs.boundingBox()  # 0..1, origin at bottom left
         top = 1 - (box.origin.y + box.size.height)
-        found.append((round(top, 2), box.origin.x, str(cands[0].string())))
+        found.append((round(top, 2), box.origin.x, str(cands[0].string()), float(cands[0].confidence())))
     found.sort()
-    return [t for _, _, t in found if t.strip()]
+    return [(t, c) for _, _, t, c in found if t.strip()]
+
+
+def ocr_lines(photo: Path) -> list[str]:
+    return [t for t, _ in ocr_read(photo)]
