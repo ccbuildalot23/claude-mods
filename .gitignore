@@ -15,3 +15,5 @@ brain-dump/inbox/
 __pycache__/
 config/name-roles.txt
 config/name-ok.txt
+bridge-digest/config.json
+bridge-digest/state/

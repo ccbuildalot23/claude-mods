@@ -1,6 +1,9 @@
 """python3 test_hook_first.py [LABEAU_OPS_DIR]: unit checks for the hook-first patch (Oct 24, 2026). Stubs the Mac-only modules."""
 import os, sys, types, unittest
 OPS = os.path.expanduser(sys.argv.pop(1) if len(sys.argv) > 1 else "~/Developer/labeau-ops")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from apply_hook_first import locate
+OPS = os.path.dirname(locate(OPS)[0])   # the folder render_motion.py lives in
 sys.path.insert(0, OPS)
 CFG = {"motion": {}}
 if "common" not in sys.modules:

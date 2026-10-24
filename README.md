@@ -27,7 +27,7 @@ Then restart Claude Code (or run `/reload-plugins` in an open session). Uninstal
 | privacy-preflight | /preflight, /preflight allow ID | no | Locked on. Checks writes headed somewhere shared (grok-bridge, labeau-site, public-copy, Airtable, Notion, Drive, Blotato, Gmail, Slack, Calendar) and blocks private names from `config/private-names.txt`, private-life words, keys, bridge stamps later than now, and bridge files that break PROTOCOL names or statuses. Only you can allow one through: typed at a terminal, or confirmed in the question dialog from the desktop app. |
 | outbox | /outbox, /outbox release ID | no | Locked on. Holds sends, replies, posts, comments, invites, shares, deploys, git push and asset approvals until you say yes; drafts pass. When you are watching (terminal or desktop app) it asks Send once / Keep it held on the spot; in a -p or scheduled run it holds for /outbox release, which the desktop app confirms in the dialog. Records in outbox-held/. |
 | action-log | /log | no | Locked on. One line per tool call (every session, scheduled runs too) in logs/actions-DATE.log, written before the call runs; no log, no run. Keys masked. |
-| bridge-inbox | /bridge-inbox | yes, small, per new message | Three-line summary of each new message in grok-bridge/to-claude, ★ on anything that needs your yes; ack and archive follow the protocol. Never acts on a message. |
+| bridge-inbox | /bridge-inbox, /bridge-inbox auto on/off | start of session: no; summaries: yes, small, per new message | At each session start on the Mac: acks new grok-bridge/to-claude messages, writes status/claude.json, updates Claude Code's row in the Airtable Agent Heartbeats table, and flushes status/airtable-pending.jsonl (no AI; does nothing where the bridge folder is missing). /bridge-inbox gives a three-line summary of each message, ★ on anything that needs your yes; ack and archive follow the protocol (archive from the desktop app is confirmed in the dialog). Never acts on a message. |
 | needs-you | /needsyou on/off | no | Desktop ping when a long turn finishes or Claude waits on you. Quiet hours hold them and send one roundup after. Terminal only: the desktop app sends its own notifications, so here it stays quiet. |
 | lightweek | /lightweek [days], /lightweek off | no | Tells every session to keep to essentials for 7 days (or the days you give); a quiet line shows it's on. |
 
@@ -60,6 +60,8 @@ cd ~/Developer/claude-mods/apps && ./open.sh line-bank
 | Brand-deal tracker | `./open.sh brand-deals` | Idea → Researching → Warm intro → In talks → Agreed or Passed, with notes and CSV export. Stays in the browser; nothing is sent. |
 
 Not a plugin, but living here too: **voice-vault/** (voice memos and text dumps transcribed on the Mac and filed to the line bank or the Recovery vault). See `voice-vault/README.md`.
+
+Also not a plugin: **bridge-digest/**, a nightly launchd job (no AI) that writes a Bridge Digest and a Bridge Roster from the Grok bridge's front matter and heartbeats into the vault's `Second Brain/Meta/Bridge/`. See `bridge-digest/README.md`.
 
 Also here: **bridge-connect/** (a small MCP server so ChatGPT and Perplexity can send dated briefs to Grok or Claude Code through the grok-bridge and check receipts, scoped to four folders of their own, with the privacy check both ways). See `bridge-connect/README.md`.
 
