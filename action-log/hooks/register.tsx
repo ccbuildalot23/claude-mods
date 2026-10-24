@@ -59,7 +59,8 @@ export const register: Register = on => {
     await append($, `${await stamp($)} ${sid} ${who} ${e.tool}: ${target(e as unknown as Record<string, unknown>)}`)
     const result = await next(e)
     const end = result.deny !== undefined ? `blocked: ${mask(result.deny).slice(0, 140)}` : 'ran'
-    await append($, `         └ ${e.tool} ${end}`).catch(() => undefined)
+    // The closing line is a courtesy, so the result goes back without waiting on the disk.
+    void append($, `         └ ${e.tool} ${end}`).catch(() => undefined)
     return result
   }).catch(($, e, next) => (next.called ? next(e) : { deny: 'action-log: could not write the action log, so the call did not run (fail closed). Check that ~/Developer/claude-mods/logs is writable, or turn the action-log mod off in /mods.' }))
 }

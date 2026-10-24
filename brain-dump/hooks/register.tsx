@@ -156,7 +156,10 @@ export const register: Register = on => {
       await update($, dump, v => ({ ...v, bypass: '' }))
       return next(e)
     }
-    if (e.origin.kind !== 'composer') return next(e)
+    // Chris's own typing: Enter at a terminal, or a prompt from the desktop app, which hosts the session as an
+    // SDK client, so its prompts arrive as `sdk` with a desktop surface attached. A plain -p run has none.
+    const isTyped = e.origin.kind === 'composer' || (e.origin.kind === 'sdk' && (await $.session.surfaces().catch(() => [])).includes('desktop'))
+    if (!isTyped) return next(e)
     if (d.passNext) {
       await update($, dump, v => ({ ...v, passNext: false }))
       return next(e)

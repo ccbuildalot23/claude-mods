@@ -9,9 +9,22 @@ const SETTINGS = /(^|\/)\.claude\/settings(\.local)?\.json$|(^|\/)\.claude\.json
 const PEN_IN_COMMAND = /(^|[\s/'"=])(poems|line-bank|public-copy|share-candidates|hierophant-lens)(\/|[\s'";|&)]|$)/i
 const SETTINGS_IN_COMMAND = /\.claude\/settings(\.local)?\.json\b|(^|[\s/'"])\.claude\.json\b/
 // Shell that can write, move or delete: redirects, in-place edits, file verbs, scripts.
-const SHELL_WRITES = /(^|[^0-9&])>{1,2}(?!&)|(^|[\s;&|(])(cp|mv|rm|rmdir|touch|tee|ln|install|rsync|dd|truncate|mkdir|chmod|chown|unlink|shred|srm|trash|patch|xargs|python3?|node|ruby|perl|osascript|ditto)\b|\bsed\b[^|;&]*\s-[a-zA-Z]*i|\bgit\s+(checkout|restore|apply|mv|rm|stash|reset|clean)\b/
+const SHELL_WRITES = /(^|[^0-9&])>{1,2}(?!&)|(^|[\s;&|(])(cp|mv|rm|rmdir|touch|tee|ln|install|rsync|dd|truncate|mkdir|chmod|chown|unlink|shred|srm|trash|patch|xargs|python3?|node|ruby|perl|osascript|ditto)(?=[\s;&|)]|$)|\bsed\b[^|;&]*\s-[a-zA-Z]*i|\bgit\s+(checkout|restore|apply|mv|rm|stash|reset|clean)\b/
 
 type Risk = { label: string; targets: string[] }
+
+// Scratch space: a plain delete there loses nothing Chris keeps, so it runs without the dialog (his yes, Oct 24).
+const SCRATCH = /^(\/private)?\/tmp\/|^\/var\/folders\/|^\$TMPDIR\//
+const PLAIN_DELETE = new Set(['delete (rm)', 'folder delete (rmdir)', 'find -delete', 'find -exec rm'])
+export function onlyScratch(command: string, risk: Risk): boolean {
+  if (!PLAIN_DELETE.has(risk.label) || risk.targets.length === 0) return false
+  // One command at a time: a chain, a pipe or a substitution could reach past the scratch folder.
+  if (/[;&|`<>]|\$\(/.test(command)) return false
+  return risk.targets.every(t => {
+    const path = t.replace(/^['"]|['"]$/g, '')
+    return SCRATCH.test(path) && !path.includes('..')
+  })
+}
 
 const RULES: { test: RegExp; label: string }[] = [
   { test: /(^|[;&|(\s])rm\s/, label: 'delete (rm)' },
@@ -80,7 +93,7 @@ export const register: Register = on => {
       }
     }
     const risk = judge(e.command)
-    if (risk === undefined) return next(e)
+    if (risk === undefined || onlyScratch(e.command, risk)) return next(e)
 
     const hits = await preview($, risk, undefined)
     $.ui.notice(e.tool_use_id, `Blast radius: ${risk.label}`)

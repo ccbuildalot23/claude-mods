@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { ModelUsage, Register } from 'claude-code'
 
 import type { CrewMate, CrewTodo } from '../types'
 
@@ -27,6 +27,11 @@ const CAST = [
 function bar(done: number, total: number, width = 10): string {
   const filled = total === 0 ? 0 : Math.round((done / total) * width)
   return '█'.repeat(filled) + '░'.repeat(width - filled)
+}
+
+// API-equivalent list prices per million tokens; on a subscription this is a yardstick, not a bill.
+export function dollars(u: ModelUsage): number {
+  return (u.input_tokens * 5 + u.output_tokens * 25 + u.cache_read_input_tokens * 0.5 + u.cache_creation_input_tokens * 6.25) / 1e6
 }
 
 function clip(text: string, max: number): string {
@@ -141,8 +146,14 @@ export const register: Register = on => {
     if (agentId !== undefined) {
       const now = await $.clock.now()
       const status = e.isAborted ? 'failed' : 'done'
+      const u = e.usage
+      const used = u ? u.input_tokens + u.output_tokens + u.cache_read_input_tokens + u.cache_creation_input_tokens : 0
       await update($, mates, list =>
-        list.map(m => (m.id === agentId ? { ...m, status, endedAt: now, doing: status === 'done' ? 'Finished' : 'Stopped' } : m)),
+        list.map(m =>
+          m.id === agentId
+            ? { ...m, status, endedAt: now, doing: status === 'done' ? 'Finished' : 'Stopped', tokens: (m.tokens ?? 0) + used, dollars: (m.dollars ?? 0) + (u ? dollars(u) : 0) }
+            : m,
+        ),
       )
     }
     return next(e)
@@ -180,6 +191,7 @@ export const register: Register = on => {
     const crew = await read($, mates)
     const now = await $.clock.now()
     const working = crew.filter(m => m.status === 'working').length
+    const total = crew.reduce((sum, m) => sum + (m.dollars ?? 0), 0)
     return (
       <Box flexDirection="column">
         {crew.length === 0 && <Text dimColor>No subagents yet this session. They show up here as soon as one starts.</Text>}
@@ -195,7 +207,11 @@ export const register: Register = on => {
             </Text>
             <Text>   {m.task}</Text>
             <Text color={m.color}>   {progress(m)} · {seconds(m, now)} · {m.steps} step{m.steps === 1 ? '' : 's'}</Text>
-            <Text dimColor>   {m.type} · {clip(m.doing, 60)}</Text>
+            <Text dimColor>
+              {'   '}
+              {m.type} · {clip(m.doing, 60)}
+              {(m.tokens ?? 0) > 0 ? ` · ${Math.round((m.tokens ?? 0) / 1000)}k tokens · ≈$${(m.dollars ?? 0).toFixed(2)}` : ''}
+            </Text>
             {m.todos.map(t => (
               <Text dimColor={t.status !== 'in_progress'} color={t.status === 'in_progress' ? m.color : undefined}>
                 {'     '}
@@ -204,6 +220,7 @@ export const register: Register = on => {
             ))}
           </Box>
         ))}
+        {total > 0 && <Text bold>Crew total ≈${total.toFixed(2)} (API-equivalent; your plan covers it)</Text>}
       </Box>
     )
   })

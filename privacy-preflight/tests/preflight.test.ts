@@ -62,3 +62,23 @@ test('only Chris typing /preflight allow lets a blocked write through once', asy
   expect((await $.tool.call(call)).deny).toBeUndefined()
   expect((await $.tool.call(call)).deny ?? '').toContain('privacy-preflight')
 })
+
+test('from the desktop app, /preflight allow goes through the question dialog', async ($, on) => {
+  mock.store(on)
+  mock.clock(on, { now: new Date('2026-10-24T06:00:00').getTime() })
+  on('env.get', () => ({ value: '/Users/c' }) as never)
+  on('fs.read', () => Promise.reject(new Error('ENOENT')) as never)
+  on('fs.stat', () => Promise.reject(new Error('ENOENT')) as never)
+  let answer = 'Keep blocked'
+  on('tool.call', (_, e) =>
+    e.tool === 'AskUserQuestion' ? { result: { questions: e.questions, answers: { [e.questions[0]?.question ?? '']: answer } } } : { result: {} },
+  )
+  on('command.run', () => ({ text: 'engine' }))
+  const call = { tool: 'Write', file_path: '/Users/c/Developer/grok-bridge/threads/t.md', content: 'sober and steady' } as const
+  const id = /PF-[0-9a-f]+/.exec((await $.tool.call(call)).deny ?? '')?.[0] ?? ''
+  const fromApp = { command: 'preflight', args: `allow ${id}`, origin: { kind: 'sdk' } } as never
+  expect((await $.command.run(fromApp)).text).toContain('stays blocked')
+  answer = 'Allow once'
+  expect((await $.command.run(fromApp)).text).toContain('allowed once')
+  expect((await $.tool.call(call)).deny).toBeUndefined()
+})

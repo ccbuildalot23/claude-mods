@@ -55,11 +55,6 @@
       "description": "The 'you should know' mod: after a long reply, a small model reads it and pops up anything you must not miss (costs, irreversible steps, deadlines, things waiting on your yes, risks). Uses a little AI on long replies only; /headsup off to stop."
     },
     {
-      "name": "helper-desk",
-      "source": "./helper-desk",
-      "description": "A progress bar above the prompt that fills as to-dos are ticked off, and a panel showing each subagent, what it is doing, and its token cost. Uses no AI."
-    },
-    {
       "name": "lightweek",
       "source": "./lightweek",
       "description": "/lightweek tells every Claude session on this Mac (Rig seats and scheduled runs included) to keep to essentials for seven days, or the days you give; a quiet line shows it's on. /lightweek off ends it. Uses no AI."

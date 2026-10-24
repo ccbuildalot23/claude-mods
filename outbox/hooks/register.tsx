@@ -12,8 +12,9 @@ const held = atom({ plugin: 'outbox', key: 'held' } as const, [])
 const released = atom({ plugin: 'outbox', key: 'released' } as const, [])
 
 // One `<word>_` may sit before the verb, because some servers prefix their own name (Blotato's
-// `blotato_create_post`). A read word is not a prefix, so get_/list_/search_ tools pass.
-const OUTBOUND = /(^|__)((?!(get|list|search|read|fetch|find|resolve|go|view|show)_)[a-z0-9]+_)?(send_message|send_imessage|reply|forward|create_post|post_comment|send_|publish|create_event|respond_to_event|share_file|share_|submit_form|deploy|invite)/i
+// `blotato_create_post`). A read word is not a prefix, so get_/list_/search_ tools pass, and neither is
+// `no_`, so a tool that says it sends nothing (`no_reply_needed`) passes too.
+const OUTBOUND = /(^|__)((?!(get|list|search|read|fetch|find|resolve|go|view|show|no)_)[a-z0-9]+_)?(send_message|send_imessage|reply|forward|create_post|post_comment|send_|publish|create_event|respond_to_event|share_file|share_|submit_form|deploy|invite)/i
 
 // Commands, not words inside quotes or a heredoc (home-base gaps G080, G082).
 export function bare(cmd: string): string {
@@ -50,12 +51,23 @@ export function summarize(e: Record<string, unknown>): string {
   return parts.join(' · ') || JSON.stringify(e).slice(0, 240)
 }
 
+// A yes in the engine's own question dialog is Chris's hand on every surface, the desktop app included,
+// whose typed prompts are not stamped `composer`. The model cannot answer that dialog; with nobody there
+// (a -p or scheduled run) it rejects, which counts as no. His yes, Oct 24.
+export async function chrisSays($: EngineInterface, question: string, yes: string): Promise<boolean> {
+  const answer = await $.ui.ask(question, { header: 'Outbox', options: [yes, 'Keep it held'] }).catch(() => '')
+  return answer === yes
+}
+
 async function hold($: EngineInterface, e: Record<string, unknown>, label: string): Promise<{ deny: string } | undefined> {
   const digest = digestOf(e)
   if ((await read($, released)).includes(digest)) {
     await update($, released, r => r.filter(d => d !== digest))
     return undefined
   }
+  // With Chris watching, he says yes on the spot instead of coming back later to release it.
+  const isWatched = (await $.session.surfaces().catch(() => [])).length > 0
+  if (isWatched && (await chrisSays($, `Outbox: send this ${label} now? ${summarize(e).slice(0, 300)}`, 'Send once'))) return undefined
   const at = new Date(await $.clock.now()).toISOString().slice(0, 16)
   const id = `OB-${digest.slice(0, 6)}`
   const item: Held = { id, tool: label, digest, summary: summarize(e), at }
@@ -79,10 +91,14 @@ export const register: Register = on => {
     const [verb, id] = e.args.trim().split(/\s+/)
     const list = await read($, held)
     if (verb === 'release' || verb === 'dismiss') {
-      // Only Chris's own Enter at the prompt counts; a plugin, the SDK or the model cannot release.
-      if (e.origin?.kind !== 'composer') return { text: `Outbox: a ${verb} must come from Chris typing it.` }
       const item = list.find(h => h.id === id)
       if (item === undefined) return { text: `Outbox: nothing held as ${id ?? '(no id)'}.` }
+      // Chris's Enter at a terminal counts as is; from anywhere else (the desktop app, a plugin, the model)
+      // he confirms it in the question dialog.
+      const label = verb === 'release' ? 'Release once' : 'Dismiss'
+      if (e.origin?.kind !== 'composer' && !(await chrisSays($, `Outbox: ${verb} ${id} (${item.tool})? ${item.summary.slice(0, 300)}`, label))) {
+        return { text: `Outbox: ${id} is still held. A ${verb} must come from Chris.` }
+      }
       if (verb === 'release') await update($, released, r => [...r, item.digest])
       await update($, held, l => l.filter(h => h.id !== id))
       return { text: verb === 'release' ? `Outbox: ${id} released once. The identical ${item.tool} call may now run one time.` : `Outbox: ${id} dismissed. Nothing was sent; its record stays in ~/Developer/claude-mods/outbox-held/.` }

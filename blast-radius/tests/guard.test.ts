@@ -76,6 +76,31 @@ test('the shell cannot write, move or delete inside pen-rule folders', async ($,
   }
 })
 
+test('reads that name a settings file pass, and a plain delete in scratch space runs without the dialog', async ($, on) => {
+  let asked = 0
+  let ran = 0
+  on('tool.call', (_, e) => {
+    if (e.tool === 'AskUserQuestion') {
+      asked += 1
+      return { result: { questions: e.questions, answers: { [e.questions[0]?.question ?? '']: 'Cancel' } } }
+    }
+    ran += 1
+    return { result: {} }
+  })
+  on('process.run', () => ({ value: { exitCode: 0, stdout: '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }))
+  // `install.sh` is a file name here, not the install command.
+  for (const command of ['grep -n mods install.sh .claude/settings.json', 'cat ~/.claude/settings.json', 'rm -rf /tmp/build-123', 'rm /private/tmp/x.log', 'find /tmp/claude-0/scratch -delete']) {
+    expect((await $.tool.call({ tool: 'Bash', command })).deny).toBeUndefined()
+  }
+  expect(asked).toBe(0)
+  expect(ran).toBe(5)
+  for (const command of ['rm -rf /tmp/x; rm -rf ~/work', 'rm -rf /tmp/../Users/c', 'rm -rf /tmp/x ~/Developer', 'rm -rf $(cat list)']) {
+    expect((await $.tool.call({ tool: 'Bash', command })).deny ?? '').toContain('cancelled')
+  }
+  expect(asked).toBe(4)
+  expect((await $.tool.call({ tool: 'Bash', command: 'install -m 644 a ~/.claude/settings.json' })).deny ?? '').toContain('settings')
+})
+
 test('pen-rule folders are refused in any letter case and through a symlink', async ($, on) => {
   on('tool.call', () => ({ result: {} }))
   on('fs.stat', (_, e) =>

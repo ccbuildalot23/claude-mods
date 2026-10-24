@@ -1,5 +1,8 @@
 import { expect, mock, test } from 'claude-code/testing'
 
+// The start-of-session pass runs in the background; let it land before reading what it wrote.
+const settle = () => new Promise(r => setTimeout(r, 20))
+
 const MSG = `---
 id: G2C-2026-10-22-001
 type: request
@@ -37,7 +40,7 @@ test('lists new messages with summaries, flags needs_chris, acks by protocol', a
   expect(after).toContain('status: acked')
   expect(after).toContain('## Status log\n- 2026-10-22 16:05 ET | acked:')
   const archive = await $.command.run({ command: 'bridge-inbox', args: 'archive G2C-2026-10-22-001' } as never)
-  expect(archive.text ?? '').toContain('Chris typing')
+  expect(archive.text ?? '').toContain('only done or rejected messages are archived')
 })
 
 const NEW2 = MSG.replace('G2C-2026-10-22-001', 'G2C-2026-10-23-004').replace('needs_chris: yes - pick a cento', 'needs_chris: no')
@@ -80,6 +83,7 @@ function bridge(on: Parameters<Parameters<typeof test>[1]>[1], airtableUp: boole
 test('session start acks new messages, writes claude.json, updates the heartbeat and flushes Changes rows', async ($, on) => {
   const { B, files, calls } = bridge(on, true)
   await $.session.start({ cwd: '/Users/c' } as never)
+  await settle()
   expect(files[`${B}/to-claude/G2C-2026-10-23-004-ack.md`]).toContain('status: acked')
   expect(files[`${B}/to-claude/G2C-2026-10-23-004-ack.md`]).toContain('- 2026-10-24 01:43 ET | acked: surfaced to Claude Code at session start')
   const status = JSON.parse(files[`${B}/status/claude.json`] ?? '{}')
@@ -103,6 +107,7 @@ test('session start acks new messages, writes claude.json, updates the heartbeat
 test('with Airtable unreachable the heartbeat is queued and claude.json says pending', async ($, on) => {
   const { B, files } = bridge(on, false)
   await $.session.start({ cwd: '/Users/c' } as never)
+  await settle()
   expect(JSON.parse(files[`${B}/status/claude.json`] ?? '{}').airtable).toBe('pending')
   const queued = files[`${B}/status/airtable-pending.jsonl`] ?? ''
   expect(queued).toContain('"table": "Changes"')
@@ -122,5 +127,6 @@ test('no bridge folder (a cloud session) means no writes', async ($, on) => {
   on('session.start', (_, e) => e as never)
   on('command.run', () => ({ text: 'engine' }))
   await $.session.start({ cwd: '/Users/c' } as never)
+  await settle()
   expect(writes).toHaveLength(0)
 })

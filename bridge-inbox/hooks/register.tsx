@@ -259,14 +259,16 @@ export const register: Register = on => {
     await $.command.register({ name: 'bridge-inbox', description: "Grok bridge inbox: summaries of new messages to Claude Code, what needs Chris's yes, ack or archive", argumentHint: '[all | ack <id> | archive <id> | auto on|off]' })
     const started = await next(e)
     if ((await read($, sync)).isAuto) {
-      const done = await startOfSession($).catch(() => undefined)
-      if (done !== undefined) {
+      // In the background, so the session (and the desktop app's first prompt) never waits on the Airtable round trips.
+      void (async () => {
+        const done = await startOfSession($).catch(() => undefined)
+        if (done === undefined) return
         const lastRun = etStamp(await $.clock.now())
         await update($, sync, s => ({ ...s, fresh: done.fresh, airtable: done.airtable, lastRun }))
         if (done.fresh.length > 0 || done.airtable !== 'ok') {
           $.ui.toast(`Bridge: ${done.fresh.length} new message${done.fresh.length === 1 ? '' : 's'} acked${done.airtable === 'ok' ? '' : ' · Airtable queued for later'} · /bridge-inbox`)
         }
-      }
+      })().catch(() => undefined)
     }
     return started
   })
@@ -304,10 +306,14 @@ export const register: Register = on => {
     }
 
     if (verb === 'archive') {
-      if (e.origin?.kind !== 'composer') return { text: 'Bridge inbox: archiving is Chris typing /bridge-inbox archive <id>.' }
       const m = all.find(x => x.id === id || x.file === id)
       if (m === undefined) return { text: `Bridge inbox: no message ${id ?? '(no id)'}.` }
       if (m.status !== 'done' && m.status !== 'rejected') return { text: `Bridge inbox: ${m.id} is ${m.status}; only done or rejected messages are archived.` }
+      // Chris's Enter at a terminal counts as is; from the desktop app or anywhere else he confirms in the dialog.
+      if (e.origin?.kind !== 'composer') {
+        const answer = await $.ui.ask(`Bridge inbox: archive ${m.id} (${m.status})?`, { header: 'Bridge inbox', options: ['Archive', 'Leave it'] }).catch(() => '')
+        if (answer !== 'Archive') return { text: 'Bridge inbox: archiving needs Chris; nothing moved.' }
+      }
       const dest = `${await root($)}/archive/to-claude`
       const r = await $.process.run(['/bin/mkdir', '-p', dest]).then(() => $.process.run(['/bin/mv', '-n', `${dir}/${m.file}`, `${dest}/${m.file}`]))
       return { text: r.exitCode === 0 ? `Bridge inbox: ${m.id} moved to archive/to-claude/.` : `Bridge inbox: the move failed (${r.stderr.trim()}).` }
