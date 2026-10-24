@@ -1,0 +1,10 @@
+{
+  "name": "labeau-harness-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pinned Claude Code helpers from harness-addons-v2 step 3: ccusage (usage report) and ccstatusline (status line).",
+  "dependencies": {
+    "ccstatusline": "2.2.32",
+    "ccusage": "20.0.40"
+  }
+}

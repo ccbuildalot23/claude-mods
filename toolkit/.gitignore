@@ -1,0 +1,7 @@
+node_modules/
+out/
+logs/
+hyperframes/vendor/
+hyperframes/renders/
+hyperframes/.hyperframes/
+.claude/hookify.*.local.md
