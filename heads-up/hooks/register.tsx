@@ -30,11 +30,14 @@ export const register: Register = on => {
     const done = await next(e)
     const s = await read($, state)
     if (!s.isOn || e.agentId !== undefined || e.answer.length < LONG) return done
-    const r = await $.model.complete({ model: 'haiku', system: ASK, prompt: e.answer.slice(0, 30000), maxTokens: 200, effort: 'low' })
-    if (r.isAnswered && !/^\s*NONE\s*$/i.test(r.text)) {
-      await update($, state, v => ({ ...v, note: r.text.trim() }))
-      $.ui.toast(`You should know:\n${r.text.trim()}`, { timeoutMs: 12000 })
-    }
+    // In the background: the turn ends now and the note shows up a moment later, so Chris never waits on it.
+    void (async () => {
+      const r = await $.model.complete({ model: 'haiku', system: ASK, prompt: e.answer.slice(0, 30000), maxTokens: 200, effort: 'low' })
+      if (r.isAnswered && !/^\s*NONE\s*$/i.test(r.text)) {
+        await update($, state, v => ({ ...v, note: r.text.trim() }))
+        $.ui.toast(`You should know:\n${r.text.trim()}`, { timeoutMs: 12000 })
+      }
+    })().catch(() => undefined)
     return done
   })
 

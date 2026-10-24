@@ -87,7 +87,15 @@ export const register: Register = on => {
       return (
         <Box flexDirection="row">
           <Text dimColor>Handoff ready </Text>
-          <Button key="copy" label="Copy handoff" onPress={press => $.ui.copy({ text: s.lastText, surface: press.surface })} />
+          <Button
+            key="copy"
+            label="Copy handoff"
+            onPress={async press => {
+              // Where the app cannot take it onto the clipboard, say where the text is instead of failing quietly.
+              const r = await $.ui.copy({ text: s.lastText, surface: press.surface })
+              if (!r.isCopied) $.ui.toast(`Could not copy here; the handoff is in the /handoff reply and saved at ${s.lastPath}.`)
+            }}
+          />
           <Button key="clear" label="Done" onPress={() => update($, state, v => ({ ...v, lastText: '' }))} />
         </Box>
       )

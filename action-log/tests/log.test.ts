@@ -1,5 +1,8 @@
 import { expect, mock, test } from 'claude-code/testing'
 
+// The closing line is written in the background; let it land before reading the log.
+const settle = () => new Promise(r => setTimeout(r, 5))
+
 test('every call is logged before it runs, keys are masked, and a failed log stops the call', async ($, on) => {
   mock.clock(on, { now: new Date('2026-10-22T16:05:09').getTime() })
   on('env.get', () => ({ value: '/Users/c' }) as never)
@@ -17,11 +20,13 @@ test('every call is logged before it runs, keys are masked, and a failed log sto
   })
   await $.tool.call({ tool: 'Bash', command: 'curl -H "x-api-key: sk-ant-abcdefghijklmnop1234" https://example.com' })
   expect(ran).toBe(1)
+  await settle()
   expect(lines[0] ?? '').toContain('16:05:09 abcdef12 main Bash:')
   expect(lines[0] ?? '').toContain('[key]')
   expect(lines[0] ?? '').not.toContain('abcdefghijklmnop1234')
   expect(lines[1] ?? '').toContain('ran')
   await $.tool.call({ tool: 'Write', file_path: '/Users/c/notes.md', content: 'secret diary text' })
+  await settle()
   expect(lines[2] ?? '').toContain('/Users/c/notes.md')
   expect(lines.join('\n')).not.toContain('diary')
   canWrite = false

@@ -37,5 +37,5 @@ test('lists new messages with summaries, flags needs_chris, acks by protocol', a
   expect(after).toContain('status: acked')
   expect(after).toContain('## Status log\n- 2026-10-22 16:05 ET | acked:')
   const archive = await $.command.run({ command: 'bridge-inbox', args: 'archive G2C-2026-10-22-001' } as never)
-  expect(archive.text ?? '').toContain('Chris typing')
+  expect(archive.text ?? '').toContain('only done or rejected messages are archived')
 })

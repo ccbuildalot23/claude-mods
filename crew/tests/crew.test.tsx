@@ -56,3 +56,16 @@ test('a finished subagent shows done in the panel', async ($, on) => {
   expect(await pane.find({ type: 'Text', text: /Scan the repo/ })).toBeDefined()
   await pane.unmount()
 })
+
+test('the panel shows what each subagent used, in tokens and API-equivalent dollars, on both surfaces', async ($, on) => {
+  engine(on)
+  await $.agent.spawn({ prompt: 'look', description: 'Scan the repo' })
+  const usage = { input_tokens: 100000, output_tokens: 20000, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }
+  await $.turn.complete({ answer: 'ok', durationMs: 5, isAborted: false, turnId: 't', agentId: 'a1', reason: 'answer', usage } as never)
+  for (const surface of ['terminal', 'desktop'] as const) {
+    const pane = await $.ui.mount({ ...PANE, surface })
+    expect(await pane.find({ type: 'Text', text: /120k tokens · ≈\$1\.00/ })).toBeDefined()
+    expect(await pane.find({ type: 'Text', text: /Crew total ≈\$1\.00/ })).toBeDefined()
+    await pane.unmount()
+  }
+})

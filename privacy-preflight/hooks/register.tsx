@@ -139,9 +139,14 @@ export const register: Register = on => {
     const [verb, id] = e.args.trim().split(/\s+/)
     const list = await read($, blocked)
     if (verb === 'allow') {
-      if (e.origin?.kind !== 'composer') return { text: 'Preflight: only Chris typing /preflight allow can let a blocked write through.' }
       const item = list.find(b => b.id === id)
       if (item === undefined) return { text: `Preflight: nothing blocked as ${id ?? '(no id)'}.` }
+      // Chris's Enter at a terminal counts as is. From the desktop app (whose prompts are not stamped
+      // `composer`) or anywhere else, he confirms in the question dialog, which the model cannot answer.
+      if (e.origin?.kind !== 'composer') {
+        const answer = await $.ui.ask(`Preflight: let ${id} through to ${item.where} once? It was blocked because ${item.problem}.`, { header: 'Preflight', options: ['Allow once', 'Keep blocked'] }).catch(() => '')
+        if (answer !== 'Allow once') return { text: 'Preflight: only Chris can let a blocked write through; it stays blocked.' }
+      }
       await update($, allowed, a => [...a, item.digest])
       await update($, blocked, l => l.filter(b => b.id !== id))
       return { text: `Preflight: ${id} allowed once. The identical write may now run one time.` }

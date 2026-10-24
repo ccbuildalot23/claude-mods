@@ -126,3 +126,17 @@ test('/braindump off lets rambles through but still holds Private:', async ($, o
   await $.prompt.submit(composer('Private: held even when the catcher is off'))
   expect(world.reached.length).toBe(2)
 })
+
+test('in the desktop app a Private: dump is held too; a headless run with no surface is left alone', async ($, on) => {
+  const world = engine(on)
+  let surfaces: string[] = ['desktop']
+  on('session.surfaces', () => ({ value: surfaces }) as never)
+  await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
+  const fromApp = (text: string) => ({ text, origin: { kind: 'sdk' } }) as never
+  const held = await $.prompt.submit(fromApp('Private: typed in the desktop app'))
+  expect(String((held as { drop?: string }).drop ?? '')).toContain('not gone to Claude')
+  expect(world.reached.length).toBe(0)
+  surfaces = []
+  await $.prompt.submit(fromApp('Private: a scheduled -p prompt that quotes the word'))
+  expect(world.reached.length).toBe(1)
+})

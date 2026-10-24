@@ -12,6 +12,9 @@ export type CrewMate = {
   status: 'working' | 'done' | 'failed'
   startedAt: number
   endedAt: number
+  // Taken over from helper-desk (Oct 24): what the agent used, at API-equivalent list prices.
+  tokens?: number
+  dollars?: number
 }
 
 declare module 'claude-code' {
