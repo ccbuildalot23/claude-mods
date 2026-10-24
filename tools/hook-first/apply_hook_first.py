@@ -15,8 +15,23 @@ is missing). Backups: <file>.bak-20261024-hookfirst. Running it twice is safe: a
 import os, shutil, sys
 
 OPS = os.path.expanduser(sys.argv[1] if len(sys.argv) > 1 else "~/Developer/labeau-ops")
-PY = os.path.join(OPS, "render_motion.py")
-HTML = os.path.join(OPS, "motion", "templates", "stanza", "index.html")
+SKIP = {".git", "node_modules", "vendor", "__pycache__", "backups", "data"}
+
+
+def locate(ops=OPS):
+    """labeau-ops keeps render_motion.py in its scripts folder and the stanza template under motion/templates; find each
+    one on its own (exactly one of each, outside backups and vendored folders) instead of assuming where they sit."""
+    py, tpl = [], []
+    for root, dirs, files in os.walk(ops):
+        dirs[:] = [d for d in dirs if d not in SKIP and not d.startswith((".", "_", "tmp"))]
+        if "render_motion.py" in files:
+            py.append(os.path.join(root, "render_motion.py"))
+        if "index.html" in files and root.replace(os.sep, "/").endswith("templates/stanza"):
+            tpl.append(os.path.join(root, "index.html"))
+    if len(py) != 1 or len(tpl) != 1:
+        raise SystemExit(f"NOT CHANGED: expected one render_motion.py and one templates/stanza/index.html under {ops}; "
+                         f"found scripts {py or 'none'} and templates {tpl or 'none'}")
+    return py[0], tpl[0]
 TAG = "hook-first (Oct 24, 2026)"
 BAK = ".bak-20261024-hookfirst"
 
@@ -93,6 +108,8 @@ def patch(path, edits):
 
 
 if __name__ == "__main__":
+    PY, HTML = locate()
+    print("found", PY); print("found", HTML)
     for p in (PY, HTML):
         if not os.path.exists(p):
             raise SystemExit(f"missing {p}")
