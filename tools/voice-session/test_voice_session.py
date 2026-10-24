@@ -66,6 +66,26 @@ class Cuts(unittest.TestCase):
         self.assertLessEqual(cuts[0][0], 0.5)
         self.assertGreaterEqual(cuts[1][1], 4.5)
 
+    def test_words_said_between_lines_are_dropped(self):
+        spans = [(0.5, 2.0), (4.0, 5.5)]
+        db = [-20.0] * 700
+        for i in list(range(205, 260)) + list(range(330, 395)):
+            db[i] = -80.0          # pause, "damn" 2.6 to 3.3 s, pause
+        cuts = V.cut_points(spans, db, V.silences(db), 7.0)
+        self.assertLess(cuts[0][1], 2.65)
+        self.assertGreater(cuts[1][0], 3.3)
+
+    def test_lines_read_in_one_breath_are_joined(self):
+        db = [-20.0] * 700
+        for i in list(range(0, 45)) + list(range(410, 450)) + list(range(610, 700)):
+            db[i] = -80.0          # room tone at the ends, a breath only between lines 2 and 3
+        self.assertEqual(V.joined([(0.5, 2.0), (2.02, 4.0), (4.6, 6.0)], V.silences(db)), [True, False])
+
+    def test_a_joined_run_is_used_only_when_the_post_shows_every_line(self):
+        takes = {"P": {"lines": [{"clip": "a"}, {"clip": "b"}, {"clip": "c"}], "runs": [{"lines": [0, 1], "clip": "ab"}]}}
+        self.assertEqual(V.units([("P", 0, ""), ("P", 1, ""), ("P", 2, "")], takes), (["ab", "c"], [[0, 1], [2]]))
+        self.assertEqual(V.units([("P", 1, ""), ("P", 2, "")], takes), (["b", "c"], [[0], [1]]))
+
 
 class Placement(unittest.TestCase):
     def test_no_line_before_it_is_on_screen(self):

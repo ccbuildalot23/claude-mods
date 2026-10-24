@@ -285,36 +285,55 @@ def cut_points(spans, db, sil, total_s):
     known = [s for s in spans if s]
     if not known:
         return [None] * len(spans)
-    bounds = []
+    ends, starts = [], []   # per gap: where line i ends, where line i + 1 starts
     for i in range(len(spans) - 1):
         a, b = spans[i], spans[i + 1]
         if not a or not b:
-            bounds.append(None); continue
-        lo, hi = a[1] - 0.15, b[0] + 0.15
-        inside = [x for x in sil if x[1] > lo and x[0] < hi]
+            ends.append(None); starts.append(None); continue
+        lo, hi = a[1] - 0.15, b[0] - 0.02
+        inside = sorted(x for x in sil if x[1] > lo and x[0] < hi)
         if inside:
-            x = max(inside, key=lambda x: min(x[1], hi) - max(x[0], lo))
-            bounds.append((max(x[0], lo) + min(x[1], hi)) / 2)
+            # several pauses means something unscripted was said between the lines ("damn", a page turn):
+            # line i ends in the first pause, line i + 1 starts in the last, and what sits between is dropped
+            f, l = inside[0], inside[-1]
+            ends.append((max(f[0], lo) + min(f[1], hi)) / 2)
+            starts.append((max(l[0], lo) + min(l[1], hi)) / 2)
         else:
-            bounds.append(quietest(db, lo, hi))
+            q = quietest(db, lo, max(hi, lo + 0.02))
+            ends.append(q); starts.append(q)
     first, last = spans[0], spans[-1]
     start = None
     if first:
-        before = [x for x in sil if x[1] <= first[0] + 0.25 and x[1] >= first[0] - 1.2]
-        start = max(0.0, min((before[-1][1] - 0.10) if before else first[0] - 0.25, first[0] - 0.05))
+        # only the breath right before his first word: reaching further back catches the tail of a false start
+        before = [x for x in sil if first[0] - 0.45 <= x[1] <= first[0] + 0.25]
+        start = (before[-1][1] - 0.10) if before else quietest(db, max(0.0, first[0] - 0.45), first[0] - 0.03)
+        start = max(0.0, min(start, first[0] - 0.05))
     end = None
     if last:
-        after = [x for x in sil if x[0] >= last[1] - 0.25 and x[0] <= last[1] + 1.2]
-        end = min(total_s, (after[0][0] + 0.30) if after else last[1] + 0.35)
+        after = [x for x in sil if last[1] - 0.25 <= x[0] <= last[1] + 0.45]
+        end = (after[0][0] + 0.30) if after else quietest(db, last[1] + 0.03, min(total_s, last[1] + 0.45))
+        end = min(total_s, max(end, last[1] + 0.05))
     out = []
     for i, s in enumerate(spans):
         if not s:
             out.append(None); continue
-        a = start if i == 0 else bounds[i - 1]
-        b = end if i == len(spans) - 1 else bounds[i]
+        a = start if i == 0 else starts[i - 1]
+        b = end if i == len(spans) - 1 else ends[i]
         a = a if a is not None else s[0] - 0.2
         b = b if b is not None else s[1] + 0.3
         out.append((round(max(0.0, a), 3), round(min(total_s, b), 3)))
+    return out
+
+
+def joined(spans, sil, breath=0.18):
+    """Per gap between lines: True when he ran the two lines together with no breath. Those lines are also cut as one
+    clip, so a post that shows both keeps his phrasing instead of a seam in the middle of a sentence."""
+    out = []
+    for a, b in zip(spans, spans[1:]):
+        if not a or not b:
+            out.append(False); continue
+        lo, hi = a[1] - 0.1, b[0] + 0.1
+        out.append(not any(min(x[1], hi) - max(x[0], lo) >= breath for x in sil))
     return out
 
 
@@ -364,8 +383,21 @@ def cmd_cut(memos, plan=None, out=None):
             write_pcm(path, fade(seg), SR)
             clips.append({"text": line, "clip": os.path.relpath(path, out), "from_s": c[0], "to_s": c[1],
                           "dur_s": round(len(seg) / SR, 3)})
+        runs, j = [], 0
+        tied = joined(spans, src["sil"])
+        while j < len(clips):
+            k = j
+            while k < len(tied) and tied[k] and clips[k + 1]["clip"] and clips[j]["clip"]:
+                k += 1
+            if k > j:
+                seg = masters[n][int(cuts[j][0] * SR):int(cuts[k][1] * SR)]
+                path = os.path.join(lines_dir, f"{p['id']}__L{j + 1:02d}-L{k + 1:02d}.wav")
+                write_pcm(path, fade(seg), SR)
+                runs.append({"lines": list(range(j, k + 1)), "clip": os.path.relpath(path, out),
+                             "dur_s": round(len(seg) / SR, 3)})
+            j = k + 1
         takes[p["id"]] = {"memo": os.path.basename(src["memo"]), "score": score, "takes_heard": len(takes_of(pw, flat)),
-                          "lines": clips}
+                          "lines": clips, "runs": runs}
     rec = {"session": SESSION, "memos": [os.path.basename(m) for m in memos], "passages": takes,
            "missing": [p["id"] for p in missing]}
     json.dump(rec, open(os.path.join(out, "takes.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
@@ -621,6 +653,27 @@ def check_heard(path, lines):
         return {"status": "na", "why": f"audio check unavailable ({type(e).__name__})"}
 
 
+def units(sl, takes):
+    """What gets laid for a slot's lines: [clip], [[line index into sl]]. Lines he read in one breath go down as one
+    clip at the first one's onset when the post shows them all; otherwise each line is its own clip."""
+    clips, groups, j = [], [], 0
+    while j < len(sl):
+        pid, i, _ = sl[j]
+        t = takes.get(pid)
+        best = None
+        for r in (t or {}).get("runs", []):
+            if r["lines"][0] == i and all(j + m < len(sl) and sl[j + m][0] == pid and sl[j + m][1] == r["lines"][m]
+                                          for m in range(len(r["lines"]))):
+                if not best or len(r["lines"]) > len(best["lines"]):
+                    best = r
+        if best:
+            clips.append(best["clip"]); groups.append(list(range(j, j + len(best["lines"])))); j += len(best["lines"])
+            continue
+        c = t["lines"][i].get("clip") if t and i < len(t["lines"]) else None
+        clips.append(c); groups.append([j]); j += 1
+    return clips, groups
+
+
 def cmd_lay(only=None, plan=None, out=None, check=True):
     plan = plan or load_plan()
     out = out or work_dir()
@@ -635,13 +688,10 @@ def cmd_lay(only=None, plan=None, out=None, check=True):
         why = None
         if any(f in stale for f in slot["fragments"]):
             why = "words changed since he recorded: " + ", ".join(f for f in slot["fragments"] if f in stale)
-        clips = []
-        for pid, i, _ in sl:
-            t = takes.get(pid)
-            c = t["lines"][i].get("clip") if t and i < len(t["lines"]) else None
-            if not c:
-                why = why or f"not recorded yet: {pid} line {i + 1}"
-            clips.append(c)
+        clips, groups = units(sl, takes)
+        if None in clips:
+            pid, i, _ = sl[groups[clips.index(None)][0]]
+            why = why or f"not recorded yet: {pid} line {i + 1}"
         files = slot_files(slot)
         if not files:
             why = why or "video not built yet (run lay again after the batch is staged)"
@@ -653,7 +703,8 @@ def cmd_lay(only=None, plan=None, out=None, check=True):
         for f in files:
             o = onsets_for(f, texts, cache)
             dst = os.path.join(out, "out", os.path.relpath(f, os.path.join(ASSETS, "04-posts")))
-            rep = lay_one(f, clips, o["onsets"], o["offsets"], dst, out)
+            rep = lay_one(f, clips, [o["onsets"][g[0]] for g in groups], [o["offsets"][g[-1]] for g in groups], dst, out)
+            rep["late_lines"] = [groups[u][0] for u in rep["late_lines"]]
             heard = check_heard(dst, texts) if check else {"status": "na", "why": "not checked"}
             flags = []
             if rep["first_word_s"] is not None and rep["first_word_s"] > 1.0:
