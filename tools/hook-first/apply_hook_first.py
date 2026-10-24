@@ -15,8 +15,19 @@ is missing). Backups: <file>.bak-20261024-hookfirst. Running it twice is safe: a
 import os, shutil, sys
 
 OPS = os.path.expanduser(sys.argv[1] if len(sys.argv) > 1 else "~/Developer/labeau-ops")
-PY = os.path.join(OPS, "render_motion.py")
-HTML = os.path.join(OPS, "motion", "templates", "stanza", "index.html")
+SKIP = {".git", "node_modules", "vendor", "__pycache__", "backups", "data"}
+
+
+def locate(ops=OPS):
+    """render_motion.py lives wherever labeau-ops keeps its scripts (its HERE), with motion/ beside it; find that pair."""
+    found = []
+    for root, dirs, files in os.walk(ops):
+        dirs[:] = [d for d in dirs if d not in SKIP and not d.startswith((".", "_", "tmp"))]
+        if "render_motion.py" in files and os.path.exists(os.path.join(root, "motion", "templates", "stanza", "index.html")):
+            found.append(root)
+    if len(found) != 1:
+        raise SystemExit(f"NOT CHANGED: expected one render_motion.py with motion/templates/stanza beside it under {ops}, found {found or 'none'}")
+    return os.path.join(found[0], "render_motion.py"), os.path.join(found[0], "motion", "templates", "stanza", "index.html")
 TAG = "hook-first (Oct 24, 2026)"
 BAK = ".bak-20261024-hookfirst"
 
@@ -93,6 +104,8 @@ def patch(path, edits):
 
 
 if __name__ == "__main__":
+    PY, HTML = locate()
+    print("found", PY)
     for p in (PY, HTML):
         if not os.path.exists(p):
             raise SystemExit(f"missing {p}")
