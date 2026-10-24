@@ -12,8 +12,9 @@ const held = atom({ plugin: 'outbox', key: 'held' } as const, [])
 const released = atom({ plugin: 'outbox', key: 'released' } as const, [])
 
 // One `<word>_` may sit before the verb, because some servers prefix their own name (Blotato's
-// `blotato_create_post`). A read word is not a prefix, so get_/list_/search_ tools pass.
-const OUTBOUND = /(^|__)((?!(get|list|search|read|fetch|find|resolve|go|view|show)_)[a-z0-9]+_)?(send_message|send_imessage|reply|forward|create_post|post_comment|send_|publish|create_event|respond_to_event|share_file|share_|submit_form|deploy|invite)/i
+// `blotato_create_post`). A read word is not a prefix, so get_/list_/search_ tools pass, and neither is
+// `no_`, so a tool that says it sends nothing (`no_reply_needed`) passes too.
+const OUTBOUND = /(^|__)((?!(get|list|search|read|fetch|find|resolve|go|view|show|no)_)[a-z0-9]+_)?(send_message|send_imessage|reply|forward|create_post|post_comment|send_|publish|create_event|respond_to_event|share_file|share_|submit_form|deploy|invite)/i
 
 // Commands, not words inside quotes or a heredoc (home-base gaps G080, G082).
 export function bare(cmd: string): string {

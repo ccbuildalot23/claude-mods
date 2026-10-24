@@ -17,9 +17,10 @@ test('sends and pushes are held until Chris releases them; drafts and reads pass
   const id = /OB-[0-9a-f]+/.exec(held.deny ?? '')?.[0] ?? ''
   expect((await $.tool.call({ tool: 'mcp__Gmail__create_draft', to: 'x@y.z', body: 'hi' } as never)).deny).toBeUndefined()
   expect((await $.tool.call({ tool: 'mcp__Blotato__blotato_list_posts' } as never)).deny).toBeUndefined()
+  expect((await $.tool.call({ tool: 'mcp__hearthbot__no_reply_needed', reason: 'nothing_to_add' } as never)).deny).toBeUndefined()
   expect((await $.tool.call({ tool: 'Bash', command: 'git push origin main' })).deny ?? '').toContain('git push')
   expect((await $.tool.call({ tool: 'Bash', command: 'git commit -m "notes about git push"' })).deny).toBeUndefined()
-  expect(ran).toBe(3)
+  expect(ran).toBe(4)
 
   const band = await $.ui.mount({ plugin: 'outbox', component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 80, scroll: { offset: 0, bodyRows: 10 }, view: {} }, surface: 'terminal' })
   expect(await band.find({ type: 'Text', text: /2 held/ })).toBeDefined()
