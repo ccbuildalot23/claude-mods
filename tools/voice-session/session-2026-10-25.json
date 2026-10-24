@@ -1,0 +1,2613 @@
+{
+ "session": "2026-10-25",
+ "window": [
+  "2026-10-26",
+  "2026-11-24"
+ ],
+ "built_by": "voice thread, Oct 24, 2026 (his ask: his voice on about 85% of next month's Reels and TikToks)",
+ "passages": [
+  {
+   "id": "S1-01",
+   "set": 1,
+   "piece": "DP",
+   "title": "Diamond Pressure",
+   "lines": [
+    "Let someone into all that darkness",
+    "They're bound to bring in a little light"
+   ],
+   "fragments": {
+    "DP-F8": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S1-02",
+   "set": 1,
+   "piece": "C3",
+   "title": "Any Morning With You and a Sunrise",
+   "lines": [
+    "Rest ya head on my shoulder",
+    "Enjoy the sun doing that peach golden blue thing",
+    "While we laugh",
+    "Relax"
+   ],
+   "fragments": {
+    "C3-F14": [
+     0,
+     1
+    ],
+    "C3-F15": [
+     1,
+     2
+    ],
+    "C3-F16": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S1-03",
+   "set": 1,
+   "piece": "C3",
+   "title": "Any Morning With You and a Sunrise",
+   "lines": [
+    "Which is why you fully trust when I say"
+   ],
+   "fragments": {
+    "C3-F37": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-04",
+   "set": 1,
+   "piece": "C3",
+   "title": "Any Morning With You and a Sunrise",
+   "lines": [
+    "As I pull you closer"
+   ],
+   "fragments": {
+    "C3-F18": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-05",
+   "set": 1,
+   "piece": "C3",
+   "title": "Any Morning With You and a Sunrise",
+   "lines": [
+    "Heads so close together",
+    "I'm starting to hear everything you think",
+    "Vulnerability from our conversation",
+    "You starting to feel the chains from our hearts unlink",
+    "Others have slept on its magnificence",
+    "But sharing the real me with you"
+   ],
+   "fragments": {
+    "C3-F22": [
+     0,
+     1
+    ],
+    "C3-F23": [
+     1,
+     1
+    ],
+    "C3-F24": [
+     1,
+     2
+    ],
+    "C3-F26": [
+     2,
+     3
+    ],
+    "C3-F27": [
+     3,
+     4
+    ],
+    "C3-F28": [
+     4,
+     4
+    ],
+    "C3-F29": [
+     4,
+     5
+    ],
+    "C3-F30": [
+     5,
+     5
+    ]
+   }
+  },
+  {
+   "id": "S1-06",
+   "set": 1,
+   "piece": "C1",
+   "title": "Red Stems",
+   "lines": [
+    "Crazy how this kinda softness once felt like a 7 deadly sin"
+   ],
+   "fragments": {
+    "C1-F7": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-07",
+   "set": 1,
+   "piece": "C1",
+   "title": "Red Stems",
+   "lines": [
+    "They both were tired of the window shopping,",
+    "So he manned up, opened up, and finally let her in"
+   ],
+   "fragments": {
+    "C1-F2": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S1-08",
+   "set": 1,
+   "piece": "C1",
+   "title": "Red Stems",
+   "lines": [
+    "She feels more comfortable spilling with red and a stem"
+   ],
+   "fragments": {
+    "C1-F1": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-09",
+   "set": 1,
+   "piece": "W5",
+   "title": "5 Ct. Winston",
+   "lines": [
+    "Peace and blessings",
+    "War and stressings"
+   ],
+   "fragments": {
+    "W5-P1": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S1-10",
+   "set": 1,
+   "piece": "GF",
+   "title": "Good family",
+   "lines": [
+    "The orchestration of conversation…",
+    "Can break a silent fall"
+   ],
+   "fragments": {
+    "GF-E2": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S1-11",
+   "set": 1,
+   "piece": "GF",
+   "title": "Good family",
+   "lines": [
+    "Sound waves from lips",
+    "That soothe the soul…",
+    "Good family…is the cure all"
+   ],
+   "fragments": {
+    "GF-E3": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S1-12",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Time is so precious, i cherish every vowel"
+   ],
+   "fragments": {
+    "GEM-time-precious-cherish": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-13",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Working on smelling my roses as I continue to plant seeds for new ones"
+   ],
+   "fragments": {
+    "GEM-roses": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-14",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Every time I take my time. Grapes turn to wine."
+   ],
+   "fragments": {
+    "GEM-grapes": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-15",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Another day, another amazement"
+   ],
+   "fragments": {
+    "GEM-another-day-another": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-16",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "It was cloudy too...",
+    "Sometimes that's the best way",
+    "to appreciate the blues around you."
+   ],
+   "fragments": {
+    "L21": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S1-17",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I like my tables round, where everyones crown is equally respected."
+   ],
+   "fragments": {
+    "GEM-tables-round-where": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-18",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "That's why I build tables so I can keep the people around me."
+   ],
+   "fragments": {
+    "GEM-build-tables-people-around": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-19",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I can just enjoy life and remember that life is good and that is enough. Beautiful moments seem to stream from that thought."
+   ],
+   "fragments": {
+    "GEM-can-enjoy-life": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S1-20",
+   "set": 1,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I don't want to just be heard. I want to be felt."
+   ],
+   "fragments": {
+    "GEM-felt": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S2-01",
+   "set": 2,
+   "piece": "VOH",
+   "title": "Visions of Heaven",
+   "lines": [
+    "My health is leaving",
+    "And I’m stuck in this rut",
+    "If I stay here longer",
+    "Will I make it through the evening?",
+    "I don’t know…",
+    "But do have the energy to change my life",
+    "At this point even?",
+    "I don’t know!"
+   ],
+   "fragments": {
+    "VOH-P1": [
+     0,
+     7
+    ],
+    "VOH-P3": [
+     3,
+     6
+    ],
+    "VOH-P8": [
+     4,
+     5
+    ]
+   }
+  },
+  {
+   "id": "S2-02",
+   "set": 2,
+   "piece": "VOH",
+   "title": "Visions of Heaven",
+   "lines": [
+    "Not all the change I need,",
+    "But the change I’ll make today",
+    "Until my bodies able to make more",
+    "I chose my heart and soul and peace",
+    "instead of War",
+    "Today my vision of heaven is whatever",
+    "Is on the other side of my front door"
+   ],
+   "fragments": {
+    "VOH-P2": [
+     0,
+     1
+    ],
+    "VOH-P6": [
+     1,
+     4
+    ],
+    "VOH-P4": [
+     0,
+     3
+    ],
+    "VOH-P7": [
+     3,
+     6
+    ]
+   }
+  },
+  {
+   "id": "S2-03",
+   "set": 2,
+   "piece": "VOH",
+   "title": "Visions of Heaven",
+   "lines": [
+    "Rounds of justifications convince me",
+    "Not to choose what’s right for me",
+    "and now it’s my mind and body",
+    "vs my heart and soul"
+   ],
+   "fragments": {
+    "VOH-P5": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S2-04",
+   "set": 2,
+   "piece": "DP",
+   "title": "Diamond Pressure",
+   "lines": [
+    "To let the Devil lease some of the real estate…",
+    "Now I Thank God for tearing all that down"
+   ],
+   "fragments": {
+    "DP-E4": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S2-05",
+   "set": 2,
+   "piece": "INL",
+   "title": "I no Longer Love",
+   "lines": [
+    "No more victim me",
+    "Self love prescribed these new",
+    "I statement frames",
+    "to help me see life differently"
+   ],
+   "fragments": {
+    "INL-F4": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S2-06",
+   "set": 2,
+   "piece": "PP",
+   "title": "Passion Parts",
+   "lines": [
+    "Window to your heart",
+    "Thats all you ever gave me",
+    "Two way mirror is what i returned",
+    "Interrogation masked as questions"
+   ],
+   "fragments": {
+    "PP-P1": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S2-07",
+   "set": 2,
+   "piece": "PR",
+   "title": "Presently",
+   "lines": [
+    "Praying shes somewhere safe right now",
+    "Praying im sonewhere safe now as well"
+   ],
+   "fragments": {
+    "PR-P1": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S2-08",
+   "set": 2,
+   "piece": "TM",
+   "title": "Task Manager",
+   "lines": [
+    "Google calendar",
+    "Doubles as my savior",
+    "And my mental Stability challenger"
+   ],
+   "fragments": {
+    "TM-P1": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S2-09",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "my biggest fear",
+    "is knowing in my heart",
+    "We could both use a healing year"
+   ],
+   "fragments": {
+    "GEM-biggest-fear-knowing": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S2-10",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Let me bleed you what's real"
+   ],
+   "fragments": {
+    "GEM-bleed-you-whats-real": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S2-11",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I'm still stressing, and in my head its still a blessing to get the reckoning."
+   ],
+   "fragments": {
+    "GEM-blessing-the-reckoning": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S2-12",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Brain wrapped in its own straight jacket"
+   ],
+   "fragments": {
+    "GEM-brain-wrapped-own": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S2-13",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I broke my own heart. That's why she left, 'cause I couldn't do it right from the start"
+   ],
+   "fragments": {
+    "GEM-broke-my-own-heart": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S2-14",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Sometimes the only proof I was there was the imprint my shadow left on the pavement or the feeling my presence left on the people I met...and that's ok."
+   ],
+   "fragments": {
+    "GEM-shadow": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S2-15",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "There is no I in We",
+    "But two many in \"I pity me\"",
+    "Even phonetically"
+   ],
+   "fragments": {
+    "GEM-phonetically": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S2-16",
+   "set": 2,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Its cause i couldnt",
+    "Not because i wasnt willing"
+   ],
+   "fragments": {
+    "GEM-cause-couldnt-because": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S3-01",
+   "set": 3,
+   "piece": "MU",
+   "title": "Music (v2)",
+   "lines": [
+    "Racing back and forth at the altar",
+    "Altering what comes out of my mouth",
+    "And this pen tip",
+    "Till I love whats staring back at me"
+   ],
+   "fragments": {
+    "MU-P1": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S3-02",
+   "set": 3,
+   "piece": "NBH",
+   "title": "New Balanced Horizons",
+   "lines": [
+    "Obsessed with lines that harmonize",
+    "Removed the lines that demonized",
+    "Thank God I survived my illest times",
+    "Fell back in love with me and mines"
+   ],
+   "fragments": {
+    "NBH-P1": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S3-03",
+   "set": 3,
+   "piece": "NF",
+   "title": "New Frames on Me",
+   "lines": [
+    "And as i wheel and deal with life as it comes",
+    "No more abandoning ship",
+    "Or my fellow captains",
+    "I love learning who I am"
+   ],
+   "fragments": {
+    "NF-P1": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S3-04",
+   "set": 3,
+   "piece": "SM",
+   "title": "Smoke & Mirrors",
+   "lines": [
+    "Comfortable with where im at",
+    "And who God wants me to be",
+    "Last bar just felt like my first grip",
+    "on pushing forward in the Right direction",
+    "Less smoke with self,",
+    "makes seeing self clearer",
+    "when you're staring at your own reflection",
+    "Burned out in the fast lane",
+    "Tires flat, Tank on E",
+    "Tired, now finally resting",
+    "Allowing HIM to heal me,",
+    "before I'm obsolote"
+   ],
+   "fragments": {
+    "SM-P1": [
+     0,
+     11
+    ]
+   }
+  },
+  {
+   "id": "S3-05",
+   "set": 3,
+   "piece": "SP",
+   "title": "Serengetti Palms",
+   "lines": [
+    "The palms I’ve clasped",
+    "Have changed my grasp",
+    "On reality",
+    "And even deeper",
+    "It’s downgraded materialism"
+   ],
+   "fragments": {
+    "SP-P7": [
+     0,
+     4
+    ],
+    "SP-P1": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S3-06",
+   "set": 3,
+   "piece": "SP",
+   "title": "Serengetti Palms",
+   "lines": [
+    "Nurturing tables and generations",
+    "Old and new",
+    "Praying on the daily",
+    "God sees fit for it to be",
+    "Before the sign of the beast",
+    "Or I take my still earning heavenly seat"
+   ],
+   "fragments": {
+    "SP-P4": [
+     0,
+     1
+    ],
+    "SP-P6": [
+     1,
+     2
+    ],
+    "SP-P3": [
+     2,
+     5
+    ]
+   }
+  },
+  {
+   "id": "S3-07",
+   "set": 3,
+   "piece": "SP",
+   "title": "Serengetti Palms",
+   "lines": [
+    "Is now a concept",
+    "That matters to me",
+    "News of a brothers child",
+    "Growing wings to fly"
+   ],
+   "fragments": {
+    "SP-P5": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S3-08",
+   "set": 3,
+   "piece": "TF",
+   "title": "Turtle in a Ferrari",
+   "lines": [
+    "1% more me is the focus now",
+    "1% better",
+    "Focus on being fully me",
+    "Detour to green bae for the day",
+    "If cheddar is the play",
+    "But I left the rat race",
+    "And from this newfound peace",
+    "I keep on me, I will not stray",
+    "Now the Tortoise in my own race",
+    "Blessed and highly favored,",
+    "becoming me"
+   ],
+   "fragments": {
+    "TF-P1": [
+     0,
+     10
+    ]
+   }
+  },
+  {
+   "id": "S3-09",
+   "set": 3,
+   "piece": "TIME",
+   "title": "Sometimes I Just Need Time",
+   "lines": [
+    "Shit ain't all green over here",
+    "But lately when I get to swiping plastic that shit don't decline",
+    "Blessed things have turned around"
+   ],
+   "fragments": {
+    "TIME-P1": [
+     0,
+     2
+    ]
+   }
+  },
+  {
+   "id": "S3-10",
+   "set": 3,
+   "piece": "PH",
+   "title": "Pieces of the Heathen",
+   "lines": [
+    "Twenty twenty was a year that I fell down.",
+    "Started recollecting me.",
+    "Twenty twenty six is where the pieces start coming together.",
+    "Super glued, feeling put together"
+   ],
+   "fragments": {
+    "PH-P1": [
+     0,
+     3
+    ]
+   }
+  },
+  {
+   "id": "S3-11",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I'm learning to remember that my view is often limited, but beauty and blessings are usually within range when I remain patient."
+   ],
+   "fragments": {
+    "GEM-view": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-12",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Now the Tortoise in my own race"
+   ],
+   "fragments": {
+    "L24": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-13",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "You're important because you exist, not because of what you build."
+   ],
+   "fragments": {
+    "GEM-youre-important-because": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-14",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "These are the blessings and the peace we once prayed for. Handle this season with closed hands, a wiser heart, tattooed pain, and hard earned faith in God."
+   ],
+   "fragments": {
+    "GEM-blessings-peace-prayed-for": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-15",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "My pen glides smoother",
+    "When I breathe deeper"
+   ],
+   "fragments": {
+    "GEM-pen": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S3-16",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "pieces of art and even the things that travel the fastest in the world take time to build"
+   ],
+   "fragments": {
+    "GEM-pieces-art-even": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-17",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "He been in the house brewin",
+    "Like some fuckin Folgers"
+   ],
+   "fragments": {
+    "GEM-brewin-like-folgers": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S3-18",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Courage is when you stop worrying about what you need and start doing what needs to be done."
+   ],
+   "fragments": {
+    "GEM-courage": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-19",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "I'm not building the solution. I'm building the vehicle to the solution."
+   ],
+   "fragments": {
+    "GEM-building-solution-building": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-20",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Training is the precursor of growth in anything"
+   ],
+   "fragments": {
+    "GEM-training-precursor-growth": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "S3-21",
+   "set": 3,
+   "piece": "GEM",
+   "title": "a gem",
+   "lines": [
+    "Can be done climbing the mountain",
+    "But their will clouds on your descent"
+   ],
+   "fragments": {
+    "GEM-climbing-mountain-descent": [
+     0,
+     1
+    ]
+   }
+  }
+ ],
+ "slots": [
+  {
+   "placement": "P4355",
+   "tiktok": [
+    "P4356"
+   ],
+   "date": "2026-10-30",
+   "time": "07:25",
+   "format": "",
+   "slug": "inl-f4-no-more-victim-me",
+   "fragments": [
+    "INL-F4"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/motion/inl-f4-no-more-victim-me__breath.mp4"
+   ]
+  },
+  {
+   "placement": "P4357",
+   "tiktok": [
+    "P4358"
+   ],
+   "date": "2026-10-27",
+   "time": "07:25",
+   "format": "",
+   "slug": "visions-of-heaven-carousel",
+   "fragments": [],
+   "voice": "silent",
+   "why": "photo carousel; Instagram can't carry a voice track on stills",
+   "files": []
+  },
+  {
+   "placement": "P4359",
+   "tiktok": [
+    "P4360"
+   ],
+   "date": "2026-11-01",
+   "time": "07:25",
+   "format": "",
+   "slug": "red-stems-v3",
+   "fragments": [],
+   "voice": "already",
+   "why": "his Red Stems read-aloud (original audio)",
+   "files": []
+  },
+  {
+   "placement": "P4361",
+   "tiktok": [
+    "P4362"
+   ],
+   "date": "2026-10-28",
+   "time": "07:25",
+   "format": "",
+   "slug": "highlight-2026-10-28-water",
+   "fragments": [],
+   "voice": "silent",
+   "why": "highlight of earlier Wavy lines; kept as it is",
+   "files": []
+  },
+  {
+   "placement": "P4363",
+   "tiktok": [
+    "P4364"
+   ],
+   "date": "2026-11-03",
+   "time": "18:40",
+   "format": "",
+   "slug": "cut-2026-10-12",
+   "fragments": [],
+   "voice": "silent",
+   "why": "cut to the beat of his song by the Reel Director; a voice would fight the edit",
+   "files": []
+  },
+  {
+   "placement": "P4365",
+   "tiktok": [
+    "P4366"
+   ],
+   "date": "2026-10-29",
+   "time": "18:40",
+   "format": "",
+   "slug": "cut-seventy-degrees-2026-10-12",
+   "fragments": [],
+   "voice": "silent",
+   "why": "cut to the beat of his song by the Reel Director; a voice would fight the edit",
+   "files": []
+  },
+  {
+   "placement": "P4416",
+   "tiktok": [
+    "P4417"
+   ],
+   "date": "2026-10-26",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-26-1",
+   "fragments": [
+    "VOH-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-26-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-26-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4418",
+   "tiktok": [
+    "P4419"
+   ],
+   "date": "2026-10-26",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-26-2",
+   "fragments": [
+    "GEM-tables-round-where"
+   ],
+   "voice": "silent",
+   "why": "control pair A: tables gem silent Oct 26, voiced Nov 13",
+   "files": [
+    "04-posts/reels/px-2026-10-26-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-26-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4420",
+   "tiktok": [
+    "P4421"
+   ],
+   "date": "2026-10-26",
+   "time": "20:30",
+   "format": "line-reel",
+   "slug": "px-2026-10-26-3",
+   "fragments": [
+    "GEM-biggest-fear-knowing"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-26-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-26-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4422",
+   "tiktok": [
+    "P4423"
+   ],
+   "date": "2026-10-27",
+   "time": "12:30",
+   "format": "line-reel",
+   "slug": "px-2026-10-27-2",
+   "fragments": [
+    "MU-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-27-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-27-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4424",
+   "tiktok": [
+    "P4425"
+   ],
+   "date": "2026-10-27",
+   "time": "20:30",
+   "format": "stanza-carousel",
+   "slug": "px-2026-10-27-3",
+   "fragments": [
+    "C3-F14"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-27-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-27-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4426",
+   "tiktok": [
+    "P4427"
+   ],
+   "date": "2026-10-28",
+   "time": "16:30",
+   "format": "stanza-carousel",
+   "slug": "px-2026-10-28-2",
+   "fragments": [
+    "VOH-P2"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-28-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-28-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4428",
+   "tiktok": [
+    "P4429"
+   ],
+   "date": "2026-10-28",
+   "time": "20:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-28-3",
+   "fragments": [
+    "GEM-time-precious-cherish"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-28-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-28-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4430",
+   "tiktok": [
+    "P4431"
+   ],
+   "date": "2026-10-29",
+   "time": "12:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-29-2",
+   "fragments": [
+    "GEM-view"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-29-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-29-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4432",
+   "tiktok": [
+    "P4433"
+   ],
+   "date": "2026-10-29",
+   "time": "18:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-29-3",
+   "fragments": [
+    "NBH-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-29-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-29-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4434",
+   "tiktok": [
+    "P4435"
+   ],
+   "date": "2026-10-30",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-30-2",
+   "fragments": [
+    "GEM-bleed-you-whats-real"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-30-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-30-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4436",
+   "tiktok": [
+    "P4437"
+   ],
+   "date": "2026-10-30",
+   "time": "20:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-30-3",
+   "fragments": [
+    "VOH-P3"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-30-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-30-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4438",
+   "tiktok": [
+    "P4439"
+   ],
+   "date": "2026-10-31",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-31-1",
+   "fragments": [
+    "NF-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-31-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-31-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4440",
+   "tiktok": [
+    "P4441"
+   ],
+   "date": "2026-10-31",
+   "time": "12:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-10-31-2",
+   "fragments": [
+    "VOH-P4"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-31-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-31-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4442",
+   "tiktok": [
+    "P4443"
+   ],
+   "date": "2026-10-31",
+   "time": "18:30",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-10-31-3",
+   "fragments": [
+    "L24"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-10-31-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-10-31-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4444",
+   "tiktok": [
+    "P4445"
+   ],
+   "date": "2026-11-01",
+   "time": "16:30",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-01-2",
+   "fragments": [
+    "GEM-training-precursor-growth"
+   ],
+   "voice": "silent",
+   "why": "control pair C: training gem silent Nov 1, voiced Nov 19",
+   "files": [
+    "04-posts/reels/px-2026-11-01-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-01-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4446",
+   "tiktok": [
+    "P4447"
+   ],
+   "date": "2026-11-01",
+   "time": "20:30",
+   "format": "voice-reel",
+   "slug": "px-2026-11-01-3",
+   "fragments": [
+    "W:WHOLE"
+   ],
+   "voice": "already",
+   "why": "his Wavy read-aloud",
+   "files": [
+    "04-posts/reels/px-2026-11-01-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-01-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4448",
+   "tiktok": [
+    "P4449"
+   ],
+   "date": "2026-11-02",
+   "time": "07:25",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-02-1",
+   "fragments": [
+    "C1-F7"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-02-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-02-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4450",
+   "tiktok": [
+    "P4451"
+   ],
+   "date": "2026-11-02",
+   "time": "12:30",
+   "format": "stanza-carousel",
+   "slug": "px-2026-11-02-2",
+   "fragments": [
+    "PH-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-02-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-02-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4452",
+   "tiktok": [
+    "P4453"
+   ],
+   "date": "2026-11-02",
+   "time": "18:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-02-3",
+   "fragments": [
+    "VOH-P5"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-02-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-02-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4454",
+   "tiktok": [
+    "P4455"
+   ],
+   "date": "2026-11-03",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-03-2",
+   "fragments": [
+    "VOH-P6"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-03-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-03-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4456",
+   "tiktok": [
+    "P4457"
+   ],
+   "date": "2026-11-03",
+   "time": "20:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-03-3",
+   "fragments": [
+    "GEM-youre-important-because"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-03-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-03-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4458",
+   "tiktok": [
+    "P4459"
+   ],
+   "date": "2026-11-04",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-04-1",
+   "fragments": [
+    "VOH-P7"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-04-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-04-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4460",
+   "tiktok": [
+    "P4461"
+   ],
+   "date": "2026-11-04",
+   "time": "12:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-04-2",
+   "fragments": [
+    "GEM-roses"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-04-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-04-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4462",
+   "tiktok": [
+    "P4463"
+   ],
+   "date": "2026-11-04",
+   "time": "18:30",
+   "format": "send-to-reel",
+   "slug": "px-2026-11-04-3",
+   "fragments": [
+    "PP-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-04-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-04-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4464",
+   "tiktok": [
+    "P4465"
+   ],
+   "date": "2026-11-05",
+   "time": "07:25",
+   "format": "line-reel",
+   "slug": "px-2026-11-05-1",
+   "fragments": [
+    "SPKF-F1"
+   ],
+   "voice": "silent",
+   "why": "spoken intro (SPKF-F1), not poem lines",
+   "files": [
+    "04-posts/reels/px-2026-11-05-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-05-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4466",
+   "tiktok": [
+    "P4467"
+   ],
+   "date": "2026-11-05",
+   "time": "16:30",
+   "format": "send-to-reel",
+   "slug": "px-2026-11-05-2",
+   "fragments": [
+    "GEM-blessing-the-reckoning"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-05-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-05-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4468",
+   "tiktok": [
+    "P4469"
+   ],
+   "date": "2026-11-05",
+   "time": "20:30",
+   "format": "send-to-reel",
+   "slug": "px-2026-11-05-3",
+   "fragments": [
+    "VOH-P8"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-05-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-05-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4470",
+   "tiktok": [
+    "P4471"
+   ],
+   "date": "2026-11-06",
+   "time": "07:25",
+   "format": "send-to-reel",
+   "slug": "px-2026-11-06-1",
+   "fragments": [
+    "PR-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-06-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-06-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4472",
+   "tiktok": [
+    "P4473"
+   ],
+   "date": "2026-11-06",
+   "time": "12:30",
+   "format": "send-to-reel",
+   "slug": "px-2026-11-06-2",
+   "fragments": [
+    "C3-F15"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-06-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-06-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4474",
+   "tiktok": [
+    "P4475"
+   ],
+   "date": "2026-11-06",
+   "time": "18:30",
+   "format": "save-for-them-carousel",
+   "slug": "px-2026-11-06-3",
+   "fragments": [
+    "GEM-grapes"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-06-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-06-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4476",
+   "tiktok": [
+    "P4477"
+   ],
+   "date": "2026-11-07",
+   "time": "07:25",
+   "format": "send-to-reel",
+   "slug": "px-2026-11-07-1",
+   "fragments": [
+    "C3-F16"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-07-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-07-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4478",
+   "tiktok": [
+    "P4479"
+   ],
+   "date": "2026-11-07",
+   "time": "16:30",
+   "format": "save-for-them-carousel",
+   "slug": "px-2026-11-07-2",
+   "fragments": [
+    "GEM-another-day-another"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-07-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-07-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4480",
+   "tiktok": [
+    "P4481"
+   ],
+   "date": "2026-11-07",
+   "time": "20:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-07-3",
+   "fragments": [
+    "GEM-blessings-peace-prayed-for"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-07-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-07-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4482",
+   "tiktok": [
+    "P4483"
+   ],
+   "date": "2026-11-08",
+   "time": "07:25",
+   "format": "save-for-them-carousel",
+   "slug": "px-2026-11-08-1",
+   "fragments": [
+    "L21"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-08-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-08-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4484",
+   "tiktok": [
+    "P4485"
+   ],
+   "date": "2026-11-08",
+   "time": "12:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-08-2",
+   "fragments": [
+    "SM-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-08-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-08-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4486",
+   "tiktok": [
+    "P4487"
+   ],
+   "date": "2026-11-08",
+   "time": "18:30",
+   "format": "voice-reel",
+   "slug": "px-2026-11-08-3",
+   "fragments": [
+    "C2:WHOLE"
+   ],
+   "voice": "already",
+   "why": "his 70 Any Degrees read-aloud",
+   "files": [
+    "04-posts/reels/px-2026-11-08-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-08-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4488",
+   "tiktok": [
+    "P4489"
+   ],
+   "date": "2026-11-09",
+   "time": "07:25",
+   "format": "line-reel",
+   "slug": "px-2026-11-09-1",
+   "fragments": [
+    "GEM-brain-wrapped-own"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-09-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-09-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4490",
+   "tiktok": [
+    "P4491"
+   ],
+   "date": "2026-11-09",
+   "time": "16:30",
+   "format": "animated-nib",
+   "slug": "px-2026-11-09-2",
+   "fragments": [
+    "SP-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-09-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-09-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4492",
+   "tiktok": [
+    "P4493"
+   ],
+   "date": "2026-11-09",
+   "time": "20:30",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-09-3",
+   "fragments": [
+    "C3-F37"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-09-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-09-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4498",
+   "tiktok": [
+    "P4499"
+   ],
+   "date": "2026-11-10",
+   "time": "07:25",
+   "format": "animated-nib",
+   "slug": "px-2026-11-10-1",
+   "fragments": [
+    "SP-P7"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-10-1__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-10-1__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4500",
+   "tiktok": [
+    "P4501"
+   ],
+   "date": "2026-11-10",
+   "time": "12:30",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-10-2",
+   "fragments": [
+    "GEM-pen"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": [
+    "04-posts/reels/px-2026-11-10-2__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-10-2__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4502",
+   "tiktok": [
+    "P4503"
+   ],
+   "date": "2026-11-10",
+   "time": "18:30",
+   "format": "cross-poem-highlight",
+   "slug": "px-2026-11-10-3",
+   "fragments": [
+    "SPKC-F1",
+    "C3-F17",
+    "DP-E3"
+   ],
+   "voice": "silent",
+   "why": "highlight built around a spoken piece (SPKC-F1)",
+   "files": [
+    "04-posts/reels/px-2026-11-10-3__ig_9x16.mp4",
+    "04-posts/reels/px-2026-11-10-3__tt_9x16.mp4"
+   ]
+  },
+  {
+   "placement": "P4504",
+   "tiktok": [
+    "P4505"
+   ],
+   "date": "2026-11-11",
+   "time": "07:25",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-11-1",
+   "fragments": [
+    "GEM-pieces-art-even"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4506",
+   "tiktok": [
+    "P4507"
+   ],
+   "date": "2026-11-11",
+   "time": "16:30",
+   "format": "cross-poem-highlight",
+   "slug": "px-2026-11-11-2",
+   "fragments": [
+    "GEM-brewin-like-folgers",
+    "C3-F18",
+    "DP-E4"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4508",
+   "tiktok": [
+    "P4509"
+   ],
+   "date": "2026-11-11",
+   "time": "20:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-11-3",
+   "fragments": [
+    "SP-P3"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4510",
+   "tiktok": [
+    "P4511"
+   ],
+   "date": "2026-11-12",
+   "time": "07:25",
+   "format": "cross-poem-highlight",
+   "slug": "px-2026-11-12-1",
+   "fragments": [
+    "SPKN-F1",
+    "C3-F19",
+    "DP-E5"
+   ],
+   "voice": "silent",
+   "why": "highlight built around a spoken notice (SPKN-F1)",
+   "files": []
+  },
+  {
+   "placement": "P4512",
+   "tiktok": [
+    "P4513"
+   ],
+   "date": "2026-11-12",
+   "time": "12:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-12-2",
+   "fragments": [
+    "SP-P4"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4514",
+   "tiktok": [
+    "P4515"
+   ],
+   "date": "2026-11-12",
+   "time": "18:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-12-3",
+   "fragments": [
+    "GEM-courage"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4516",
+   "tiktok": [
+    "P4517"
+   ],
+   "date": "2026-11-13",
+   "time": "07:25",
+   "format": "line-reel",
+   "slug": "px-2026-11-13-1",
+   "fragments": [
+    "SP-P5"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4518",
+   "tiktok": [
+    "P4519"
+   ],
+   "date": "2026-11-13",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-13-2",
+   "fragments": [
+    "GEM-tables-round-where"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4520",
+   "tiktok": [
+    "P4521"
+   ],
+   "date": "2026-11-13",
+   "time": "20:30",
+   "format": "brand-story",
+   "slug": "px-2026-11-13-3",
+   "fragments": [
+    "GEM-broke-my-own-heart"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4554",
+   "tiktok": [
+    "P4555"
+   ],
+   "date": "2026-11-14",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-14-1",
+   "fragments": [
+    "GEM-shadow"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4556",
+   "tiktok": [
+    "P4557"
+   ],
+   "date": "2026-11-14",
+   "time": "12:30",
+   "format": "brand-story",
+   "slug": "px-2026-11-14-2",
+   "fragments": [
+    "SPKW-F1"
+   ],
+   "voice": "silent",
+   "why": "spoken piece (SPKW-F1), not poem lines",
+   "files": []
+  },
+  {
+   "placement": "P4558",
+   "tiktok": [
+    "P4559"
+   ],
+   "date": "2026-11-14",
+   "time": "18:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-14-3",
+   "fragments": [
+    "SP-P6"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4560",
+   "tiktok": [
+    "P4561"
+   ],
+   "date": "2026-11-15",
+   "time": "07:25",
+   "format": "brand-story",
+   "slug": "px-2026-11-15-1",
+   "fragments": [
+    "GEM-build-tables-people-around"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4562",
+   "tiktok": [
+    "P4563"
+   ],
+   "date": "2026-11-15",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-15-2",
+   "fragments": [
+    "C3-F22"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4564",
+   "tiktok": [
+    "P4565"
+   ],
+   "date": "2026-11-15",
+   "time": "20:30",
+   "format": "voice-reel",
+   "slug": "px-2026-11-15-3",
+   "fragments": [
+    "C1:WHOLE"
+   ],
+   "voice": "already",
+   "why": "his Red Stems read-aloud",
+   "files": []
+  },
+  {
+   "placement": "P4566",
+   "tiktok": [
+    "P4567"
+   ],
+   "date": "2026-11-16",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-16-1",
+   "fragments": [
+    "C3-F23"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4568",
+   "tiktok": [
+    "P4569"
+   ],
+   "date": "2026-11-16",
+   "time": "12:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-16-2",
+   "fragments": [
+    "C1-F2"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4570",
+   "tiktok": [
+    "P4571"
+   ],
+   "date": "2026-11-16",
+   "time": "18:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-16-3",
+   "fragments": [
+    "TF-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4572",
+   "tiktok": [
+    "P4573"
+   ],
+   "date": "2026-11-17",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-17-1",
+   "fragments": [
+    "GEM-time-precious-cherish"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4574",
+   "tiktok": [
+    "P4575"
+   ],
+   "date": "2026-11-17",
+   "time": "16:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-17-2",
+   "fragments": [
+    "GEM-building-solution-building"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4576",
+   "tiktok": [
+    "P4577"
+   ],
+   "date": "2026-11-17",
+   "time": "20:30",
+   "format": "stanza-carousel",
+   "slug": "px-2026-11-17-3",
+   "fragments": [
+    "C3-F24"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4578",
+   "tiktok": [
+    "P4579"
+   ],
+   "date": "2026-11-18",
+   "time": "07:25",
+   "format": "line-reel",
+   "slug": "px-2026-11-18-1",
+   "fragments": [
+    "TIME-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4580",
+   "tiktok": [
+    "P4581"
+   ],
+   "date": "2026-11-18",
+   "time": "12:30",
+   "format": "stanza-carousel",
+   "slug": "px-2026-11-18-2",
+   "fragments": [
+    "C3-F26"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4582",
+   "tiktok": [
+    "P4583"
+   ],
+   "date": "2026-11-18",
+   "time": "18:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-18-3",
+   "fragments": [
+    "C1-F1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4584",
+   "tiktok": [
+    "P4585"
+   ],
+   "date": "2026-11-19",
+   "time": "07:25",
+   "format": "stanza-carousel",
+   "slug": "px-2026-11-19-1",
+   "fragments": [
+    "C3-F27"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4586",
+   "tiktok": [
+    "P4587"
+   ],
+   "date": "2026-11-19",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-19-2",
+   "fragments": [
+    "GEM-training-precursor-growth"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4588",
+   "tiktok": [
+    "P4589"
+   ],
+   "date": "2026-11-19",
+   "time": "20:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-19-3",
+   "fragments": [
+    "GEM-can-enjoy-life"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4590",
+   "tiktok": [
+    "P4591"
+   ],
+   "date": "2026-11-20",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-20-1",
+   "fragments": [
+    "GEM-phonetically"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4592",
+   "tiktok": [
+    "P4593"
+   ],
+   "date": "2026-11-20",
+   "time": "12:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-20-2",
+   "fragments": [
+    "TM-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4594",
+   "tiktok": [
+    "P4595"
+   ],
+   "date": "2026-11-20",
+   "time": "18:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-20-3",
+   "fragments": [
+    "C3-F28"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4596",
+   "tiktok": [
+    "P4597"
+   ],
+   "date": "2026-11-21",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-21-1",
+   "fragments": [
+    "GEM-cause-couldnt-because"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4598",
+   "tiktok": [
+    "P4599"
+   ],
+   "date": "2026-11-21",
+   "time": "16:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-21-2",
+   "fragments": [
+    "C3-F29"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4600",
+   "tiktok": [
+    "P4601"
+   ],
+   "date": "2026-11-21",
+   "time": "20:30",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-21-3",
+   "fragments": [
+    "GEM-youre-important-because"
+   ],
+   "voice": "silent",
+   "why": "control pair D: important gem voiced Nov 3, silent Nov 21",
+   "files": []
+  },
+  {
+   "placement": "P4602",
+   "tiktok": [
+    "P4603"
+   ],
+   "date": "2026-11-22",
+   "time": "07:25",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-22-1",
+   "fragments": [
+    "C3-F30"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4604",
+   "tiktok": [
+    "P4605"
+   ],
+   "date": "2026-11-22",
+   "time": "12:30",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-22-2",
+   "fragments": [
+    "GEM-felt"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4606",
+   "tiktok": [
+    "P4607"
+   ],
+   "date": "2026-11-22",
+   "time": "18:30",
+   "format": "voice-reel",
+   "slug": "px-2026-11-22-3",
+   "fragments": [
+    "W:WHOLE"
+   ],
+   "voice": "already",
+   "why": "his Wavy read-aloud",
+   "files": []
+  },
+  {
+   "placement": "P4608",
+   "tiktok": [
+    "P4609"
+   ],
+   "date": "2026-11-23",
+   "time": "07:25",
+   "format": "winner-rerun-reel",
+   "slug": "px-2026-11-23-1",
+   "fragments": [
+    "SPKF-F1"
+   ],
+   "voice": "silent",
+   "why": "spoken intro (SPKF-F1), not poem lines",
+   "files": []
+  },
+  {
+   "placement": "P4610",
+   "tiktok": [
+    "P4611"
+   ],
+   "date": "2026-11-23",
+   "time": "16:30",
+   "format": "stanza-carousel",
+   "slug": "px-2026-11-23-2",
+   "fragments": [
+    "GEM-climbing-mountain-descent"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4612",
+   "tiktok": [
+    "P4613"
+   ],
+   "date": "2026-11-23",
+   "time": "20:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-23-3",
+   "fragments": [
+    "GF-E2"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4614",
+   "tiktok": [
+    "P4615"
+   ],
+   "date": "2026-11-24",
+   "time": "07:25",
+   "format": "stanza-carousel",
+   "slug": "px-2026-11-24-1",
+   "fragments": [
+    "W5-P1"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4616",
+   "tiktok": [
+    "P4617"
+   ],
+   "date": "2026-11-24",
+   "time": "12:30",
+   "format": "kinetic-reel",
+   "slug": "px-2026-11-24-2",
+   "fragments": [
+    "GF-E3"
+   ],
+   "voice": "new",
+   "why": "",
+   "files": []
+  },
+  {
+   "placement": "P4618",
+   "tiktok": [
+    "P4619"
+   ],
+   "date": "2026-11-24",
+   "time": "18:30",
+   "format": "line-reel",
+   "slug": "px-2026-11-24-3",
+   "fragments": [
+    "GEM-view"
+   ],
+   "voice": "silent",
+   "why": "control pair B: view gem voiced Oct 29, silent Nov 24",
+   "files": []
+  },
+  {
+   "placement": "DP-F8-B",
+   "tiktok": [],
+   "date": "A/B",
+   "time": "",
+   "format": "hook-first reel",
+   "slug": "dp-f8-hook-first-2026-10-24",
+   "fragments": [
+    "DP-F8"
+   ],
+   "voice": "ab-test",
+   "why": "B side of the DP-F8 voice A/B",
+   "files": [
+    "04-posts/reels/dp-f8-hook-first-2026-10-24__ig_9x16.mp4",
+    "04-posts/reels/dp-f8-hook-first-2026-10-24__tt_9x16.mp4"
+   ]
+  }
+ ]
+}
