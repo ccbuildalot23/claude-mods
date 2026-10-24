@@ -1,0 +1,7 @@
+#!/bin/bash
+# Hybrid search over the grok-bridge. Offline, no telemetry.
+#   ./hs search "G2C-2026-10-19-002"     ./hs index     ./hs scoreboard     ./hs files
+DIR="$(cd "$(dirname "$0")" && pwd)"
+[ -x "$DIR/.venv/bin/python" ] || { echo "Not installed yet. Run: $DIR/install.sh"; exit 1; }
+export HF_HUB_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 ANONYMIZED_TELEMETRY=False TOKENIZERS_PARALLELISM=false
+exec "$DIR/.venv/bin/python" "$DIR/hs.py" "$@"

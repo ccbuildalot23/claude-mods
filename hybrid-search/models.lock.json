@@ -1,0 +1,4 @@
+{
+  "embedder": {"id": "sentence-transformers/all-MiniLM-L6-v2", "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41", "license": "apache-2.0"},
+  "reranker": {"id": "BAAI/bge-reranker-base", "revision": "2cfc18c9415c912f9d8155881c133215df768a70", "license": "mit"}
+}
