@@ -54,6 +54,8 @@ cd ~/Developer/claude-mods/apps && ./open.sh line-bank
 
 Not a plugin, but living here too: **voice-vault/** (voice memos and text dumps transcribed on the Mac and filed to the line bank or the Recovery vault). See `voice-vault/README.md`.
 
+Also not a plugin: **bridge-digest/**, a nightly launchd job (no AI) that writes a Bridge Digest and a Bridge Roster from the Grok bridge's front matter and heartbeats into the vault's `Second Brain/Meta/Bridge/`. See `bridge-digest/README.md`.
+
 Also here: **bridge-connect/** (a small MCP server so ChatGPT and Perplexity can send dated briefs to Grok or Claude Code through the grok-bridge and check receipts, scoped to four folders of their own, with the privacy check both ways). See `bridge-connect/README.md`.
 
 ## Tests

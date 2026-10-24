@@ -50,6 +50,7 @@ function bridge(on: Parameters<Parameters<typeof test>[1]>[1], airtableUp: boole
   const files: Record<string, string> = {
     [`${B}/to-claude/G2C-2026-10-22-001-cento.md`]: MSG,
     [`${B}/to-claude/G2C-2026-10-23-004-ack.md`]: NEW2,
+    [`${B}/to-claude/G2C-2026-10-22-003-v1.md`]: '# G2C-2026-10-22-003 recap\n\n## Status log\n- 2026-10-24 01:51 ET | acked: read.\n',
     [`${B}/status/claude.json`]: '{"agent":"claude-code","bridge":"v2.1","protocol_version_read":"2.1"}',
     [`${B}/status/airtable-pending.jsonl`]: PENDING,
   }
@@ -84,6 +85,7 @@ test('session start acks new messages, writes claude.json, updates the heartbeat
   const status = JSON.parse(files[`${B}/status/claude.json`] ?? '{}')
   expect(status.last_session_et).toBe('2026-10-24 01:43 ET')
   expect(status.open_to_claude).toBe(0)
+  expect(files[`${B}/to-claude/G2C-2026-10-22-003-v1.md`]).toBe('# G2C-2026-10-22-003 recap\n\n## Status log\n- 2026-10-24 01:51 ET | acked: read.\n')
   expect(status.airtable).toBe('ok')
   const created = calls.find(c => c.tool === 'create_records_for_table')
   const fields = (created?.args.records as { fields: Record<string, unknown> }[])[0]?.fields ?? {}

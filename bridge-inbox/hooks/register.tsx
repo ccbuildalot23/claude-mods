@@ -55,7 +55,8 @@ export function parse(file: string, text: string): Message {
     id: field('id') || file.replace(/\.md$/, ''),
     from: field('from'),
     topic: field('topic'),
-    status: field('status') || 'new',
+    // v1-style files carry no front matter; their status is the last Status log line's.
+    status: field('status') || [...text.matchAll(/^- [^\n|]*\|\s*([a-z]+):/gm)].pop()?.[1] || 'new',
     needsChris: field('needs_chris') || 'no',
     created: field('created_et'),
     body: text.replace(/^---\n[\s\S]*?\n---\n?/, '').slice(0, 6000),
