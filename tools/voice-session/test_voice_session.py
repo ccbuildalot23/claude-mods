@@ -109,6 +109,21 @@ class Plan(unittest.TestCase):
         self.assertEqual(V.stale_fragments(plan, {"X": {"text": "Let someone into all that darkness"}}), {})
         self.assertIn("X", V.stale_fragments(plan, {"X": {"text": "Let someone into the darkness"}}))
 
+    def test_stage_records_the_voiced_file_in_the_ledger(self):
+        try:
+            import asset_ledger as AL
+        except ImportError:
+            self.skipTest("asset_ledger not beside this script")
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f, led = os.path.join(d, "px-2026-10-26-1__ig_9x16.mp4"), os.path.join(d, "ledger.jsonl")
+            open(f, "wb").write(b"silent")
+            AL.Ledger(led).add(f, "px-2026-10-26-1__ig_9x16")
+            open(f, "wb").write(b"voiced")
+            self.assertEqual(V.record([f], led), 1)
+            version, info = AL.Ledger(led)._current("px-2026-10-26-1__ig_9x16")
+            self.assertEqual(version, AL.hash_file(f))
+
 
 if __name__ == "__main__":
     unittest.main()

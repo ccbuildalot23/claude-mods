@@ -686,9 +686,42 @@ def cmd_lay(only=None, plan=None, out=None, check=True):
 
 # ---------------------------------------------------------------- staging (his hand)
 
-def cmd_stage(plan=None, out=None):
+def ledger_keys(path, keys):
+    """The asset-ledger keys whose current version sits at path (else the key named after the file)."""
+    same = lambda p: p and (p == os.path.abspath(path) or os.path.realpath(p) == os.path.realpath(path))
+    hit = [key for key, k in keys.items() if k["current"] and same(k["versions"][k["current"]].get("path"))]
+    stem = os.path.splitext(os.path.basename(path))[0]
+    return hit or ([stem] if stem in keys else [])
+
+
+def record(paths, ledger=None):
+    """A voiced file is new bytes under the same ledger key; record it so validate doesn't flag "differs from file on
+    disk" (Oct 24, 2026: same rule as rebuild_unsafe.record)."""
+    try:
+        import asset_ledger as AL
+        L = AL.Ledger(ledger or AL.canonical_ledger())
+        keys = L._replay()
+    except Exception as e:
+        print(f"ledger not updated: {e}", flush=True)
+        return 0
+    n = 0
+    for path in paths:
+        found = ledger_keys(path, keys)
+        if not found:
+            print(f"ledger: no key for {os.path.basename(path)}; add it with labeau asset add", flush=True)
+        for key in found:
+            try:
+                L.add(path, key, by="labeau voice-session", note=f"his voice read {SESSION}; old copy in _pre-voice-{SESSION}/")
+                n += 1
+            except Exception as e:
+                print(f"ledger not updated for {os.path.basename(path)}: {e}", flush=True)
+    return n
+
+
+def cmd_stage(plan=None, out=None, ledger=None):
     plan = plan or load_plan()
     out = out or work_dir()
+    staged = []
     rows = list(csv.DictReader(open(os.path.join(out, "lay-report.csv"), encoding="utf-8")))
     posts = os.path.join(ASSETS, "04-posts")
     done = 0
@@ -708,8 +741,11 @@ def cmd_stage(plan=None, out=None):
             os.makedirs(os.path.dirname(keep), exist_ok=True)
             shutil.copy2(dst, keep)
         shutil.copy2(src, dst)
+        staged.append(dst)
         done += 1
-    print(f"staged {done} voiced files into 04-posts; originals kept in each folder's _pre-voice-{SESSION}/")
+    n = record(staged, ledger) if staged else 0
+    print(f"staged {done} voiced files into 04-posts; originals kept in each folder's _pre-voice-{SESSION}/; "
+          f"{n} recorded in the asset ledger")
 
 
 # ---------------------------------------------------------------- the plan
