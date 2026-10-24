@@ -19,15 +19,19 @@ SKIP = {".git", "node_modules", "vendor", "__pycache__", "backups", "data"}
 
 
 def locate(ops=OPS):
-    """render_motion.py lives wherever labeau-ops keeps its scripts (its HERE), with motion/ beside it; find that pair."""
-    found = []
+    """labeau-ops keeps render_motion.py in its scripts folder and the stanza template under motion/templates; find each
+    one on its own (exactly one of each, outside backups and vendored folders) instead of assuming where they sit."""
+    py, tpl = [], []
     for root, dirs, files in os.walk(ops):
         dirs[:] = [d for d in dirs if d not in SKIP and not d.startswith((".", "_", "tmp"))]
-        if "render_motion.py" in files and os.path.exists(os.path.join(root, "motion", "templates", "stanza", "index.html")):
-            found.append(root)
-    if len(found) != 1:
-        raise SystemExit(f"NOT CHANGED: expected one render_motion.py with motion/templates/stanza beside it under {ops}, found {found or 'none'}")
-    return os.path.join(found[0], "render_motion.py"), os.path.join(found[0], "motion", "templates", "stanza", "index.html")
+        if "render_motion.py" in files:
+            py.append(os.path.join(root, "render_motion.py"))
+        if "index.html" in files and root.replace(os.sep, "/").endswith("templates/stanza"):
+            tpl.append(os.path.join(root, "index.html"))
+    if len(py) != 1 or len(tpl) != 1:
+        raise SystemExit(f"NOT CHANGED: expected one render_motion.py and one templates/stanza/index.html under {ops}; "
+                         f"found scripts {py or 'none'} and templates {tpl or 'none'}")
+    return py[0], tpl[0]
 TAG = "hook-first (Oct 24, 2026)"
 BAK = ".bak-20261024-hookfirst"
 
@@ -105,7 +109,7 @@ def patch(path, edits):
 
 if __name__ == "__main__":
     PY, HTML = locate()
-    print("found", PY)
+    print("found", PY); print("found", HTML)
     for p in (PY, HTML):
         if not os.path.exists(p):
             raise SystemExit(f"missing {p}")
