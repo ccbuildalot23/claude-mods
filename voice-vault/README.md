@@ -28,6 +28,8 @@ Agents read only `cleared.csv` (written beside the library, cleared lines alone)
 
 blast-radius treats `share-candidates/` and `hierophant-lens/` as pen-rule folders: agents read them and never write there. Install once with `./install-gate.sh`, then `./wire-agents.sh` (points labeau-ops CLAUDE.md, Grok and Muse at the Lens and cleared.csv; safe to run twice). The installer covers the reader, Lens, launchd job, `harvest` command, a self-test on a made-up page and a mail login check; leaves the voice-vault job alone).
 
+**Strategy Lens (Oct 24, 2026):** `./wire-strategy-lens.sh` puts Chris's Strategy Lens beside the Hierophant Lens in labeau-ops CLAUDE.md and `~/.claude/CLAUDE.md` (backup first), copies his full text to `labeau-ops/data/strategy-lens/strategy-lens.md` (from `templates/strategy-lens.md`), and sends C2G/C2M notes so Grok and Muse add it; Grok's `research/strategy-lens.md` already briefed ChatGPT, Perplexity and Hermes. Safe to run twice.
+
 ## Guarantees
 - Transcription is local (mlx-whisper). If it is missing, the job stops and leaves the audio where it is; there is no cloud fallback.
 - The log (`state/voice-vault.log`) holds file names, routes and hashes, never what you said.
