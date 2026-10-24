@@ -19,19 +19,22 @@ step "Node.js (needed by ccusage and ccstatusline)"
 ensure_brew && ensure_node
 
 step "H2: official Anthropic plugin marketplace, pinned"
-MP="$HOME/.claude/plugins/marketplaces/claude-plugins-official"
-claude plugin marketplace list 2>/dev/null | grep -q "claude-plugins-official" || claude plugin marketplace add "$PLUGINS_REPO" >/dev/null
+[ -n "$(marketplace_dir claude-plugins-official)" ] || claude plugin marketplace add "$PLUGINS_REPO" >/dev/null
+MP="$(marketplace_dir claude-plugins-official)"
 if [ -d "$MP/.git" ]; then
   git -C "$MP" fetch -q origin "$PLUGINS_COMMIT" 2>/dev/null
   git -C "$MP" checkout -q "$PLUGINS_COMMIT" 2>/dev/null
-  [ "$(git -C "$MP" rev-parse HEAD)" = "$PLUGINS_COMMIT" ] && ok "marketplace at pinned commit ${PLUGINS_COMMIT:0:12}" || bad "marketplace not at pinned commit (at $(git -C "$MP" rev-parse --short HEAD))"
+  [ "$(git -C "$MP" rev-parse HEAD)" = "$PLUGINS_COMMIT" ] && ok "marketplace at pinned commit ${PLUGINS_COMMIT:0:12} ($MP)" || bad "marketplace not at pinned commit (at $(git -C "$MP" rev-parse --short HEAD))"
+elif [ -n "$MP" ]; then
+  note "marketplace at $MP is not a git folder; the pin is checked by hookify's version below"
+  ok "official marketplace added"
 else
-  bad "marketplace folder not found at $MP"
+  bad "claude-plugins-official marketplace could not be added"
 fi
 
 step "H2: hookify + security-guidance"
 for p in hookify security-guidance; do
-  claude plugin list 2>/dev/null | grep -q "$p@claude-plugins-official" || claude plugin install "$p@claude-plugins-official" --scope user >/dev/null
+  [ -n "$(plugin_status "$p@claude-plugins-official")" ] || claude plugin install "$p@claude-plugins-official" --scope user >/dev/null
 done
 HV="$(plugin_version hookify@claude-plugins-official)"; SV="$(plugin_version security-guidance@claude-plugins-official)"
 [ "$HV" = "${PLUGINS_COMMIT:0:12}" ] && [ "$(plugin_status hookify@claude-plugins-official)" = enabled ] && ok "works: hookify $HV enabled" || bad "hookify not enabled at ${PLUGINS_COMMIT:0:12} (got $HV)"

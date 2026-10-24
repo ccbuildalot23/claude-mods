@@ -130,12 +130,35 @@ register_rows() {
   "$PY" "$TK/bin/registers.py" "$PHASE"
 }
 
-# "enabled" / "disabled" / "" for a plugin id prefix such as hookify@claude-plugins-official.
-plugin_status() {
-  claude plugin list 2>/dev/null | awk -v id="$1" '$0 ~ "> "id {on=1; next} on && /^ *$/ {exit} on && /Status:/ {print ($0 ~ /disabled/ ? "disabled" : "enabled"); exit}'
+# "enabled" / "disabled" / "" for a plugin id such as hookify@claude-plugins-official, and its version.
+# Reads `claude plugin list --json` (the text layout differs between machines); user scope wins over others.
+plugin_field() {
+  claude plugin list --json 2>/dev/null | "$PY" -c '
+import json, sys
+want, field = sys.argv[1:3]
+try:
+    rows = [p for p in json.load(sys.stdin) if p.get("id") == want]
+except ValueError:
+    rows = []
+rows.sort(key=lambda p: p.get("scope") != "user")
+if rows:
+    p = rows[0]
+    print(("enabled" if p.get("enabled") else "disabled") if field == "status" else p.get("version", ""))
+' "$1" "$2"
 }
-plugin_version() {
-  claude plugin list 2>/dev/null | awk -v id="$1" '$0 ~ "> "id {on=1; next} on && /^ *$/ {exit} on && /Version:/ {print $2; exit}'
+plugin_status() { plugin_field "$1" status; }
+plugin_version() { plugin_field "$1" version; }
+
+# Folder a marketplace lives in, from `claude plugin marketplace list --json` ("" if not added).
+marketplace_dir() {
+  claude plugin marketplace list --json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    rows = json.load(sys.stdin)
+except ValueError:
+    rows = []
+print(next((m.get("installLocation") or m.get("path") or "" for m in rows if m.get("name") == sys.argv[1]), ""))
+' "$1"
 }
 
 finish() {
