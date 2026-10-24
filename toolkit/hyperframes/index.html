@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- 15-second 9:16 text video: Chris's lines over a backlit silhouette (no face, ever). Hook-first: his lines are
+     on screen at full strength in frame 1, inside the TikTok/IG/Gist safe zone (top 270, bottom 672, sides 120).
+     His words come in as the "rows" variable, one string per row, his breaks; nothing here writes words. -->
+<html data-composition-variables='[{"id":"rows","type":"string","label":"Rows (one per line, his words)","default":"Let someone into\nall that darkness\n\nThey’re bound to bring\nin a little light"}]'>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @font-face { font-family: Gloock; src: url(Gloock-Regular.ttf) format('truetype'); }
+    html, body { margin: 0; background: #36383F; }
+    #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #36383F; }
+    #stage { position: absolute; inset: 0; transform-origin: 50% 75%; }
+    #glow { position: absolute; inset: 0; opacity: .35; background: radial-gradient(circle at 50% 66%, #F2C98A 0%, #F2C98A55 18%, #36383F00 46%); }
+    #figure { position: absolute; inset: 0; }
+    #words { position: absolute; top: 330px; left: 120px; right: 120px; text-align: center; font-family: Gloock, serif; font-size: 74px; line-height: 1.2; color: #EEE3CD; white-space: pre; }
+    #mark { position: absolute; top: 400px; left: 120px; right: 120px; text-align: center; font-family: Gloock, serif; font-size: 64px; letter-spacing: .32em; color: #EEE3CD; opacity: 0; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-width="1080" data-height="1920" data-start="0" data-duration="15" data-fps="30">
+    <div id="stage">
+      <div id="glow"></div>
+      <svg id="figure" viewBox="0 0 1080 1920"><path fill="#0d0d10" d="M540 1010c-92 0-160 78-160 178 0 70 30 128 76 160-40 14-74 30-104 52-110 32-212 92-262 170-26 40-40 120-40 350h980c0-230-14-310-40-350-50-78-152-138-262-170-30-22-64-38-104-52 46-32 76-90 76-160 0-100-68-178-160-178z"/></svg>
+    </div>
+    <div id="words"></div>
+    <div id="mark">LABEAU</div>
+  </div>
+  <script src="vendor/gsap.min.js"></script>
+  <script>
+    const { rows } = window.__hyperframes ? window.__hyperframes.getVariables() : { rows: '' }
+    const words = document.getElementById('words')
+    words.textContent = rows
+    // The largest size up to 74 px at which his longest row fits the 840 px safe width (his breaks, never ours).
+    document.fonts.load('74px Gloock').then(() => {
+      const ctx = document.createElement('canvas').getContext('2d')
+      ctx.font = '74px Gloock'
+      const widest = Math.max(1, ...rows.split('\n').map(r => ctx.measureText(r).width))
+      words.style.fontSize = Math.min(74, Math.floor(74 * 840 / widest)) + 'px'
+    })
+    const tl = gsap.timeline({ paused: true })
+    tl.fromTo('#stage', { scale: 1 }, { scale: 1.06, duration: 15, ease: 'none' }, 0)
+    tl.fromTo('#glow', { opacity: 0.35 }, { opacity: 0.8, duration: 1.2, ease: 'power1.out' }, 0)
+    tl.to('#glow', { opacity: 1, duration: 13.8, ease: 'none' }, 1.2)
+    tl.to('#words', { opacity: 0, duration: 1 }, 12)
+    tl.to('#mark', { opacity: 1, duration: 1 }, 12)
+    tl.set({}, {}, 15)
+    window.__timelines = window.__timelines || {}
+    window.__timelines['root'] = tl
+  </script>
+</body>
+</html>

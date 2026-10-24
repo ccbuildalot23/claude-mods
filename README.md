@@ -65,6 +65,8 @@ Also not a plugin: **bridge-digest/**, a nightly launchd job (no AI) that writes
 
 Also here: **bridge-connect/** (a small MCP server so ChatGPT and Perplexity can send dated briefs to Grok or Claude Code through the grok-bridge and check receipts, scoped to four folders of their own, with the privacy check both ways). See `bridge-connect/README.md`.
 
+Also here: **toolkit/**, the LaBeau media toolkit from the Oct 24 "42 add-ons" plan: four Terminal phases that finish harness steps 2-3 (hookify, security-guidance, LaBeau hook rules, a staged deny-list, ccusage, ccstatusline) and install pinned ffmpeg, Node, Python, Puppeteer, Remotion, HyperFrames, GitHub CLI (read-only for agents) and find-skills (search only), each with its own pass/fail test. See `toolkit/README.md`.
+
 ## Tests
 Each mod has engine tests under `<mod>/tests/`. Run one with `claude plugin test <mod>`, or all with:
 ```
