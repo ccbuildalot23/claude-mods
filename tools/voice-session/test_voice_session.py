@@ -143,6 +143,9 @@ class Plan(unittest.TestCase):
             self.assertEqual(V.record([f], led), 1)
             version, info = AL.Ledger(led)._current("px-2026-10-26-1__ig_9x16")
             self.assertEqual(version, AL.hash_file(f))
+            n = len(open(led).readlines())
+            self.assertEqual(V.record([f], led), 1)  # a re-run counts the same bytes as recorded
+            self.assertEqual(len(open(led).readlines()), n)  # and adds no entry
 
 
 if __name__ == "__main__":

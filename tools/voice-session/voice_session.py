@@ -762,6 +762,9 @@ def record(paths, ledger=None):
             print(f"ledger: no key for {os.path.basename(path)}; add it with labeau asset add", flush=True)
         for key in found:
             try:
+                if keys.get(key, {}).get("current") == AL.hash_file(path):
+                    n += 1  # these exact bytes are already the current version: nothing to add
+                    continue
                 L.add(path, key, by="labeau voice-session", note=f"his voice read {SESSION}; old copy in _pre-voice-{SESSION}/")
                 n += 1
             except Exception as e:
