@@ -10,6 +10,8 @@
 #   ./bridge-connect.sh fixed-on           start both AIs on their fixed addresses (fixed-off stops them)
 #   ./bridge-connect.sh fixed-copy chatgpt copy a fixed address with its key (or perplexity)
 #   ./bridge-connect.sh status             show what is running and the newest briefs
+#   ./bridge-connect.sh chatgpt-retire     stop a link and keep it off through fixed-on (or perplexity-retire);
+#                                          chatgpt-unretire lets fixed-on start it again (Oct 29, 2026)
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 BRIDGE="$HOME/Developer/grok-bridge"
@@ -29,6 +31,7 @@ pick() {
   SERVICE="bridge-connect-$AGENT"
 }
 token() { security find-generic-password -s "$SERVICE" -a "$USER" -w 2>/dev/null; }
+retired() { [ -f "$RUN/$1.retired" ]; }
 alive() { [ -f "$RUN/$PRE$1.pid" ] && kill -0 "$(cat "$RUN/$PRE$1.pid")" 2>/dev/null; }
 address() { grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' "$RUN/${PRE}tunnel.log" | head -1 || true; }
 
@@ -86,6 +89,7 @@ host() { echo "$1-bridge.$DOMAIN"; }
 fixed_on() {
   [ -f "$CFG" ] || { echo "Run ./bridge-connect.sh fixed-setup first."; exit 1; }
   for a in chatgpt perplexity; do
+    retired "$a" && { echo "$a is retired; skipped (./bridge-connect.sh $a-unretire brings it back)"; continue; }
     pick "$a"
     if alive tunnel; then kill "$(cat "$RUN/${PRE}tunnel.pid")"; rm -f "$RUN/${PRE}tunnel.pid"; fi  # a quick link gives way
     if ! alive server; then
@@ -99,6 +103,7 @@ fixed_on() {
     echo $! >"$RUN/fixed-tunnel.pid"
   fi
   for a in chatgpt perplexity; do
+    retired "$a" && continue
     pick "$a"; TOK="$(token)"; CODE=000
     for _ in $(seq 1 20); do
       CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 -X POST "https://$(host "$a")/mcp/$TOK" -H 'Content-Type: application/json' \
@@ -185,6 +190,13 @@ EOF
 chatgpt-on|perplexity-on) pick "${1%-on}"; link_on ;;
 chatgpt-copy|perplexity-copy) pick "${1%-copy}"; link_copy ;;
 chatgpt-off|perplexity-off) pick "${1%-off}"; link_off ;;
+chatgpt-retire|perplexity-retire)
+  pick "${1%-retire}"; link_off; touch "$RUN/$AGENT.retired"
+  echo "$NAME is retired from the bridge: fixed-on will not start it. Undo: ./bridge-connect.sh $AGENT-unretire"
+  ;;
+chatgpt-unretire|perplexity-unretire)
+  pick "${1%-unretire}"; rm -f "$RUN/$AGENT.retired"; echo "$NAME can start again (fixed-on or $AGENT-on)."
+  ;;
 fixed-setup)
   command -v cloudflared >/dev/null || { echo "cloudflared is missing. Run: brew install cloudflared"; exit 1; }
   pick perplexity
@@ -217,6 +229,7 @@ fixed-copy)
 status)
   for a in chatgpt perplexity; do
     pick "$a"; alive tunnel && echo "$NAME quick link: on ($(address))" || echo "$NAME quick link: off"
+    retired "$a" && echo "$NAME: retired (fixed-on skips it)"
   done
   PRE="fixed-"; alive tunnel && echo "Fixed addresses: on ($(host chatgpt), $(host perplexity))" || echo "Fixed addresses: off"
   for d in from-chatgpt from-perplexity to-chatgpt to-perplexity; do
