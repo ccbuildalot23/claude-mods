@@ -147,5 +147,26 @@ class AlertSlotTest(unittest.TestCase):
         self.assertEqual(mc.alert_slot_due(dt.datetime(2026, 10, 23, 6, 35), log), "morning")
 
 
+
+class WatchdogTest(unittest.TestCase):
+    """Loop-engineering change 1 (Oct 29, 2026): labeau health cannot judge itself, so this card does."""
+    def test_never_run_stale_red_and_fresh(self):
+        sys.path.insert(0, HERE)
+        import mission_control as mc
+        p = os.path.join(tempfile.mkdtemp(), "health.json")
+        now = dt.datetime(2026, 10, 29, 8, 30)
+        self.assertEqual(mc.watchdog_card(now, p)["status"], "red")
+        json.dump({"checked_at": "2026-10-27T21:15:00", "overall": "GREEN", "checks": {}}, open(p, "w"))
+        self.assertIn("quiet", mc.watchdog_card(now, p)["headline"])
+        json.dump({"checked_at": "2026-10-29T06:50:00", "overall": "RED", "red": 1,
+                   "checks": {"heartbeats": {"red_lines": ["hermes: 5 days ago"]}}}, open(p, "w"))
+        c = mc.watchdog_card(now, p)
+        self.assertEqual(c["status"], "yellow")
+        self.assertIn("hermes: 5 days ago", c["details"])
+        json.dump({"checked_at": "2026-10-29T06:50:00", "overall": "GREEN", "checks": {}}, open(p, "w"))
+        self.assertEqual(mc.watchdog_card(now.astimezone(), p)["status"], "green")
+        self.assertIn("ink.labeau.pipeline-health", mc.EXPECTED_JOBS)
+
+
 if __name__ == "__main__":
     unittest.main()
