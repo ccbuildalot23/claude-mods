@@ -11,9 +11,9 @@ His ask (Oct 24, 2026): "I want to begin incorporating my voice in my videos goi
   - `onsets`: reads when each of his lines appears on screen in each staged video. It uses Apple Vision on the Mac and tesseract elsewhere, and caches the result in `data/voice/onsets.json`.
   - `cut <memo.m4a> [...]`: finds every passage in his Voice Memo(s) with whisper-cli on the Mac. If he stumbles and rereads, the last clean take wins. It cuts each line in the breath before the next one and lists any passage it couldn't find.
   - `lay`: places each line clip at the moment that line appears on screen. The first line starts inside the first second, and no line is heard before it shows. The voice is brought to -14 LUFS with peaks under -1.5 dB. The video stream is copied bit for bit (checked by md5), so safe zones and hook-first frames stay exactly as approved. If his read runs past the end, the last frame is held instead of cutting his voice. Each output is read back with `audio_readback` (whisper). Output goes to `03-review/voice/2026-10-25/out/`.
-  - `stage`: copies the voiced files over the originals in `04-posts` and keeps each original in `_pre-voice-2026-10-25/`. This is his hand, run from a paste.
+  - `stage`: copies the voiced files over the originals in `04-posts` and keeps each original in `_pre-voice-2026-10-25/`. Each voiced file is recorded in the asset ledger under its existing key, so `labeau validate` stays clean. This is his hand, run from a paste.
   - `selftest`: runs the whole chain on the Mac with a synthetic read (macOS `say`) that includes a stumble and a retake, on two real staged videos, in a temp folder. Nothing is staged.
-- `test_voice_session.py`: 15 unit tests. They cover finding takes, retakes, cut points, placement, line visibility, and stale words.
+- `test_voice_session.py`: 19 unit tests. They cover finding takes, retakes, cut points, placement, line visibility, and stale words.
 - `session-2026-10-25.json`: the plan. It has 57 passages (1,040 of his words, word for word from `fragments.csv`, overlapping fragments merged into one read) and 90 Instagram slots from Oct 26 to Nov 24, each with its TikTok twin.
   - 72 slots get his new read.
   - 5 already carry his read-alouds.
@@ -30,3 +30,10 @@ His ask (Oct 24, 2026): "I want to begin incorporating my voice in my videos goi
 - The DP-F8 B copy (`DP-F8-B`) is built into `03-review` for the A/B test and is never staged over the A file.
 - Slots after Nov 10 aren't built yet. Run `lay` again after each new batch is staged; the clips are kept.
 - Gems may be reworked the day before posting. When a fragment's words change, `lay` refuses that slot and says so, and a new read is needed.
+
+## Oct 24, 2026: his first real session
+
+- Lines he reads in one breath are cut as one clip (`runs` in `takes.json`) and laid at the first line's onset when the post shows all of them, so his phrasing has no seam in it.
+- When something unscripted sits between two lines (a "damn", a restart, the passage number read aloud), line i ends in the first pause after it and line i + 1 starts in the last pause before it, so the extra words are dropped.
+- A clip's start looks back only 0.45 s for a breath, so it can't catch the tail of a false start.
+- `asr_cloud.py` is the cloud stand-in for whisper-cli: sherpa-onnx with NeMo parakeet-tdt-0.6b-v2 int8, downloaded from the k2-fsa GitHub releases because Hugging Face is blocked in the cloud. It gives word times from token timestamps and works as a `TRANSCRIBE` swap.
