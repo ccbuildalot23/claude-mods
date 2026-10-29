@@ -32,7 +32,9 @@ EMAIL_TOMORROW_AT = "16:15"     # launchd ink.labeau.mail-daily
 EMAIL_LATE_AFTER = "16:30"      # tomorrow's email missing after this = red
 EMAIL_TODAY_CATCHUP = "06:30"   # today's email missing after this = red
 LOOKAHEAD_DAYS = 3              # tomorrow is red; the days after are yellow
-EXPECTED_JOBS = ["ink.labeau.mail-daily", "ink.labeau.captions-daily"]
+EXPECTED_JOBS = ["ink.labeau.mail-daily", "ink.labeau.captions-daily", "ink.labeau.pipeline-health"]
+HEALTH_JSON = os.path.join(OPS, "data", "pipeline", "health.json")
+WATCHDOG_STALE_HOURS = 26       # labeau health runs at 06:50 and 21:15; a day and a bit with no run = it went quiet
 PLACEHOLDERS = ("[YOUR WORDS", "[STORYTELLER WRITES", "_not written yet_", "[CAPTION", "TODO")
 SKIP_STATES = {"cancelled", "canceled", "dropped", "retired", "skipped", "void", "killed"}
 STILL_EXT = (".jpg", ".jpeg", ".png", ".heic", ".webp", ".gif")
@@ -287,6 +289,32 @@ def jobs_card():
     return card("jobs", "Background jobs", status, headline, details)
 
 
+def watchdog_card(now, path=None):
+    """Who watches the watchman (loop-engineering change 1, his yes Oct 29, 2026): `labeau health` does not judge
+    itself, so a quiet watchdog looked like a calm night. This card reads only health.json's time, overall and
+    red lines; it never re-runs the check."""
+    path = path or HEALTH_JSON
+    fix = "~/Developer/labeau-ops/bin/labeau health"
+    try:
+        with open(path, encoding="utf-8") as f:
+            rep = json.load(f)
+        when = dt.datetime.fromisoformat(rep["checked_at"])
+    except FileNotFoundError:
+        return card("watchdog", "Watchdog", "red", "Health check has never run", [path], fix)
+    except Exception as e:
+        return card("watchdog", "Watchdog", "red", "Health report unreadable", [f"{type(e).__name__}: {e}"[:120]], fix)
+    naive = now.replace(tzinfo=None) if now.tzinfo else now
+    hours = (naive - when.replace(tzinfo=None)).total_seconds() / 3600
+    ran = f"Last health check {when:%a %b %d %-I:%M %p}."
+    if hours > WATCHDOG_STALE_HOURS:
+        return card("watchdog", "Watchdog", "red", f"Health check quiet for {int(hours)} h", [ran], fix)
+    if rep.get("overall") == "RED":
+        lines = [l for c in rep.get("checks", {}).values() for l in c.get("red_lines", [])]
+        return card("watchdog", "Watchdog", "yellow", f"Health check found {rep.get('red', len(lines))} red",
+                    lines[:5] + [ran], "labeau health (the red lines also went to email)")
+    return card("watchdog", "Watchdog", "green", "Health check ran and found nothing red", [ran])
+
+
 def build(now):
     cards = [email_card(now)]
     try:
@@ -311,6 +339,7 @@ def build(now):
         for cid, title in (("captions", "Captions written"), ("assets", "Assets built"), ("tomorrow", "Tomorrow ready")):
             cards.append(card(cid, title, "red", "Checker couldn't read labeau-ops", [msg], "~/Developer/labeau-ops/.venv/bin/python ~/Developer/labeau-ops/scripts/mission_control.py --print --no-alert"))
     cards.append(jobs_card())
+    cards.append(watchdog_card(now))
     return {
         "version": 1,
         "generated_at": now.astimezone().isoformat(timespec="seconds"),
@@ -411,6 +440,19 @@ def notify_mac(title, text):
         pass
 
 
+def receipt(problems):
+    """The run's receipt (plan 1.3, Oct 27, 2026): launchd runs this every half hour and it left none, so a dead
+    Mission Control looked green. One ok row a day; every partial run is written. Never fatal."""
+    try:
+        import job_runs
+    except ImportError:
+        return None
+    status = "partial" if problems else "ok"
+    return job_runs.script_receipt("mission_control", status, errors="; ".join(problems)[:300],
+                                   source_access="launchd ink.labeau.mission-control",
+                                   output_path=STATE, once_a_day=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--now", help="pretend time, YYYY-MM-DDTHH:MM (tests)")
@@ -426,6 +468,7 @@ def main():
         write_outputs(status)
     log = os.path.join(STATE, "alerts.csv")
     slot = alert_slot_due(now, log)
+    problems = [drive_err] if drive_err else []
     if slot and status["overall"] == "red" and not a.no_alert:
         notify_mac("LaBeau Mission Control", alert_text(status)[0])
         try:
@@ -433,8 +476,11 @@ def main():
             result = "sent"
         except Exception as e:
             subj, result = alert_text(status)[0], f"FAILED {type(e).__name__}: {e}"[:200]
+            problems.append(f"alert email {result}")
         with open(log, "a", newline="", encoding="utf-8") as f:
             csv.writer(f).writerow([now.date().isoformat(), slot, now.isoformat(timespec="minutes"), subj, result])
+    if not a.now:   # a pretend time is a test or a replay, never a real run
+        receipt(problems)
     if a.print:
         print(f"overall: {status['overall'].upper()}  ({status['generated_at']})")
         for c in status["cards"]:
