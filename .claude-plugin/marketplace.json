@@ -98,6 +98,11 @@
       "name": "switchboard",
       "source": "./switchboard",
       "description": "Type /mods to see every mod in this session, switch Chris's mods on or off mid-chat, and block any other plugin from loading next time."
+    },
+    {
+      "name": "artist-team",
+      "source": "./artist-team",
+      "description": "Chris's artist support team as skills, in two lanes. LaBeau (the poet): grants and prizes tracker, reveal path. Chris the Artist (the rapper): Artist Manager, Craft & A&R Coach, live scene. Shared: Brand Builder, Community Builder, Knowledge Harvester. Notes go to the vault's Artist Support Team folder (bin/setup-vault.sh). Advice only: never writes his words, no agent outreach before 2027-06-15, nothing sent or paid without his yes. Uses no extra AI beyond the session."
     }
   ]
 }
