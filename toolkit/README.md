@@ -19,6 +19,13 @@ cd ~/Developer/claude-mods/toolkit
 ./phase4.sh      # GitHub CLI (read-only for agents), find-skills (search only), departments
 ```
 
+**Studio fold (Oct 30, 2026, Chris's yes):** `./studio-fold.sh --check` shows what would change; `./studio-fold.sh`
+snapshots `labeau-exec`, hands any open studio queue items to `exec-chair`, removes the Codex studio pod
+(`rig shrink <id> studio`) and installs the updated media-maker. media-maker now carries the studio still and
+motion contract (exact source, one render at a time, read-back, design-check, safe-zone) and a cost cap
+(at most 12 sampled frames per review, 2 fix rounds, no paid generation), because the studio's motion review drew
+OpenAI API credit on Oct 24 to 25. It stops before removing a seat if a snapshot or handoff fails, and prints its undo line.
+
 `./phase2.sh my-lines.txt` and `./phase3.sh my-lines.txt` use any text file of his instead of the sample
 (his posted Oct 22 lines). Carousel: one slide per paragraph. Video: one row per line, blank line for a gap.
 Outputs land in `out/`; logs in `logs/`. Neither is committed.
